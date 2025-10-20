@@ -237,6 +237,8 @@ npm run dev
 
 ### Quick Setup
 
+📺 **New!** Check out our [Video Tutorials](docs/tutorials/video-guides.md) for a visual guide to all features!
+
 1. **Build the extension:**
 
    ```bash
