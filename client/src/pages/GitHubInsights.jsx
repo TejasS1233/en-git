@@ -84,6 +84,7 @@ export default function GitHubInsightsPage() {
   const [progressReport, setProgressReport] = useState(null);
   const [timePeriod, setTimePeriod] = useState("month");
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(""); // Add state for timestamp
 
   useEffect(() => {
     setBookmarks(getBookmarks());
@@ -98,18 +99,24 @@ export default function GitHubInsightsPage() {
     }
   }, [urlUsername]);
 
-  async function fetchData(user) {
+  async function fetchData(user, refresh = false) { // Add refresh parameter
     setLoading(true);
+    setLastUpdated(""); // Reset timestamp on new fetch
     try {
-      const [ins, rec] = await Promise.all([
-        getGithubInsights(user),
-        getGithubRecommendations(user),
+      const [insResponse, recResponse] = await Promise.all([
+        getGithubInsights(user, refresh), // Pass refresh parameter
+        getGithubRecommendations(user, refresh), // Pass refresh parameter
       ]);
-      setInsights(ins.data);
-      setRecommendations(rec.data);
+      setInsights(insResponse.data); // Access the nested 'data' property
+      setRecommendations(recResponse.data); // Access the nested 'data' property
+
+      // Set the last updated timestamp from the response
+      const insTime = new Date(insResponse.lastUpdated);
+      const recTime = new Date(recResponse.lastUpdated);
+      setLastUpdated(insTime > recTime ? insTime.toLocaleString() : recTime.toLocaleString());
 
       // Add to search history
-      addToSearchHistory(user, ins.data.user);
+      addToSearchHistory(user, insResponse.data.user);
       setSearchHistory(getSearchHistory());
 
       toast.success("Insights loaded!");
@@ -282,7 +289,11 @@ export default function GitHubInsightsPage() {
 
         {/* Action Buttons */}
         {insights && (
-          <div className="flex justify-center gap-3">
+          <div className="flex justify-center items-center gap-3">
+            <Button variant="outline" onClick={() => fetchData(insights.user.login, true)}>
+              <History className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
             <Button variant="outline" onClick={toggleBookmark}>
               <Bookmark className={`h-4 w-4 mr-2 ${bookmarked ? "fill-current" : ""}`} />
               {bookmarked ? "Bookmarked" : "Bookmark Profile"}
@@ -329,6 +340,7 @@ export default function GitHubInsightsPage() {
               user={insights.user}
               reposCount={insights.reposCount}
               domain={insights.domain}
+              lastUpdated={lastUpdated} // Pass timestamp to summary component
             />
 
             <Tabs defaultValue="overview" className="w-full">
@@ -440,11 +452,12 @@ export default function GitHubInsightsPage() {
   );
 }
 
-function ProfileSummary({ user, reposCount, domain }) {
+function ProfileSummary({ user, reposCount, domain, lastUpdated }) { // Add lastUpdated prop
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row justify-between items-start">
         <CardTitle>Profile Summary</CardTitle>
+        {lastUpdated && <p className="text-sm text-muted-foreground">Last updated: {lastUpdated}</p>}
       </CardHeader>
       <CardContent className="flex items-start gap-6">
         <Avatar className="h-24 w-24">

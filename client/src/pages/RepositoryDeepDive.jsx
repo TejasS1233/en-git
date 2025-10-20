@@ -21,6 +21,7 @@ import {
   XCircle,
   Clock,
   Award,
+  History, // Import the History icon
 } from "lucide-react";
 import { getRepositoryInsights } from "@/lib/github";
 import { toast } from "sonner";
@@ -50,6 +51,7 @@ export default function RepositoryDeepDive() {
   const [repoInput, setRepoInput] = useState(repo || "");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(""); // Add state for timestamp
 
   // Auto-fetch when URL params are present
   useEffect(() => {
@@ -58,11 +60,13 @@ export default function RepositoryDeepDive() {
     }
   }, [owner, repo]);
 
-  async function fetchRepositoryWithParams(ownerParam, repoParam) {
+  async function fetchRepositoryWithParams(ownerParam, repoParam, refresh = false) { // Add refresh param
     setLoading(true);
+    setLastUpdated(""); // Reset on new fetch
     try {
-      const response = await getRepositoryInsights(ownerParam, repoParam);
-      setData(response.data);
+      const response = await getRepositoryInsights(ownerParam, repoParam, refresh); // Pass refresh param
+      setData(response.data); // Access nested data property
+      setLastUpdated(new Date(response.lastUpdated).toLocaleString()); // Set timestamp
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Failed to fetch repository data");
@@ -79,6 +83,7 @@ export default function RepositoryDeepDive() {
 
     setLoading(true);
     try {
+      // This initial fetch doesn't need refresh=true
       const response = await getRepositoryInsights(ownerInput, repoInput);
       setData(response.data);
       toast.success("Repository analyzed!");
@@ -180,10 +185,24 @@ export default function RepositoryDeepDive() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <Button variant="ghost" onClick={() => navigate("/")} className="mb-4 sm:mb-6">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Home
-      </Button>
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <Button variant="ghost" onClick={() => navigate("/")}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Button>
+        {/* Add Refresh Button and Timestamp here */}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => fetchRepositoryWithParams(owner, repo, true)}
+            disabled={loading}
+          >
+            <History className="h-4 w-4 mr-2" />
+            {loading ? "Refreshing..." : "Refresh"}
+          </Button>
+          {lastUpdated && <p className="text-sm text-muted-foreground hidden sm:block">Last updated: {lastUpdated}</p>}
+        </div>
+      </div>
 
       {/* Repository Header */}
       <Card className="mb-6">

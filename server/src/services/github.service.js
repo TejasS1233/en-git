@@ -2,7 +2,7 @@ import axios from "axios";
 import NodeCache from "node-cache";
 import pLimit from "p-limit";
 
-const cache = new NodeCache({ stdTTL: 60 * 5, checkperiod: 60 }); // 5 minutes
+const cache = new NodeCache({ checkperiod: 60 }); // TTL will be set per-item
 
 const gh = axios.create({
   baseURL: "https://api.github.com",
@@ -17,66 +17,116 @@ function authHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-async function cachedGet(key, url, params = {}) {
-  const hit = cache.get(key);
-  if (hit) return hit;
+async function cachedGet(key, url, { params = {}, ttl, refresh = false } = {}) {
+  if (!refresh) {
+    const hit = cache.get(key);
+    if (hit) return hit;
+  }
   const { data } = await gh.get(url, { params, headers: authHeader() });
-  cache.set(key, data);
-  return data;
+  const value = { data, lastUpdated: new Date().toISOString() };
+  cache.set(key, value, ttl);
+  return value;
 }
 
-export async function fetchUser(username) {
-  return cachedGet(`user:${username}`, `/users/${username}`);
+export async function fetchUser(username, refresh = false) {
+  const ttl = 60 * 60; // 1 hour
+  return cachedGet(`user:${username}`, `/users/${username}`, { ttl, refresh });
 }
 
-export async function fetchUserRepos(username, per_page = 100) {
+export async function fetchUserRepos(username, per_page = 100, refresh = false) {
   // paginate up to 300 repos
   const pages = [1, 2, 3];
   const limit = pLimit(2);
+  const ttl = 60 * 30; // 30 minutes
   const results = await Promise.all(
     pages.map((page) =>
       limit(() =>
         cachedGet(`repos:${username}:${page}`, `/users/${username}/repos`, {
-          per_page,
-          page,
-          sort: "updated",
+          params: {
+            per_page,
+            page,
+            sort: "updated",
+          },
+          ttl,
+          refresh,
         })
       )
     )
   );
-  return results.flat().filter(Boolean);
+  // Combine data from paginated results and find the most recent lastUpdated timestamp
+  const combinedData = results.map((r) => r.data).flat().filter(Boolean);
+  const lastUpdated = results.reduce((latest, current) => {
+    if (!current || !current.lastUpdated) return latest;
+    return new Date(current.lastUpdated) > new Date(latest) ? current.lastUpdated : latest;
+  }, new Date(0).toISOString());
+
+  return { data: combinedData, lastUpdated };
 }
 
-export async function fetchRepoLanguages(owner, repo) {
-  return cachedGet(`lang:${owner}/${repo}`, `/repos/${owner}/${repo}/languages`);
+export async function fetchRepoLanguages(owner, repo, refresh = false) {
+  const ttl = 60 * 30; // 30 minutes
+  return cachedGet(`lang:${owner}/${repo}`, `/repos/${owner}/${repo}/languages`, { ttl, refresh });
 }
 
-export async function fetchRepoStats(owner, repo) {
+export async function fetchRepoStats(owner, repo, refresh = false) {
+  const ttl = 60 * 30; // 30 minutes
   const [commits, issues, pulls] = await Promise.all([
-    cachedGet(`commits:${owner}/${repo}`, `/repos/${owner}/${repo}/commits`, { per_page: 100 }),
+    cachedGet(`commits:${owner}/${repo}`, `/repos/${owner}/${repo}/commits`, {
+      params: { per_page: 100 },
+      ttl,
+      refresh,
+    }),
     cachedGet(`issues:${owner}/${repo}`, `/repos/${owner}/${repo}/issues`, {
-      state: "all",
-      per_page: 100,
+      params: {
+        state: "all",
+        per_page: 100,
+      },
+      ttl,
+      refresh,
     }),
     cachedGet(`prs:${owner}/${repo}`, `/repos/${owner}/${repo}/pulls`, {
-      state: "all",
-      per_page: 100,
+      params: {
+        state: "all",
+        per_page: 100,
+      },
+      ttl,
+      refresh,
     }),
   ]);
-  return { commits, issues, pulls };
+
+  const lastUpdated = [commits, issues, pulls].reduce((latest, current) => {
+    if (!current || !current.lastUpdated) return latest;
+    return new Date(current.lastUpdated) > new Date(latest) ? current.lastUpdated : latest;
+  }, new Date(0).toISOString());
+
+  return {
+    data: {
+      commits: commits.data,
+      issues: issues.data,
+      pulls: pulls.data,
+    },
+    lastUpdated,
+  };
 }
 
-export async function fetchUserEvents(username) {
-  return cachedGet(`events:${username}`, `/users/${username}/events`, { per_page: 100 });
+export async function fetchUserEvents(username, refresh = false) {
+  const ttl = 60 * 30; // 30 minutes
+  return cachedGet(`events:${username}`, `/users/${username}/events`, {
+    params: { per_page: 100 },
+    ttl,
+    refresh,
+  });
 }
 
 // Lightweight trending scrape (no official API)
 import { load } from "cheerio";
 
-export async function fetchTrending(language = "", since = "daily") {
+export async function fetchTrending(language = "", since = "daily", refresh = false) {
   const key = `trending:${language}:${since}`;
-  const hit = cache.get(key);
-  if (hit) return hit;
+  if (!refresh) {
+    const hit = cache.get(key);
+    if (hit) return hit;
+  }
   const url = `https://github.com/trending${language ? "/" + encodeURIComponent(language) : ""}?since=${since}`;
   const { data: html } = await axios.get(url, { timeout: 15000 });
   const $ = load(html);
@@ -93,6 +143,7 @@ export async function fetchTrending(language = "", since = "daily") {
     const href = "https://github.com/" + fullName;
     if (fullName) items.push({ fullName, description, stars, language: lang, url: href });
   });
-  cache.set(key, items, 60 * 30); // 30 minutes
-  return items;
+  const value = { data: items, lastUpdated: new Date().toISOString() };
+  cache.set(key, value, 60 * 30); // 30 minutes
+  return value;
 }
