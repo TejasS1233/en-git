@@ -268,3 +268,28 @@ export const getAIInsights = asyncHandler(async (req, res) => {
     throw new ApiError(500, error.message || "Failed to generate AI insights");
   }
 });
+
+export const getGithubInsights = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  const refresh = req.query.refresh === "true";
+
+  // Example for fetching user and repos
+  const [userData, userLastUpdated] = await fetchUser(username, refresh);
+  const [reposData, reposLastUpdated] = await fetchUserRepos(username, refresh);
+
+  // Aggregate data and find the most recent timestamp
+  const data = {
+    user: userData,
+    repos: reposData,
+    // ... other insights data
+  };
+
+  const lastUpdated =
+    new Date(userLastUpdated) > new Date(reposLastUpdated)
+      ? userLastUpdated
+      : reposLastUpdated;
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { data, lastUpdated }, "Insights fetched successfully"));
+});

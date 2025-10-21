@@ -99,9 +99,9 @@ export default function GitHubInsightsPage() {
     }
   }, [urlUsername]);
 
-  async function fetchData(user, refresh = false) { // Add refresh parameter
+  async function fetchData(user, refresh = false) {
     setLoading(true);
-    setLastUpdated(""); // Reset timestamp on new fetch
+    setLastUpdated("");
     try {
       const [insResponse, recResponse] = await Promise.all([
         getGithubInsights(user, refresh), // Pass refresh parameter
@@ -290,11 +290,11 @@ export default function GitHubInsightsPage() {
         {/* Action Buttons */}
         {insights && (
           <div className="flex justify-center items-center gap-3">
-            <Button variant="outline" onClick={() => fetchData(insights.user.login, true)}>
+            <Button variant="outline" onClick={() => fetchData(insights.user.login, true)} disabled={loading}>
               <History className="h-4 w-4 mr-2" />
-              Refresh
+              {loading ? 'Refreshing...' : 'Refresh'}
             </Button>
-            <Button variant="outline" onClick={toggleBookmark}>
+            <Button variant="outline" onClick={toggleBookmark} disabled={loading}>
               <Bookmark className={`h-4 w-4 mr-2 ${bookmarked ? "fill-current" : ""}`} />
               {bookmarked ? "Bookmarked" : "Bookmark Profile"}
             </Button>

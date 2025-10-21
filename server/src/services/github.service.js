@@ -1,8 +1,9 @@
 import axios from "axios";
 import NodeCache from "node-cache";
 import pLimit from "p-limit";
+import { load } from "cheerio";
 
-const cache = new NodeCache({ checkperiod: 60 }); // TTL will be set per-item
+const cache = new NodeCache({ stdTTL: 60 * 30, checkperiod: 120 }); // Default 30 min TTL
 
 const gh = axios.create({
   baseURL: "https://api.github.com",
@@ -18,14 +19,23 @@ function authHeader() {
 }
 
 async function cachedGet(key, url, { params = {}, ttl, refresh = false } = {}) {
-  if (!refresh) {
+  if (refresh) {
+    cache.del(key);
+  } else {
     const hit = cache.get(key);
-    if (hit) return hit;
+    if (hit) return [hit.data, hit.lastUpdated];
   }
-  const { data } = await gh.get(url, { params, headers: authHeader() });
-  const value = { data, lastUpdated: new Date().toISOString() };
-  cache.set(key, value, ttl);
-  return value;
+
+  try {
+    const { data } = await gh.get(url, { params, headers: authHeader() });
+    const lastUpdated = new Date().toISOString();
+    cache.set(key, { data, lastUpdated }, ttl);
+    return [data, lastUpdated];
+  } catch (error) {
+    console.error(`Failed to fetch from GitHub API: ${url}`, error.message);
+    // On error, return empty data and a now timestamp to avoid caching failures
+    return [[], new Date().toISOString()];
+  }
 }
 
 export async function fetchUser(username, refresh = false) {
@@ -34,33 +44,30 @@ export async function fetchUser(username, refresh = false) {
 }
 
 export async function fetchUserRepos(username, per_page = 100, refresh = false) {
-  // paginate up to 300 repos
   const pages = [1, 2, 3];
   const limit = pLimit(2);
   const ttl = 60 * 30; // 30 minutes
+
   const results = await Promise.all(
     pages.map((page) =>
       limit(() =>
         cachedGet(`repos:${username}:${page}`, `/users/${username}/repos`, {
-          params: {
-            per_page,
-            page,
-            sort: "updated",
-          },
+          params: { per_page, page, sort: "updated" },
           ttl,
           refresh,
         })
       )
     )
   );
-  // Combine data from paginated results and find the most recent lastUpdated timestamp
-  const combinedData = results.map((r) => r.data).flat().filter(Boolean);
-  const lastUpdated = results.reduce((latest, current) => {
-    if (!current || !current.lastUpdated) return latest;
-    return new Date(current.lastUpdated) > new Date(latest) ? current.lastUpdated : latest;
-  }, new Date(0).toISOString());
 
-  return { data: combinedData, lastUpdated };
+  const combinedData = results.map(([data]) => data).flat().filter(Boolean);
+  const lastUpdated = results.reduce((latest, [, timestamp]) => {
+    if (!timestamp) return latest;
+    const currentTime = new Date(timestamp);
+    return currentTime > latest ? currentTime : latest;
+  }, new Date(0));
+
+  return [combinedData, lastUpdated.toISOString()];
 }
 
 export async function fetchRepoLanguages(owner, repo, refresh = false) {
@@ -117,9 +124,6 @@ export async function fetchUserEvents(username, refresh = false) {
     refresh,
   });
 }
-
-// Lightweight trending scrape (no official API)
-import { load } from "cheerio";
 
 export async function fetchTrending(language = "", since = "daily", refresh = false) {
   const key = `trending:${language}:${since}`;
