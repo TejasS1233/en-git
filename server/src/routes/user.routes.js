@@ -45,6 +45,7 @@ router.get(
   "/auth/google/callback",
   passport.authenticate("google", { session: false, failureRedirect: "/login" }),
   (req, res) => {
+    if (!req.user) return res.redirect("/login");
     const token = generateAccessToken(req.user);
     res
       .cookie("accessToken", token, {
@@ -53,7 +54,7 @@ router.get(
         sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       })
-      .redirect("http://localhost:3000");
+      .redirect("http://localhost:5173/auth/callback");
   }
 );
 
@@ -68,6 +69,7 @@ router.get(
   "/auth/github/callback",
   passport.authenticate("github", { session: false, failureRedirect: "/login" }),
   (req, res) => {
+    if (!req.user) return res.redirect("/login");
     const token = generateAccessToken(req.user);
     res
       .cookie("accessToken", token, {
@@ -76,7 +78,7 @@ router.get(
         sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       })
-      .redirect("http://localhost:3000");
+      .redirect("http://localhost:5173/auth/callback");
   }
 );
 
