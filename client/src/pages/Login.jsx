@@ -71,9 +71,24 @@ export default function Login() {
         <Logo className="h-9 w-9" />
         <p className="mt-4 text-xl font-bold tracking-tight text-center">Log in</p>
 
-        <Button className="mt-8 w-full gap-3">
+        <Button
+          className="mt-8 w-full gap-3"
+          onClick={() =>
+            (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/users/auth/google`)
+          }
+        >
           <GoogleLogo />
           Continue with Google
+        </Button>
+
+        <Button
+          className="mt-3 w-full gap-3 bg-[#24292e] text-white hover:bg-[#333]"
+          onClick={() =>
+            (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/users/auth/github`)
+          }
+        >
+          <GitHubLogo />
+          Continue with GitHub
         </Button>
 
         <div className="my-7 w-full flex items-center justify-center overflow-hidden">
@@ -160,6 +175,20 @@ function GoogleLogo() {
           <rect width="15.6825" height="16" fill="white" />
         </clipPath>
       </defs>
+    </svg>
+  );
+}
+
+function GitHubLogo() {
+  return (
+    <svg
+      width="1.2em"
+      height="1.2em"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      className="inline-block"
+    >
+      <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2 .37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.22 2.2.82a7.57 7.57 0 012-.27 7.57 7.57 0 012 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.74.54 1.49 0 1.07-.01 1.93-.01 2.19 0 .21.15.45.55.38A8 8 0 008 0z" />
     </svg>
   );
 }

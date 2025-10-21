@@ -10,6 +10,9 @@ import rateLimit from "express-rate-limit";
 const app = express();
 const httpServer = createServer(app);
 
+import passport from "./utils/passport.js";
+app.use(passport.initialize());
+
 // Allow multiple origins for CORS
 const allowedOrigins = [
   "http://localhost:3000",
