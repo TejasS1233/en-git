@@ -7,17 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import {
   Loader2,
   TrendingUp,
@@ -30,7 +20,43 @@ import {
   X,
   History,
 } from "lucide-react";
+import {
+  getBookmarks,
+  addBookmark,
+  removeBookmark,
+  isBookmarked,
+  getSearchHistory,
+  addToSearchHistory,
+  clearSearchHistory,
+} from "@/lib/localStorage";
+import { exportToPDF } from "@/lib/pdfExport";
+import { InsightsLoadingSkeleton } from "@/components/ui/skeleton-components";
+import { AIInsights } from "@/components/AIInsights";
+import { GamificationBadges } from "@/components/GamificationBadges";
+import { SkillRadarChart } from "@/components/SkillRadarChart";
+import { TechStackBadges } from "@/components/TechStackBadges";
+import { ShareCard } from "@/components/ShareCard";
+import { ContributionHeatmap } from "@/components/ContributionHeatmap";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HistoricalChart } from "@/components/HistoricalChart";
+import { TrendsComparison } from "@/components/TrendsComparison";
+import { ProgressReport } from "@/components/ProgressReport";
+import {
+  createStatsSnapshot,
+  getStatsComparison,
+  getStatsTrends,
+  getProgressReport,
+} from "@/lib/statsHistory";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 
 export default function GitHubInsightsPage() {
   const { username: urlUsername } = useParams();
