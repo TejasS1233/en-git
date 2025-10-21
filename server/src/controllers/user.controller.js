@@ -15,7 +15,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const accessToken = await user.generateAuthToken();
     const refreshToken = await user.generateRefreshToken();
     user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+    await user.save();
 
     return { accessToken, refreshToken };
   } catch (error) {
@@ -197,7 +197,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateCurrentUser = asyncHandler(async (req, res) => {
-  const { fullname, email, countryCode, phoneNumber, address } = req.body;
+  const { fullname, email, countryCode, phoneNumber, address, walletAddress } = req.body;
 
   if (!fullname || !email || !countryCode || !phoneNumber || !address) {
     throw new ApiError("Please provide all required fields", 400);
@@ -212,6 +212,7 @@ const updateCurrentUser = asyncHandler(async (req, res) => {
         countryCode,
         phoneNumber,
         address,
+        ...(walletAddress ? { walletAddress } : {}),
       },
     },
     { new: true }

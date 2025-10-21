@@ -26,7 +26,7 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
 
 ## ✨ Features
 
-### 📊 Core Analytics
+###  Core Analytics
 
 - **Language Analysis** - Top 3 programming languages with usage percentages
 - **Repository Insights** - Most starred & active repositories
@@ -49,6 +49,12 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
   - Issue Hunter
 - **Skill Radar Chart** - 6-dimensional visualization of technical expertise
 - **Tech Stack Badges** - Auto-generated shields.io badges for your README
+
+### Blockchain-Verified Credentials
+
+- **NFT Badges** - Mint milestone achievements as NFTs
+- **Smart Contract Verification** - API to verify on-chain ownership
+- **Portable Credentials** - Linked to your wallet address
 
 ### 🤖 AI-Powered Features
 
@@ -155,6 +161,12 @@ REFRESH_TOKEN_EXPIRY=7d
 
 # Optional: GitHub token for higher rate limits (5000/hr vs 60/hr)
 GITHUB_TOKEN=ghp_YourPersonalAccessToken
+
+# Blockchain (optional)
+BLOCKCHAIN_RPC_URL=https://sepolia.infura.io/v3/...
+WALLET_PRIVATE_KEY=0xYourMinterPrivateKey
+BADGE_CONTRACT_ADDRESS=0xYourBadgeContract
+BADGE_CHAIN_ID=11155111
 
 ```
 

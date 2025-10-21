@@ -16,6 +16,7 @@ export default function UserProfile() {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const [uploading, setUploading] = useState(false);
+  const [minting, setMinting] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -34,6 +35,26 @@ export default function UserProfile() {
   }, [id]);
 
   const capitalize = (word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : "");
+
+  const getExplorerUrl = (chainId, txHash) => {
+    if (!chainId || !txHash) return "#";
+    
+    const explorerMap = {
+      "1": "https://etherscan.io", // Ethereum Mainnet
+      "11155111": "https://sepolia.etherscan.io", // Sepolia Testnet
+      "137": "https://polygonscan.com", // Polygon Mainnet
+      "80001": "https://mumbai.polygonscan.com", // Polygon Mumbai Testnet
+      "56": "https://bscscan.com", // BSC Mainnet
+      "97": "https://testnet.bscscan.com", // BSC Testnet
+      "42161": "https://arbiscan.io", // Arbitrum One
+      "421614": "https://sepolia.arbiscan.io", // Arbitrum Sepolia
+      "10": "https://optimistic.etherscan.io", // Optimism
+      "420": "https://sepolia-optimism.etherscan.io", // Optimism Sepolia
+    };
+    
+    const baseUrl = explorerMap[chainId] || "https://etherscan.io";
+    return `${baseUrl}/tx/${txHash}`;
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -161,6 +182,16 @@ export default function UserProfile() {
               disabled={!editMode}
             />
           </div>
+          <div className="md:col-span-2">
+            <Label>Wallet Address (for blockchain credentials)</Label>
+            <Input
+              name="walletAddress"
+              value={formData.walletAddress || ""}
+              onChange={handleChange}
+              disabled={!editMode}
+              placeholder="0x..."
+            />
+          </div>
           <div>
             <Label>Role</Label>
             <Input value={capitalize(user.role)} disabled />
@@ -186,6 +217,31 @@ export default function UserProfile() {
           )}
         </div>
       </div>
+      {/* Credential Badges Section */}
+      {user?.credentialBadges?.length ? (
+        <div className="border rounded-lg p-6 bg-background shadow-sm">
+          <h3 className="text-lg font-medium mb-4">Blockchain Credentials</h3>
+          <div className="space-y-3">
+            {user.credentialBadges.map((b, i) => (
+              <div key={i} className="text-sm flex items-center justify-between gap-4 p-3 border rounded">
+                <div className="truncate">
+                  <div className="font-medium">{b.badgeId}</div>
+                  <div className="text-muted-foreground truncate">Token: {b.tokenId || "-"}</div>
+                  <div className="text-muted-foreground truncate">Tx: {b.txHash || "-"}</div>
+                </div>
+                <a
+                  className="text-primary underline text-xs"
+                  href={getExplorerUrl(b.chainId, b.txHash)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

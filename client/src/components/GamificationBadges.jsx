@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { Trophy, Award, Star, Zap } from "lucide-react";
 import { calculateBadges, getScoreFromBadges } from "../lib/gamification";
+import axiosInstance from "@/lib/axios";
+import { toast } from "sonner";
 
 const BADGE_ICONS = {
   Polyglot: "🌐",
@@ -28,6 +32,7 @@ const TIER_ICONS = {
 };
 
 export function GamificationBadges({ insights }) {
+  const [mintingId, setMintingId] = useState(null);
   const badges = calculateBadges(insights);
   const totalScore = getScoreFromBadges(badges);
 
@@ -76,6 +81,29 @@ export function GamificationBadges({ insights }) {
                 <div className="flex items-center gap-1 mt-2">
                   <Award className="h-3 w-3 text-yellow-600" />
                   <span className="text-xs font-medium text-yellow-600">+{badge.points} pts</span>
+                </div>
+                <div className="mt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={mintingId === badge.id}
+                    onClick={async () => {
+                      try {
+                        setMintingId(badge.id);
+                        const res = await axiosInstance.post("/badges/mint", {
+                          badgeId: badge.id,
+                          metadataURI: "",
+                        });
+                        toast.success("Badge minted on-chain");
+                      } catch (e) {
+                        toast.error(e?.response?.data?.message || "Failed to mint badge");
+                      } finally {
+                        setMintingId(null);
+                      }
+                    }}
+                  >
+                    {mintingId === badge.id ? "Minting..." : "Mint as NFT"}
+                  </Button>
                 </div>
               </div>
             </div>

@@ -314,10 +314,13 @@ export default function GitHubInsightsPage() {
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-bold">Historical Stats</h2>
                   <div className="flex gap-2">
-                    <Select value={timePeriod} onValueChange={(value) => {
-                      setTimePeriod(value);
-                      if (insights) loadHistoricalData(insights.user.login);
-                    }}>
+                    <Select
+                      value={timePeriod}
+                      onValueChange={(value) => {
+                        setTimePeriod(value);
+                        if (insights) loadHistoricalData(insights.user.login);
+                      }}
+                    >
                       <SelectTrigger className="w-[150px]">
                         <SelectValue placeholder="Time period" />
                       </SelectTrigger>
@@ -335,7 +338,9 @@ export default function GitHubInsightsPage() {
                   </div>
                 </div>
 
-                {loadingHistory && <div className="text-center py-8">Loading historical data...</div>}
+                {loadingHistory && (
+                  <div className="text-center py-8">Loading historical data...</div>
+                )}
 
                 {!loadingHistory && comparison && (
                   <TrendsComparison comparison={comparison} period={timePeriod} />
@@ -351,10 +356,18 @@ export default function GitHubInsightsPage() {
                       />
                     )}
                     {trends.repos?.length > 0 && (
-                      <HistoricalChart data={trends.repos} metricName="Repositories" color="#82ca9d" />
+                      <HistoricalChart
+                        data={trends.repos}
+                        metricName="Repositories"
+                        color="#82ca9d"
+                      />
                     )}
                     {trends.stars?.length > 0 && (
-                      <HistoricalChart data={trends.stars} metricName="Total Stars" color="#ffc658" />
+                      <HistoricalChart
+                        data={trends.stars}
+                        metricName="Total Stars"
+                        color="#ffc658"
+                      />
                     )}
                   </div>
                 )}
@@ -364,7 +377,9 @@ export default function GitHubInsightsPage() {
                 {!loadingHistory && !comparison && !trends && (
                   <Card>
                     <CardContent className="text-center py-12">
-                      <p className="text-muted-foreground mb-4">No historical data available yet.</p>
+                      <p className="text-muted-foreground mb-4">
+                        No historical data available yet.
+                      </p>
                       <Button onClick={handleCreateSnapshot}>Create First Snapshot</Button>
                     </CardContent>
                   </Card>
@@ -440,31 +455,21 @@ function LanguagesChart({ languages }) {
             </Badge>
           ))}
         </div>
-        <div className="h-[250px] w-full">
-          <ChartContainer
-            config={Object.fromEntries(
-              chartData.map(({ name }, i) => [name, { label: name, color: COLORS[i] }])
-            )}
-          >
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                >
-                  {chartData.map((_, idx) => (
-                    <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-                  ))}
-                </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </div>
+        <ChartContainer
+          config={Object.fromEntries(
+            chartData.map(({ name }, i) => [name, { label: name, color: COLORS[i] }])
+          )}
+          className="h-[250px] w-full"
+        >
+          <PieChart>
+            <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+              {chartData.map((_, idx) => (
+                <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+              ))}
+            </Pie>
+            <ChartTooltip content={<ChartTooltipContent />} />
+          </PieChart>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
@@ -564,19 +569,21 @@ function CommitTimingChart({ commitTimes }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[200px] w-full">
-          <ChartContainer config={{ count: { label: "Commits", color: "#8884d8" } }}>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </div>
+        <ChartContainer
+          config={{ count: { label: "Commits", color: "#8884d8" } }}
+          className="h-[200px] w-full"
+        >
+          <BarChart data={chartData} margin={{ top: 5, right: 20, left: 5, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
+            <YAxis />
+            <ChartTooltip
+              content={<ChartTooltipContent />}
+              cursor={{ fill: "rgba(136, 132, 216, 0.1)" }}
+            />
+            <Bar dataKey="count" fill="#8884d8" />
+          </BarChart>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
@@ -592,19 +599,18 @@ function WeeklyActivityChart({ weekly }) {
         <CardDescription>Public events over recent weeks</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[250px] w-full">
-          <ChartContainer config={{ count: { label: "Events", color: "#82ca9d" } }}>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </div>
+        <ChartContainer
+          config={{ count: { label: "Events", color: "#82ca9d" } }}
+          className="h-[250px] w-full"
+        >
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="week" />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Bar dataKey="count" fill="#82ca9d" />
+          </BarChart>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
@@ -628,7 +634,7 @@ function RecommendationsSection({ recommendations }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {trendingMatches.map((item, i) => (
+              {trendingMatches.slice(0, 5).map((item, i) => (
                 <div key={i} className="p-3 border rounded hover:bg-accent transition">
                   <a
                     href={item.url}
@@ -662,7 +668,7 @@ function RecommendationsSection({ recommendations }) {
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-3">
-              {personalIdeas.map((idea, i) => (
+              {personalIdeas.slice(0, 5).map((idea, i) => (
                 <div key={i} className="p-3 border rounded bg-muted/50">
                   <h3 className="font-semibold">{idea.title}</h3>
                   <p className="text-sm text-muted-foreground">{idea.description}</p>
@@ -683,7 +689,7 @@ function RecommendationsSection({ recommendations }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {trendingSample.map((item, i) => (
+              {trendingSample.slice(0, 5).map((item, i) => (
                 <div key={i} className="p-3 border rounded hover:bg-accent transition">
                   <a
                     href={item.url}
