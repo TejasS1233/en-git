@@ -23,15 +23,6 @@ import {
 } from "lucide-react";
 import { getGithubInsights } from "@/lib/github";
 import { toast } from "sonner";
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 
 export default function CompareUsers() {
   const { user1: urlUser1, user2: urlUser2 } = useParams();
@@ -43,8 +34,9 @@ export default function CompareUsers() {
   const [user2Data, setUser2Data] = useState(null);
   const [loading, setLoading] = useState(false);
   const [winner, setWinner] = useState(null);
-  const [user1LastUpdated, setUser1LastUpdated] = useState(""); // State for user 1 timestamp
-  const [user2LastUpdated, setUser2LastUpdated] = useState(""); // State for user 2 timestamp
+  const [user1LastUpdated, setUser1LastUpdated] = useState("");
+  const [user2LastUpdated, setUser2LastUpdated] = useState("");
+  const [error, setError] = useState(null); // Add error state
 
   useEffect(() => {
     if (urlUser1 && urlUser2) {
@@ -52,34 +44,40 @@ export default function CompareUsers() {
     }
   }, [urlUser1, urlUser2]);
 
-  async function fetchComparison(username1, username2, refresh = false) { // Add refresh parameter
+  async function fetchComparison(username1, username2, refresh = false) {
     if (!username1 || !username2) {
       toast.error("Please enter both usernames");
       return;
     }
 
     setLoading(true);
-    setUser1LastUpdated(""); // Reset timestamps
+    setError(null); // Clear previous errors
+    setUser1LastUpdated("");
     setUser2LastUpdated("");
     try {
       const [res1, res2] = await Promise.all([
-        getGithubInsights(username1, refresh), // Pass refresh parameter
-        getGithubInsights(username2, refresh), // Pass refresh parameter
+        getGithubInsights(username1, refresh),
+        getGithubInsights(username2, refresh),
       ]);
+
+      // Check for valid data in both responses
+      if (!res1?.data || !res2?.data) {
+        throw new Error("Could not fetch data for one or both users.");
+      }
 
       setUser1Data(res1.data);
       setUser2Data(res2.data);
-      setUser1LastUpdated(new Date(res1.lastUpdated).toLocaleString()); // Set timestamp
-      setUser2LastUpdated(new Date(res2.lastUpdated).toLocaleString()); // Set timestamp
+      setUser1LastUpdated(new Date(res1.lastUpdated).toLocaleString());
+      setUser2LastUpdated(new Date(res2.lastUpdated).toLocaleString());
 
-      // Calculate winner
       const scores = calculateScores(res1.data, res2.data);
       setWinner(scores);
 
-      toast.success("Comparison loaded!");
+      toast.success("Comparison complete!");
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to fetch user data");
+      setError("Failed to compare users. Please check the usernames and try again.");
+      toast.error("Failed to compare users.");
     } finally {
       setLoading(false);
     }
@@ -280,12 +278,14 @@ export default function CompareUsers() {
         <Button
           variant="outline"
           onClick={() => fetchComparison(urlUser1, urlUser2, true)}
-          disabled={loading}
+          disabled={loading || !urlUser1 || !urlUser2}
         >
           <History className="h-4 w-4 mr-2" />
           {loading ? "Refreshing..." : "Refresh"}
         </Button>
       </div>
+
+      {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
       {/* Winner Banner */}
       {winner && winner.user1 !== winner.user2 && (

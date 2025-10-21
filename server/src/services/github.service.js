@@ -23,18 +23,24 @@ async function cachedGet(key, url, { params = {}, ttl, refresh = false } = {}) {
     cache.del(key);
   } else {
     const hit = cache.get(key);
-    if (hit) return [hit.data, hit.lastUpdated];
+    // If we have a valid cache hit, return its data and timestamp
+    if (hit && hit.data) {
+      return [hit.data, hit.lastUpdated];
+    }
   }
 
   try {
     const { data } = await gh.get(url, { params, headers: authHeader() });
     const lastUpdated = new Date().toISOString();
-    cache.set(key, { data, lastUpdated }, ttl);
+    // Set cache only if data is valid
+    if (data) {
+      cache.set(key, { data, lastUpdated }, ttl);
+    }
     return [data, lastUpdated];
   } catch (error) {
-    console.error(`Failed to fetch from GitHub API: ${url}`, error.message);
-    // On error, return empty data and a now timestamp to avoid caching failures
-    return [[], new Date().toISOString()];
+    console.error(`GitHub API fetch failed for ${url}:`, error.message);
+    // On error, return null data and a current timestamp to prevent caching bad results
+    return [null, new Date().toISOString()];
   }
 }
 
@@ -60,12 +66,14 @@ export async function fetchUserRepos(username, per_page = 100, refresh = false) 
     )
   );
 
-  const combinedData = results.map(([data]) => data).flat().filter(Boolean);
-  const lastUpdated = results.reduce((latest, [, timestamp]) => {
-    if (!timestamp) return latest;
+  // Filter out null results from failed fetches before processing
+  const validResults = results.filter(([data]) => data !== null);
+  const combinedData = validResults.map(([data]) => data).flat();
+  
+  const lastUpdated = validResults.reduce((latest, [, timestamp]) => {
     const currentTime = new Date(timestamp);
     return currentTime > latest ? currentTime : latest;
-  }, new Date(0));
+  }, new Date(0)); // Start with epoch for correct comparison
 
   return [combinedData, lastUpdated.toISOString()];
 }

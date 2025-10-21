@@ -51,7 +51,8 @@ export default function RepositoryDeepDive() {
   const [repoInput, setRepoInput] = useState(repo || "");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(""); // Add state for timestamp
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [error, setError] = useState(null); // Add error state
 
   // Auto-fetch when URL params are present
   useEffect(() => {
@@ -60,16 +61,21 @@ export default function RepositoryDeepDive() {
     }
   }, [owner, repo]);
 
-  async function fetchRepositoryWithParams(ownerParam, repoParam, refresh = false) { // Add refresh param
+  async function fetchRepositoryWithParams(ownerParam, repoParam, refresh = false) {
     setLoading(true);
-    setLastUpdated(""); // Reset on new fetch
+    setError(null); // Clear previous errors
+    setLastUpdated("");
     try {
-      const response = await getRepositoryInsights(ownerParam, repoParam, refresh); // Pass refresh param
-      setData(response.data); // Access nested data property
-      setLastUpdated(new Date(response.lastUpdated).toLocaleString()); // Set timestamp
+      const response = await getRepositoryInsights(ownerParam, repoParam, refresh);
+      if (!response?.data) {
+        throw new Error("Received no data for this repository.");
+      }
+      setData(response.data);
+      setLastUpdated(new Date(response.lastUpdated).toLocaleString());
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to fetch repository data");
+      setError("Failed to load repository data.");
+      toast.error("Failed to load repository data.");
     } finally {
       setLoading(false);
     }
@@ -195,7 +201,7 @@ export default function RepositoryDeepDive() {
           <Button
             variant="outline"
             onClick={() => fetchRepositoryWithParams(owner, repo, true)}
-            disabled={loading}
+            disabled={loading || !owner || !repo}
           >
             <History className="h-4 w-4 mr-2" />
             {loading ? "Refreshing..." : "Refresh"}
@@ -203,6 +209,8 @@ export default function RepositoryDeepDive() {
           {lastUpdated && <p className="text-sm text-muted-foreground hidden sm:block">Last updated: {lastUpdated}</p>}
         </div>
       </div>
+
+      {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
       {/* Repository Header */}
       <Card className="mb-6">

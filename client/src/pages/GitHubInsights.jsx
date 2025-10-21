@@ -31,42 +31,6 @@ import {
   History,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  getBookmarks,
-  addBookmark,
-  removeBookmark,
-  isBookmarked,
-  getSearchHistory,
-  addToSearchHistory,
-  clearSearchHistory,
-} from "@/lib/localStorage";
-import { exportToPDF } from "@/lib/pdfExport";
-import { InsightsLoadingSkeleton } from "@/components/ui/skeleton-components";
-import { AIInsights } from "@/components/AIInsights";
-import { GamificationBadges } from "@/components/GamificationBadges";
-import { SkillRadarChart } from "@/components/SkillRadarChart";
-import { TechStackBadges } from "@/components/TechStackBadges";
-import { ShareCard } from "@/components/ShareCard";
-import { ContributionHeatmap } from "@/components/ContributionHeatmap";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HistoricalChart } from "@/components/HistoricalChart";
-import { TrendsComparison } from "@/components/TrendsComparison";
-import { ProgressReport } from "@/components/ProgressReport";
-import {
-  createStatsSnapshot,
-  getStatsComparison,
-  getStatsTrends,
-  getProgressReport,
-} from "@/lib/statsHistory";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 
 export default function GitHubInsightsPage() {
   const { username: urlUsername } = useParams();
@@ -79,12 +43,8 @@ export default function GitHubInsightsPage() {
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarks, setBookmarks] = useState([]);
   const [searchHistory, setSearchHistory] = useState([]);
-  const [comparison, setComparison] = useState(null);
-  const [trends, setTrends] = useState(null);
-  const [progressReport, setProgressReport] = useState(null);
-  const [timePeriod, setTimePeriod] = useState("month");
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(""); // Add state for timestamp
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [error, setError] = useState(null); // Add error state
 
   useEffect(() => {
     setBookmarks(getBookmarks());
@@ -95,22 +55,26 @@ export default function GitHubInsightsPage() {
     if (urlUsername) {
       fetchData(urlUsername);
       setBookmarked(isBookmarked(urlUsername));
-      loadHistoricalData(urlUsername);
     }
   }, [urlUsername]);
 
   async function fetchData(user, refresh = false) {
     setLoading(true);
+    setError(null); // Clear previous errors
     setLastUpdated("");
     try {
       const [insResponse, recResponse] = await Promise.all([
-        getGithubInsights(user, refresh), // Pass refresh parameter
-        getGithubRecommendations(user, refresh), // Pass refresh parameter
+        getGithubInsights(user, refresh),
+        getGithubRecommendations(user, refresh),
       ]);
-      setInsights(insResponse.data); // Access the nested 'data' property
-      setRecommendations(recResponse.data); // Access the nested 'data' property
 
-      // Set the last updated timestamp from the response
+      if (!insResponse?.data || !recResponse?.data) {
+        throw new Error("Received incomplete data from the server.");
+      }
+
+      setInsights(insResponse.data);
+      setRecommendations(recResponse.data);
+
       const insTime = new Date(insResponse.lastUpdated);
       const recTime = new Date(recResponse.lastUpdated);
       setLastUpdated(insTime > recTime ? insTime.toLocaleString() : recTime.toLocaleString());
@@ -122,7 +86,8 @@ export default function GitHubInsightsPage() {
       toast.success("Insights loaded!");
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to fetch insights");
+      setError("Failed to load insights. Please try again later.");
+      toast.error("Failed to load insights.");
     } finally {
       setLoading(false);
     }
@@ -166,37 +131,6 @@ export default function GitHubInsightsPage() {
     e?.preventDefault();
     if (!username.trim()) return toast.error("Please enter a GitHub username");
     navigate(`/stats/${username.trim()}`);
-  }
-
-  async function loadHistoricalData(user) {
-    setLoadingHistory(true);
-    try {
-      const [comparisonData, trendsData, reportData] = await Promise.all([
-        getStatsComparison(user, timePeriod).catch(() => null),
-        getStatsTrends(user, timePeriod, ["followers", "repos", "stars"]).catch(() => null),
-        getProgressReport(user, timePeriod).catch(() => null),
-      ]);
-
-      setComparison(comparisonData?.data);
-      setTrends(trendsData?.data);
-      setProgressReport(reportData?.data);
-    } catch (error) {
-      console.error("Failed to load historical data:", error);
-    } finally {
-      setLoadingHistory(false);
-    }
-  }
-
-  async function handleCreateSnapshot() {
-    if (!insights) return;
-    toast.promise(createStatsSnapshot(insights.user.login), {
-      loading: "Creating snapshot...",
-      success: () => {
-        loadHistoricalData(insights.user.login);
-        return "Snapshot created successfully!";
-      },
-      error: "Failed to create snapshot",
-    });
   }
 
   return (
@@ -306,33 +240,7 @@ export default function GitHubInsightsPage() {
         )}
 
         {loading && <InsightsLoadingSkeleton />}
-
-        {!insights && !loading && (
-          <div className="text-center space-y-6 py-16">
-            <h2 className="text-3xl font-bold">Discover Your GitHub Story</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Enter any GitHub username above to unlock detailed analytics, skill classifications,
-              trending project recommendations, and personalized insights about coding patterns.
-            </p>
-            <div className="flex gap-4 justify-center flex-wrap mt-8">
-              <Badge variant="outline" className="text-sm py-2 px-4">
-                Language Analytics
-              </Badge>
-              <Badge variant="outline" className="text-sm py-2 px-4">
-                Top Repositories
-              </Badge>
-              <Badge variant="outline" className="text-sm py-2 px-4">
-                Coding Patterns
-              </Badge>
-              <Badge variant="outline" className="text-sm py-2 px-4">
-                Smart Recommendations
-              </Badge>
-              <Badge variant="outline" className="text-sm py-2 px-4">
-                Skill Classification
-              </Badge>
-            </div>
-          </div>
-        )}
+        {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
         {insights && !loading && (
           <>
