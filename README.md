@@ -26,7 +26,7 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
 
 ## ✨ Features
 
-### 📊 Core Analytics
+###  Core Analytics
 
 - **Language Analysis** - Top 3 programming languages with usage percentages
 - **Repository Insights** - Most starred & active repositories
@@ -38,7 +38,16 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
 
 ### 🎮 Gamification & Achievements
 
-- **Achievement Badges** - Unlock badges based on your activity
+- **Achievement System** - Track your GitHub journey with 15+ achievements! 🏆
+  - 📊 **[View All Achievements Guide →](./ACHIEVEMENTS.md)**
+  - Follower milestones (Growing Community, Rising Star, Influencer)
+  - Repository achievements (Productive, Prolific Creator)
+  - Star milestones (Great Work, Popular Project, Century Club)
+  - Fork achievements (Developers Love Your Code)
+  - Special achievements (Steady Growth, Explosive Growth)
+  - **Three Tiers**: Minor, Medium, and Major (Epic!) achievements
+  - Beautiful color-coded cards with icons
+- **Legacy Badges** - Activity-based badges
   - Polyglot (Bronze/Silver/Gold)
   - Night Owl / 🐦 Early Bird
   - Open Source Hero
@@ -49,6 +58,13 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
   - Issue Hunter
 - **Skill Radar Chart** - 6-dimensional visualization of technical expertise
 - **Tech Stack Badges** - Auto-generated shields.io badges for your README
+- **Progress Reports** - Track growth over time with detailed achievement summaries
+
+### Blockchain-Verified Credentials
+
+- **NFT Badges** - Mint milestone achievements as NFTs
+- **Smart Contract Verification** - API to verify on-chain ownership
+- **Portable Credentials** - Linked to your wallet address
 
 ### 🤖 AI-Powered Features
 
@@ -156,6 +172,12 @@ REFRESH_TOKEN_EXPIRY=7d
 # Optional: GitHub token for higher rate limits (5000/hr vs 60/hr)
 GITHUB_TOKEN=ghp_YourPersonalAccessToken
 
+# Blockchain (optional)
+BLOCKCHAIN_RPC_URL=https://sepolia.infura.io/v3/...
+WALLET_PRIVATE_KEY=0xYourMinterPrivateKey
+BADGE_CONTRACT_ADDRESS=0xYourBadgeContract
+BADGE_CHAIN_ID=11155111
+
 ```
 
 Create `client/.env`:
@@ -203,7 +225,7 @@ npm run dev
 3. Click **Analyze**
 4. View:
    - **Profile Summary**: avatar, bio, followers, domain classification
-   - **Top Languages**: pie chart with percentages
+   - **Top Languages**: pie chart with percentages (small languages grouped into "Other")
    - **Most Starred/Active Repos**: ranked lists
    - **Popular Topics**: tag cloud
    - **Commit Timing**: hourly bar chart + profile badge (early-bird / night-coder)
@@ -213,11 +235,24 @@ npm run dev
      - Personal project ideas based on your top topics
      - Today's trending repos
 
+### 🏆 Track Your Progress
+
+5. Switch to the **History** tab to:
+   - **Capture Snapshots** - Save your current GitHub stats
+   - **View Trends** - See followers, repos, and stars over time
+   - **Unlock Achievements** - Earn badges as you grow! 🎉
+   - **Progress Reports** - Detailed summaries with all achievements
+   - **Compare Stats** - "Then vs Now" comparisons
+
+**📖 [Learn about all available achievements →](./ACHIEVEMENTS.md)**
+
 **Tips:**
 
 - Add a `GITHUB_TOKEN` to `.env` for higher API rate limits (5000/hr)
 - Without a token, public API allows 60 requests/hour
 - Results are cached for 5 minutes server-side to reduce API calls
+- Capture snapshots weekly or monthly for best trend visualization
+- Check your Progress Report to see unlocked achievements!
 
 ---
 
@@ -254,24 +289,33 @@ npm run dev
 
 ```
 Github/
-├── client/            # React frontend
-│   ├── src/
-│   │   ├── components/   # UI components (shadcn)
-│   │   ├── pages/        # Routes (Home, Dashboard, GitHubInsights, etc.)
-│   │   ├── lib/          # axios, github, auth, utils
-│   │   └── ...
-│   └── package.json
-├── server/            # Express backend
-│   ├── src/
-│   │   ├── controllers/  # Route handlers
-│   │   ├── routes/       # Express routes
-│   │   ├── models/       # Mongoose schemas
-│   │   ├── services/     # External APIs (github.service.js)
-│   │   ├── utils/        # Helpers (githubAnalytics, skillDomain, etc.)
-│   │   └── app.js
-│   └── package.json
 ├── README.md
-└── start_dev.bat
+├── ACHIEVEMENTS.md          # 🏆 Complete achievements guide
+├── LICENSE
+│
+├── client/                  # React + Vite Frontend
+│   ├── src/
+│   │   ├── pages/          # GitHubInsights, Dashboard, Profile, etc.
+│   │   ├── components/     # Charts, heatmaps, badges, AI insights
+│   │   ├── lib/            # GitHub API, auth, utils
+│   │   └── context/        # React contexts
+│   └── package.json
+│
+├── server/                  # Node.js + Express Backend
+│   ├── src/
+│   │   ├── controllers/    # Route handlers
+│   │   ├── services/       # GitHub API, snapshots, AI
+│   │   ├── models/         # MongoDB schemas
+│   │   ├── routes/         # API endpoints
+│   │   ├── utils/          # Analytics, helpers
+│   │   └── middlewares/    # Auth, file uploads
+│   └── package.json
+│
+└── chrome-extension/        # Browser Extension
+    ├── manifest.json
+    ├── popup.html/js
+    ├── settings.html/js
+    └── content.js           # GitHub page injections
 ```
 
 ---

@@ -56,6 +56,45 @@ const userSchema = new Schema(
     refreshToken: String,
     googleId: { type: String, unique: true, sparse: true },
     githubId: { type: String, unique: true, sparse: true },
+    refreshToken: {
+      type: String,
+    },
+    githubUsername: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    lastSnapshotDate: {
+      type: Date,
+    },
+    snapshotFrequency: {
+      type: String,
+      enum: ["daily", "weekly", "monthly"],
+      default: "weekly",
+    },
+    walletAddress: {
+      type: String,
+      trim: true,
+      validate: {
+        validator: function(v) {
+          if (!v) return true; // Allow empty wallet address
+          // Basic Ethereum address validation (42 chars, starts with 0x)
+          return /^0x[a-fA-F0-9]{40}$/.test(v);
+        },
+        message: 'Invalid Ethereum wallet address format'
+      },
+      index: true,
+    },
+    credentialBadges: [
+      {
+        badgeId: { type: String, required: true },
+        tokenId: { type: String },
+        txHash: { type: String },
+        chainId: { type: String },
+        metadataURI: { type: String },
+        mintedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );

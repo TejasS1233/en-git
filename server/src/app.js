@@ -37,10 +37,11 @@ app.set("io", io);
 app.use(helmet());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // Increased from 100 to 500 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
 
@@ -72,6 +73,8 @@ import chatbotRoutes from "./routes/chat.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import githubRouter from "./routes/github.routes.js";
 import repositoryRouter from "./routes/repository.routes.js";
+import statsHistoryRouter from "./routes/statsHistory.routes.js";
+import badgeRouter from "./routes/badge.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -80,6 +83,8 @@ app.use("/api/v1/chatbot", chatbotRoutes);
 app.use("/api/v1/chat", chatRouter);
 app.use("/api/v1/github", githubRouter);
 app.use("/api/v1/repository", repositoryRouter);
+app.use("/api/v1/stats", statsHistoryRouter);
+app.use("/api/v1/badges", badgeRouter);
 
 io.on("connection", (socket) => {
   console.log(`Socket.IO client connected: ${socket.id}`);
