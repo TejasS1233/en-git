@@ -67,6 +67,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { validateGithubUsername } from "@/lib/utils";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 
@@ -83,6 +84,7 @@ export default function GitHubInsightsPage() {
   const [searchHistory, setSearchHistory] = useState([]);
   const [lastUpdated, setLastUpdated] = useState("");
   const [error, setError] = useState(null);
+  const [usernameError, setUsernameError] = useState("");
 
   // Historical data states
   const [timePeriod, setTimePeriod] = useState("month");
@@ -98,7 +100,13 @@ export default function GitHubInsightsPage() {
 
   useEffect(() => {
     if (urlUsername) {
-      fetchData(urlUsername);
+      // Validate URL param before fetching
+      const res = validateGithubUsername(urlUsername);
+      if (!res.valid) {
+        setError(res.message);
+        return;
+      }
+      fetchData(res.value);
       setBookmarked(isBookmarked(urlUsername));
     }
   }, [urlUsername]);
@@ -177,8 +185,14 @@ export default function GitHubInsightsPage() {
 
   async function handleFetch(e) {
     e?.preventDefault();
-    if (!username.trim()) return toast.error("Please enter a GitHub username");
-    navigate(`/stats/${username.trim()}`);
+    const res = validateGithubUsername(username);
+    if (!res.valid) {
+      setUsernameError(res.message);
+      toast.error(res.message);
+      return;
+    }
+    setUsernameError("");
+    navigate(`/stats/${res.value}`);
   }
 
   async function loadHistoricalData(user) {
@@ -253,14 +267,28 @@ export default function GitHubInsightsPage() {
               <Input
                 placeholder="octocat"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setUsername(val);
+                  const res = validateGithubUsername(val);
+                  setUsernameError(res.valid || val.trim() === "" ? "" : res.message);
+                }}
                 disabled={loading}
               />
-              <Button type="submit" disabled={loading}>
+              <Button
+                type="submit"
+                disabled={loading || !!usernameError || username.trim() === ""}
+                aria-disabled={loading || !!usernameError || username.trim() === ""}
+              >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Analyze
               </Button>
             </form>
+            {usernameError && (
+              <p className="text-sm text-red-500 mt-1" role="alert">
+                {usernameError}
+              </p>
+            )}
 
             {/* Search History */}
             {searchHistory.length > 0 && !urlUsername && (

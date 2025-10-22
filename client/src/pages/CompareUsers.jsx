@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { getGithubInsights } from "@/lib/github";
 import { toast } from "sonner";
+import { validateGithubUsername } from "@/lib/utils";
 
 export default function CompareUsers() {
   const { user1: urlUser1, user2: urlUser2 } = useParams();
@@ -37,10 +38,18 @@ export default function CompareUsers() {
   const [user1LastUpdated, setUser1LastUpdated] = useState("");
   const [user2LastUpdated, setUser2LastUpdated] = useState("");
   const [error, setError] = useState(null); // Add error state
+  const [user1Error, setUser1Error] = useState("");
+  const [user2Error, setUser2Error] = useState("");
 
   useEffect(() => {
     if (urlUser1 && urlUser2) {
-      fetchComparison(urlUser1, urlUser2);
+      const v1 = validateGithubUsername(urlUser1);
+      const v2 = validateGithubUsername(urlUser2);
+      if (!v1.valid || !v2.valid) {
+        setError(!v1.valid ? v1.message : v2.message);
+        return;
+      }
+      fetchComparison(v1.value, v2.value);
     }
   }, [urlUser1, urlUser2]);
 
@@ -85,9 +94,18 @@ export default function CompareUsers() {
 
   function handleCompare(e) {
     e.preventDefault();
-    if (user1Input && user2Input) {
-      navigate(`/compare/${user1Input}/${user2Input}`);
+    const v1 = validateGithubUsername(user1Input);
+    const v2 = validateGithubUsername(user2Input);
+    if (!v1.valid || !v2.valid) {
+      const msg = !v1.valid ? v1.message : v2.message;
+      setUser1Error(!v1.valid ? v1.message : "");
+      setUser2Error(!v2.valid ? v2.message : "");
+      toast.error(msg);
+      return;
     }
+    setUser1Error("");
+    setUser2Error("");
+    navigate(`/compare/${v1.value}/${v2.value}`);
   }
 
   function calculateScores(data1, data2) {
@@ -231,21 +249,58 @@ export default function CompareUsers() {
                     <Input
                       placeholder="octocat"
                       value={user1Input}
-                      onChange={(e) => setUser1Input(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUser1Input(val);
+                        const res = validateGithubUsername(val);
+                        setUser1Error(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {user1Error && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {user1Error}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">User 2</label>
                     <Input
                       placeholder="torvalds"
                       value={user2Input}
-                      onChange={(e) => setUser2Input(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUser2Input(val);
+                        const res = validateGithubUsername(val);
+                        setUser2Error(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {user2Error && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {user2Error}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={
+                    loading ||
+                    !!user1Error ||
+                    !!user2Error ||
+                    !user1Input.trim() ||
+                    !user2Input.trim()
+                  }
+                  aria-disabled={
+                    loading ||
+                    !!user1Error ||
+                    !!user2Error ||
+                    !user1Input.trim() ||
+                    !user2Input.trim()
+                  }
+                >
                   {loading ? (
                     <>
                       <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -321,7 +376,9 @@ export default function CompareUsers() {
               <div className="flex-1">
                 <CardTitle>{user1Data.user.name || user1Data.user.login}</CardTitle>
                 <CardDescription>@{user1Data.user.login}</CardDescription>
-                <p className="text-xs text-muted-foreground mt-1">Last updated: {user1LastUpdated}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last updated: {user1LastUpdated}
+                </p>
                 {winner?.user1 > winner?.user2 && (
                   <Badge className="mt-2 bg-green-500">
                     <Trophy className="h-3 w-3 mr-1" />
@@ -363,7 +420,9 @@ export default function CompareUsers() {
               <div className="flex-1">
                 <CardTitle>{user2Data.user.name || user2Data.user.login}</CardTitle>
                 <CardDescription>@{user2Data.user.login}</CardDescription>
-                <p className="text-xs text-muted-foreground mt-1">Last updated: {user2LastUpdated}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last updated: {user2LastUpdated}
+                </p>
                 {winner?.user2 > winner?.user1 && (
                   <Badge className="mt-2 bg-green-500">
                     <Trophy className="h-3 w-3 mr-1" />

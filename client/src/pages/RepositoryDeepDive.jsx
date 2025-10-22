@@ -40,6 +40,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { validateRepoOwner, validateRepoName } from "@/lib/utils";
 
 const COLORS = ["#667eea", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899"];
 
@@ -53,11 +54,19 @@ export default function RepositoryDeepDive() {
   const [data, setData] = useState(null);
   const [lastUpdated, setLastUpdated] = useState("");
   const [error, setError] = useState(null); // Add error state
+  const [ownerError, setOwnerError] = useState("");
+  const [repoError, setRepoError] = useState("");
 
   // Auto-fetch when URL params are present
   useEffect(() => {
     if (owner && repo) {
-      fetchRepositoryWithParams(owner, repo);
+      const ownRes = validateRepoOwner(owner);
+      const repRes = validateRepoName(repo);
+      if (!ownRes.valid || !repRes.valid) {
+        setError(!ownRes.valid ? ownRes.message : repRes.message);
+        return;
+      }
+      fetchRepositoryWithParams(ownRes.value, repRes.value);
     }
   }, [owner, repo]);
 
@@ -82,18 +91,23 @@ export default function RepositoryDeepDive() {
   }
 
   async function fetchRepository() {
-    if (!ownerInput || !repoInput) {
-      toast.error("Please enter both owner and repository name");
+    const ownRes = validateRepoOwner(ownerInput);
+    const repRes = validateRepoName(repoInput);
+    if (!ownRes.valid || !repRes.valid) {
+      const message = !ownRes.valid ? ownRes.message : repRes.message;
+      setOwnerError(!ownRes.valid ? ownRes.message : "");
+      setRepoError(!repRes.valid ? repRes.message : "");
+      toast.error(message);
       return;
     }
 
     setLoading(true);
     try {
       // This initial fetch doesn't need refresh=true
-      const response = await getRepositoryInsights(ownerInput, repoInput);
+      const response = await getRepositoryInsights(ownRes.value, repRes.value);
       setData(response.data);
       toast.success("Repository analyzed!");
-      navigate(`/repo/${ownerInput}/${repoInput}`);
+      navigate(`/repo/${ownRes.value}/${repRes.value}`);
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Failed to fetch repository data");
@@ -143,21 +157,58 @@ export default function RepositoryDeepDive() {
                     <Input
                       placeholder="facebook"
                       value={ownerInput}
-                      onChange={(e) => setOwnerInput(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setOwnerInput(val);
+                        const res = validateRepoOwner(val);
+                        setOwnerError(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {ownerError && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {ownerError}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Repository</label>
                     <Input
                       placeholder="react"
                       value={repoInput}
-                      onChange={(e) => setRepoInput(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setRepoInput(val);
+                        const res = validateRepoName(val);
+                        setRepoError(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {repoError && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {repoError}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <Button onClick={fetchRepository} className="w-full" disabled={loading}>
+                <Button
+                  onClick={fetchRepository}
+                  className="w-full"
+                  disabled={
+                    loading ||
+                    !!ownerError ||
+                    !!repoError ||
+                    !ownerInput.trim() ||
+                    !repoInput.trim()
+                  }
+                  aria-disabled={
+                    loading ||
+                    !!ownerError ||
+                    !!repoError ||
+                    !ownerInput.trim() ||
+                    !repoInput.trim()
+                  }
+                >
                   {loading ? (
                     <>
                       <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -206,7 +257,11 @@ export default function RepositoryDeepDive() {
             <History className="h-4 w-4 mr-2" />
             {loading ? "Refreshing..." : "Refresh"}
           </Button>
-          {lastUpdated && <p className="text-sm text-muted-foreground hidden sm:block">Last updated: {lastUpdated}</p>}
+          {lastUpdated && (
+            <p className="text-sm text-muted-foreground hidden sm:block">
+              Last updated: {lastUpdated}
+            </p>
+          )}
         </div>
       </div>
 
