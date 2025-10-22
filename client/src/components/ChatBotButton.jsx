@@ -89,8 +89,8 @@ const ChatBotButton = () => {
         <PopoverContent
           side="top"
           align="end"
-          sideOffset={12}
-          className="w-[90vw] max-w-[400px] h-[70vh] sm:h-[600px] flex flex-col p-0 rounded-xl shadow-xl"
+          sideOffset={16}
+          className="w-[90vw] max-w-[400px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-xl z-[9999]"
         >
           <div className="border-b px-4 py-2 text-sm font-semibold flex justify-between items-center">
             Nexus Assistant
