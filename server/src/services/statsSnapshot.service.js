@@ -17,22 +17,22 @@ import { inferDomain } from "../utils/skillDomain.js";
 import pLimit from "p-limit";
 
 export async function captureSnapshot(username) {
-  const user = await fetchUser(username);
-  const repos = await fetchUserRepos(username);
+  const [user] = await fetchUser(username);
+  const [repos] = await fetchUserRepos(username);
 
   const limit = pLimit(5);
   const langEntries = await Promise.all(
     repos.map((r) =>
       limit(() =>
         fetchRepoLanguages(r.owner.login, r.name)
-          .then((l) => [r, l])
+          .then(([languages]) => [r, languages]) // Destructure the tuple here
           .catch(() => [r, {}])
       )
     )
   );
   const repoLanguages = new Map(langEntries.map(([r, l]) => [`${r.owner.login}/${r.name}`, l]));
 
-  const events = await fetchUserEvents(username).catch(() => []);
+  const [events] = await fetchUserEvents(username).catch(() => [[], null]);
 
   const languagesAgg = aggregateLanguages(repos, repoLanguages);
   const topics = topicsFrequency(repos);
@@ -155,16 +155,24 @@ export async function generateTrendData(username, period = "month", metricTypes)
     startDate.setFullYear(startDate.getFullYear() - 1);
   }
 
+  console.log(`Generating trend data for ${username}, period: ${period}, start date: ${startDate}`);
+
   const metrics = metricTypes || ["followers", "repos", "stars"];
   const trends = {};
 
   for (const metric of metrics) {
     const history = await getMetricHistory(username, metric, startDate);
+    console.log(`History for ${metric}:`, history.length, "records");
     trends[metric] = history.map((h) => ({
       date: h.recordedAt,
       value: h.value,
     }));
   }
+
+  console.log(
+    "Generated trends:",
+    Object.keys(trends).map((k) => `${k}: ${trends[k].length} points`)
+  );
 
   return trends;
 }

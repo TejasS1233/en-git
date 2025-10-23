@@ -10,6 +10,9 @@ import rateLimit from "express-rate-limit";
 const app = express();
 const httpServer = createServer(app);
 
+import passport from "./utils/passport.js";
+app.use(passport.initialize());
+
 // Allow multiple origins for CORS
 const allowedOrigins = [
   "http://localhost:3000",
@@ -34,10 +37,11 @@ app.set("io", io);
 app.use(helmet());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // Increased from 100 to 500 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
 

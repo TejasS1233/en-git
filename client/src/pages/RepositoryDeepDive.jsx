@@ -21,6 +21,7 @@ import {
   XCircle,
   Clock,
   Award,
+  History, // Import the History icon
 } from "lucide-react";
 import { getRepositoryInsights } from "@/lib/github";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { validateRepoOwner, validateRepoName } from "@/lib/utils";
 
 const COLORS = ["#667eea", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899"];
 
@@ -50,39 +52,62 @@ export default function RepositoryDeepDive() {
   const [repoInput, setRepoInput] = useState(repo || "");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [error, setError] = useState(null); // Add error state
+  const [ownerError, setOwnerError] = useState("");
+  const [repoError, setRepoError] = useState("");
 
   // Auto-fetch when URL params are present
   useEffect(() => {
     if (owner && repo) {
-      fetchRepositoryWithParams(owner, repo);
+      const ownRes = validateRepoOwner(owner);
+      const repRes = validateRepoName(repo);
+      if (!ownRes.valid || !repRes.valid) {
+        setError(!ownRes.valid ? ownRes.message : repRes.message);
+        return;
+      }
+      fetchRepositoryWithParams(ownRes.value, repRes.value);
     }
   }, [owner, repo]);
 
-  async function fetchRepositoryWithParams(ownerParam, repoParam) {
+  async function fetchRepositoryWithParams(ownerParam, repoParam, refresh = false) {
     setLoading(true);
+    setError(null); // Clear previous errors
+    setLastUpdated("");
     try {
-      const response = await getRepositoryInsights(ownerParam, repoParam);
+      const response = await getRepositoryInsights(ownerParam, repoParam, refresh);
+      if (!response?.data) {
+        throw new Error("Received no data for this repository.");
+      }
       setData(response.data);
+      setLastUpdated(new Date(response.lastUpdated).toLocaleString());
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to fetch repository data");
+      setError("Failed to load repository data.");
+      toast.error("Failed to load repository data.");
     } finally {
       setLoading(false);
     }
   }
 
   async function fetchRepository() {
-    if (!ownerInput || !repoInput) {
-      toast.error("Please enter both owner and repository name");
+    const ownRes = validateRepoOwner(ownerInput);
+    const repRes = validateRepoName(repoInput);
+    if (!ownRes.valid || !repRes.valid) {
+      const message = !ownRes.valid ? ownRes.message : repRes.message;
+      setOwnerError(!ownRes.valid ? ownRes.message : "");
+      setRepoError(!repRes.valid ? repRes.message : "");
+      toast.error(message);
       return;
     }
 
     setLoading(true);
     try {
-      const response = await getRepositoryInsights(ownerInput, repoInput);
+      // This initial fetch doesn't need refresh=true
+      const response = await getRepositoryInsights(ownRes.value, repRes.value);
       setData(response.data);
       toast.success("Repository analyzed!");
-      navigate(`/repo/${ownerInput}/${repoInput}`);
+      navigate(`/repo/${ownRes.value}/${repRes.value}`);
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Failed to fetch repository data");
@@ -132,21 +157,58 @@ export default function RepositoryDeepDive() {
                     <Input
                       placeholder="facebook"
                       value={ownerInput}
-                      onChange={(e) => setOwnerInput(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setOwnerInput(val);
+                        const res = validateRepoOwner(val);
+                        setOwnerError(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {ownerError && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {ownerError}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Repository</label>
                     <Input
                       placeholder="react"
                       value={repoInput}
-                      onChange={(e) => setRepoInput(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setRepoInput(val);
+                        const res = validateRepoName(val);
+                        setRepoError(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {repoError && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {repoError}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <Button onClick={fetchRepository} className="w-full" disabled={loading}>
+                <Button
+                  onClick={fetchRepository}
+                  className="w-full"
+                  disabled={
+                    loading ||
+                    !!ownerError ||
+                    !!repoError ||
+                    !ownerInput.trim() ||
+                    !repoInput.trim()
+                  }
+                  aria-disabled={
+                    loading ||
+                    !!ownerError ||
+                    !!repoError ||
+                    !ownerInput.trim() ||
+                    !repoInput.trim()
+                  }
+                >
                   {loading ? (
                     <>
                       <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -180,10 +242,30 @@ export default function RepositoryDeepDive() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <Button variant="ghost" onClick={() => navigate("/")} className="mb-4 sm:mb-6">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Home
-      </Button>
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <Button variant="ghost" onClick={() => navigate("/")}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Button>
+        {/* Add Refresh Button and Timestamp here */}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => fetchRepositoryWithParams(owner, repo, true)}
+            disabled={loading || !owner || !repo}
+          >
+            <History className="h-4 w-4 mr-2" />
+            {loading ? "Refreshing..." : "Refresh"}
+          </Button>
+          {lastUpdated && (
+            <p className="text-sm text-muted-foreground hidden sm:block">
+              Last updated: {lastUpdated}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
       {/* Repository Header */}
       <Card className="mb-6">

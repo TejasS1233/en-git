@@ -23,23 +23,23 @@ jobs:
             ### 👋 Welcome to the **en-git** project!
             Hey there, and thank you for opening your **first issue**! 🎉  
             Your feedback helps us make en-git even better.  
-            
+
             💡 Please take a moment to review our [Contributing Guidelines](https://github.com/TejasS1233/en-git/blob/main/CONTRIBUTING.md) before submitting more details — it really helps speed up the process.
 
             _We're thrilled to have you here — the team will get back to you soon!_
-            
+
             **– The en-git Team 🚀**
 
           pr-message: |
             ### 🎉 Thanks for your first contribution to **en-git**!
             Congratulations on opening your **first pull request**! 🙌  
-            
+
             Our maintainers will review your code shortly.  
             In the meantime:
             - ✅ Double-check your PR description and linked issues.
             - 💬 Engage in any requested changes or feedback.
             - 📄 Review our [Contributing Guidelines](https://github.com/TejasS1233/en-git/blob/main/CONTRIBUTING.md).
-            
+
             We really appreciate your time and effort in improving en-git! 💙  
             **– The en-git Team 🚀**
 
