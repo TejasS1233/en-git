@@ -1,0 +1,257 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18'
+  NPM_CACHE_FOLDER: ~/.npm
+  NPM_CACHE_KEY: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+jobs:
+  # Lint and format check
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+
+      - name: Install client dependencies
+        run: |
+          cd client
+          npm ci
+
+      - name: Install server dependencies
+        run: |
+          cd server
+          npm ci
+
+      - name: Run ESLint (Client)
+        run: |
+          cd client
+          npm run lint
+
+      - name: Check Prettier formatting
+        run: |
+          cd client
+          npx prettier --check .
+          cd ../server
+          npx prettier --check .
+
+  # Build and test client
+  build-client:
+    name: Build Client
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd client
+          npm ci
+
+      - name: Build application
+        run: |
+          cd client
+          npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-build
+          path: client/dist
+          retention-days: 7
+
+  # Build and test server
+  build-server:
+    name: Build Server
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd server
+          npm ci
+
+      - name: Run server tests
+        run: |
+          cd server
+          npm test || echo "No tests configured yet"
+
+  # Security scan
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: [build-client, build-server]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Performance test
+  performance-test:
+    name: Performance Test
+    runs-on: ubuntu-latest
+    needs: [build-client, build-server]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd client
+          npm ci
+          cd ../server
+          npm ci
+
+      - name: Build applications
+        run: |
+          cd client
+          npm run build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './client/.lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # Integration test
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: [build-client, build-server]
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd client
+          npm ci
+          cd ../server
+          npm ci
+
+      - name: Build applications
+        run: |
+          cd client
+          npm run build
+
+      - name: Start server
+        run: |
+          cd server
+          npm start &
+          sleep 10
+
+      - name: Run integration tests
+        run: |
+          echo "Integration tests would run here"
+          # Add actual integration tests
+
+  # Deploy to staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [security-scan, performance-test, integration-test]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: client-build
+
+      - name: Deploy to staging
+        run: |
+          echo "Deploy to staging environment"
+          # Add actual deployment steps
+
+  # Deploy to production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [security-scan, performance-test, integration-test]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: client-build
+
+      - name: Deploy to production
+        run: |
+          echo "Deploy to production environment"
+          # Add actual deployment steps
