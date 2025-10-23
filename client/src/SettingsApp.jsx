@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Code,
   Github,
+  Info,
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -22,6 +23,7 @@ import { Switch } from "./components/ui/switch";
 import { Separator } from "./components/ui/separator";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { Slider } from "./components/ui/slider";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./components/ui/tooltip";
 
 const DEFAULT_SETTINGS = {
   theme: {
@@ -164,7 +166,17 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="theme-enabled">Enable Custom Theme</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="theme-enabled">Enable Custom Theme</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Apply custom colors to GitHub's interface</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Switch
                       id="theme-enabled"
                       checked={settings.theme.enabled}
@@ -176,7 +188,17 @@ function SettingsApp() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="primary-color">Primary Color</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="primary-color">Primary Color</Label>
+                        <Tooltip>
+                          <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                            <Info className="h-4 w-4" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Main color for links, buttons, and highlights</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <Input
                           id="primary-color"
@@ -197,7 +219,17 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="accent-color">Accent Color</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="accent-color">Accent Color</Label>
+                        <Tooltip>
+                          <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                            <Info className="h-4 w-4" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Secondary color for accents and highlights</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <Input
                           id="accent-color"
@@ -218,7 +250,17 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="bg-color">Background Color</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="bg-color">Background Color</Label>
+                        <Tooltip>
+                          <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                            <Info className="h-4 w-4" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Color for page backgrounds</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <Input
                           id="bg-color"
@@ -239,7 +281,17 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="text-color">Text Color</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="text-color">Text Color</Label>
+                        <Tooltip>
+                          <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                            <Info className="h-4 w-4" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Color for text content</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <Input
                           id="text-color"
@@ -298,9 +350,19 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Enhanced Contribution Graph</Label>
-                      <p className="text-xs text-muted-foreground">Show detailed stats on hover</p>
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <Label>Enhanced Contribution Graph</Label>
+                        <p className="text-xs text-muted-foreground">Show detailed stats on hover</p>
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Shows detailed contribution statistics when hovering over the contribution graph</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                     <Switch
                       checked={settings.enhancements.contributionStats}
@@ -308,9 +370,19 @@ function SettingsApp() {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Enhanced Repository Cards</Label>
-                      <p className="text-xs text-muted-foreground">Add quick stats to repo cards</p>
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <Label>Enhanced Repository Cards</Label>
+                        <p className="text-xs text-muted-foreground">Add quick stats to repo cards</p>
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Adds additional statistics to repository cards for quick insights</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                     <Switch
                       checked={settings.enhancements.repoCards}
@@ -318,11 +390,21 @@ function SettingsApp() {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Enhanced Profile</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Show additional profile insights
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <Label>Enhanced Profile</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Show additional profile insights
+                        </p>
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Provides additional insights and statistics on GitHub profiles</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                     <Switch
                       checked={settings.enhancements.enhancedProfile}
@@ -342,7 +424,17 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="font-enabled">Enable Custom Font</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="font-enabled">Enable Custom Font</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Use custom fonts in GitHub's code editor</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Switch
                       id="font-enabled"
                       checked={settings.font.enabled}
@@ -353,8 +445,16 @@ function SettingsApp() {
                   <Separator />
 
                   <div className="space-y-3">
-                    <div>
+                    <div className="flex items-center gap-2">
                       <Label htmlFor="font-family">Font Family</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Choose a font for code display</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <select
                         id="font-family"
                         value={settings.font.family}
@@ -372,9 +472,17 @@ function SettingsApp() {
                       </select>
                     </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between mb-2 w-full">
                         <Label htmlFor="font-size">Font Size: {settings.font.size}px</Label>
+                        <Tooltip>
+                          <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground ml-2">
+                            <Info className="h-4 w-4" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Adjust the size of the code font</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <Slider
                         id="font-size"
@@ -415,7 +523,17 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="shortcuts-enabled">Enable Shortcuts</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="shortcuts-enabled">Enable Shortcuts</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Enable keyboard shortcuts for faster navigation</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Switch
                       id="shortcuts-enabled"
                       checked={settings.shortcuts.enabled}
@@ -479,7 +597,16 @@ function SettingsApp() {
             <TabsContent value="bookmarks" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Bookmarked Repositories</CardTitle>
+                  <CardTitle className="flex items-center gap-2">Bookmarked Repositories
+                    <Tooltip>
+                      <TooltipTrigger type="button" className="cursor-help text-muted-foreground hover:text-foreground">
+                        <Info className="h-4 w-4" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Save your favorite repositories for quick access</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </CardTitle>
                   <CardDescription>Quick access to your favorite repositories</CardDescription>
                 </CardHeader>
                 <CardContent>
