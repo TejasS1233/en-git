@@ -6,39 +6,46 @@ const userSchema = new Schema(
   {
     fullname: {
       type: String,
-      required: true,
+      required: function() {
+        // Required if user signs up via password or no OAuth provider
+        return !this.googleId && !this.githubId;
+      },
       trim: true,
       index: true,
     },
     email: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       lowercase: true,
     },
     countryCode: {
       type: String,
-      required: true,
       default: "+91",
     },
     phoneNumber: {
       type: String,
-      required: true,
-      trim: true,
+      required: function() {
+        return !this.googleId && !this.githubId;
+      },
     },
     address: {
       type: String,
-      required: true,
-      trim: true,
+      required: function() {
+        return !this.googleId && !this.githubId;
+      },
     },
     avatar: {
       type: String,
-      required: true,
+      required: function() {
+        return !this.googleId && !this.githubId;
+      },
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: function() {
+        return !this.googleId && !this.githubId;
+      },
     },
     role: {
       type: String,
@@ -46,6 +53,9 @@ const userSchema = new Schema(
       default: "user",
       required: true,
     },
+    refreshToken: String,
+    googleId: { type: String, unique: true, sparse: true },
+    githubId: { type: String, unique: true, sparse: true },
     refreshToken: {
       type: String,
     },
@@ -86,11 +96,10 @@ const userSchema = new Schema(
       },
     ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
+// Hash password before saving
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
@@ -98,16 +107,18 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Compare password
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Generate JWT
 userSchema.methods.generateAuthToken = function () {
   return jwt.sign(
     {
       _id: this._id,
       email: this.email,
-      fullName: this.fullName,
+      fullname: this.fullname,
       phoneNumber: this.phoneNumber,
       address: this.address,
       avatar: this.avatar,
@@ -115,21 +126,16 @@ userSchema.methods.generateAuthToken = function () {
       countryCode: this.countryCode,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-    }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
   );
 };
 
+// Generate refresh token
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
-    {
-      _id: this._id,
-    },
+    { _id: this._id },
     process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-    }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
   );
 };
 

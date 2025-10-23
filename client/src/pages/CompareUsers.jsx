@@ -19,17 +19,19 @@ import {
   Zap,
   Award,
   Target,
+  History, // Add History icon
 } from "lucide-react";
 import { getGithubInsights } from "@/lib/github";
 import { toast } from "sonner";
+import { validateGithubUsername } from "@/lib/utils";
 import {
+  ResponsiveContainer,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
   Radar,
   Legend,
-  ResponsiveContainer,
 } from "recharts";
 
 export default function CompareUsers() {
@@ -42,37 +44,58 @@ export default function CompareUsers() {
   const [user2Data, setUser2Data] = useState(null);
   const [loading, setLoading] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [user1LastUpdated, setUser1LastUpdated] = useState("");
+  const [user2LastUpdated, setUser2LastUpdated] = useState("");
+  const [error, setError] = useState(null); // Add error state
+  const [user1Error, setUser1Error] = useState("");
+  const [user2Error, setUser2Error] = useState("");
 
   useEffect(() => {
     if (urlUser1 && urlUser2) {
-      fetchComparison(urlUser1, urlUser2);
+      const v1 = validateGithubUsername(urlUser1);
+      const v2 = validateGithubUsername(urlUser2);
+      if (!v1.valid || !v2.valid) {
+        setError(!v1.valid ? v1.message : v2.message);
+        return;
+      }
+      fetchComparison(v1.value, v2.value);
     }
   }, [urlUser1, urlUser2]);
 
-  async function fetchComparison(username1, username2) {
+  async function fetchComparison(username1, username2, refresh = false) {
     if (!username1 || !username2) {
       toast.error("Please enter both usernames");
       return;
     }
 
     setLoading(true);
+    setError(null); // Clear previous errors
+    setUser1LastUpdated("");
+    setUser2LastUpdated("");
     try {
-      const [data1, data2] = await Promise.all([
-        getGithubInsights(username1),
-        getGithubInsights(username2),
+      const [res1, res2] = await Promise.all([
+        getGithubInsights(username1, refresh),
+        getGithubInsights(username2, refresh),
       ]);
 
-      setUser1Data(data1.data);
-      setUser2Data(data2.data);
+      // Check for valid data in both responses
+      if (!res1?.data?.data || !res2?.data?.data) {
+        throw new Error("Could not fetch data for one or both users.");
+      }
 
-      // Calculate winner
-      const scores = calculateScores(data1.data, data2.data);
+      setUser1Data(res1.data.data);
+      setUser2Data(res2.data.data);
+      setUser1LastUpdated(new Date(res1.data.lastUpdated).toLocaleString());
+      setUser2LastUpdated(new Date(res2.data.lastUpdated).toLocaleString());
+
+      const scores = calculateScores(res1.data.data, res2.data.data);
       setWinner(scores);
 
-      toast.success("Comparison loaded!");
+      toast.success("Comparison complete!");
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to fetch user data");
+      setError("Failed to compare users. Please check the usernames and try again.");
+      toast.error("Failed to compare users.");
     } finally {
       setLoading(false);
     }
@@ -80,9 +103,18 @@ export default function CompareUsers() {
 
   function handleCompare(e) {
     e.preventDefault();
-    if (user1Input && user2Input) {
-      navigate(`/compare/${user1Input}/${user2Input}`);
+    const v1 = validateGithubUsername(user1Input);
+    const v2 = validateGithubUsername(user2Input);
+    if (!v1.valid || !v2.valid) {
+      const msg = !v1.valid ? v1.message : v2.message;
+      setUser1Error(!v1.valid ? v1.message : "");
+      setUser2Error(!v2.valid ? v2.message : "");
+      toast.error(msg);
+      return;
     }
+    setUser1Error("");
+    setUser2Error("");
+    navigate(`/compare/${v1.value}/${v2.value}`);
   }
 
   function calculateScores(data1, data2) {
@@ -113,8 +145,8 @@ export default function CompareUsers() {
     if (scores.categories.stars.winner === 2) scores.user2++;
 
     // Followers
-    const followers1 = data1.user.followers || 0;
-    const followers2 = data2.user.followers || 0;
+    const followers1 = data1?.user?.followers || 0;
+    const followers2 = data2?.user?.followers || 0;
     scores.categories.followers = {
       user1: followers1,
       user2: followers2,
@@ -158,7 +190,7 @@ export default function CompareUsers() {
 
     const maxRepos = Math.max(user1Data.reposCount, user2Data.reposCount);
     const maxStars = Math.max(stars1, stars2);
-    const maxFollowers = Math.max(user1Data.user.followers || 0, user2Data.user.followers || 0);
+    const maxFollowers = Math.max(user1Data?.user?.followers || 0, user2Data?.user?.followers || 0);
     const maxLangs = Math.max(
       user1Data.languages?.percentages?.size || 0,
       user2Data.languages?.percentages?.size || 0
@@ -167,39 +199,43 @@ export default function CompareUsers() {
     return [
       {
         metric: "Repos",
-        [user1Data.user.login]: (user1Data.reposCount / maxRepos) * 100,
-        [user2Data.user.login]: (user2Data.reposCount / maxRepos) * 100,
+        [user1Data?.user?.login || "User 1"]: (user1Data.reposCount / maxRepos) * 100,
+        [user2Data?.user?.login || "User 2"]: (user2Data.reposCount / maxRepos) * 100,
       },
       {
         metric: "Stars",
-        [user1Data.user.login]: (stars1 / maxStars) * 100,
-        [user2Data.user.login]: (stars2 / maxStars) * 100,
+        [user1Data?.user?.login || "User 1"]: (stars1 / maxStars) * 100,
+        [user2Data?.user?.login || "User 2"]: (stars2 / maxStars) * 100,
       },
       {
         metric: "Followers",
-        [user1Data.user.login]: ((user1Data.user.followers || 0) / maxFollowers) * 100,
-        [user2Data.user.login]: ((user2Data.user.followers || 0) / maxFollowers) * 100,
+        [user1Data?.user?.login || "User 1"]:
+          ((user1Data?.user?.followers || 0) / maxFollowers) * 100,
+        [user2Data?.user?.login || "User 2"]:
+          ((user2Data?.user?.followers || 0) / maxFollowers) * 100,
       },
       {
         metric: "Languages",
-        [user1Data.user.login]: ((user1Data.languages?.percentages?.size || 0) / maxLangs) * 100,
-        [user2Data.user.login]: ((user2Data.languages?.percentages?.size || 0) / maxLangs) * 100,
+        [user1Data?.user?.login || "User 1"]:
+          ((user1Data.languages?.percentages?.size || 0) / maxLangs) * 100,
+        [user2Data?.user?.login || "User 2"]:
+          ((user2Data.languages?.percentages?.size || 0) / maxLangs) * 100,
       },
       {
         metric: "Following",
-        [user1Data.user.login]:
-          ((user1Data.user.following || 0) /
-            Math.max(user1Data.user.following || 0, user2Data.user.following || 0)) *
+        [user1Data?.user?.login || "User 1"]:
+          ((user1Data?.user?.following || 0) /
+            Math.max(user1Data?.user?.following || 0, user2Data?.user?.following || 0)) *
           100,
-        [user2Data.user.login]:
-          ((user2Data.user.following || 0) /
-            Math.max(user1Data.user.following || 0, user2Data.user.following || 0)) *
+        [user2Data?.user?.login || "User 2"]:
+          ((user2Data?.user?.following || 0) /
+            Math.max(user1Data?.user?.following || 0, user2Data?.user?.following || 0)) *
           100,
       },
     ];
   }
 
-  if (!user1Data || !user2Data) {
+  if (!user1Data || !user2Data || !user1Data.user || !user2Data.user) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
@@ -226,21 +262,58 @@ export default function CompareUsers() {
                     <Input
                       placeholder="octocat"
                       value={user1Input}
-                      onChange={(e) => setUser1Input(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUser1Input(val);
+                        const res = validateGithubUsername(val);
+                        setUser1Error(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {user1Error && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {user1Error}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">User 2</label>
                     <Input
                       placeholder="torvalds"
                       value={user2Input}
-                      onChange={(e) => setUser2Input(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUser2Input(val);
+                        const res = validateGithubUsername(val);
+                        setUser2Error(res.valid || val.trim() === "" ? "" : res.message);
+                      }}
                       disabled={loading}
                     />
+                    {user2Error && (
+                      <p className="text-sm text-red-500" role="alert">
+                        {user2Error}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={
+                    loading ||
+                    !!user1Error ||
+                    !!user2Error ||
+                    !user1Input.trim() ||
+                    !user2Input.trim()
+                  }
+                  aria-disabled={
+                    loading ||
+                    !!user1Error ||
+                    !!user2Error ||
+                    !user1Input.trim() ||
+                    !user2Input.trim()
+                  }
+                >
                   {loading ? (
                     <>
                       <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -265,10 +338,22 @@ export default function CompareUsers() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <Button variant="ghost" onClick={() => navigate("/")} className="mb-4 sm:mb-6">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Home
-      </Button>
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <Button variant="ghost" onClick={() => navigate("/")}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => fetchComparison(urlUser1, urlUser2, true)}
+          disabled={loading || !urlUser1 || !urlUser2}
+        >
+          <History className="h-4 w-4 mr-2" />
+          {loading ? "Refreshing..." : "Refresh"}
+        </Button>
+      </div>
+
+      {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
       {/* Winner Banner */}
       {winner && winner.user1 !== winner.user2 && (
@@ -304,6 +389,9 @@ export default function CompareUsers() {
               <div className="flex-1">
                 <CardTitle>{user1Data.user.name || user1Data.user.login}</CardTitle>
                 <CardDescription>@{user1Data.user.login}</CardDescription>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last updated: {user1LastUpdated}
+                </p>
                 {winner?.user1 > winner?.user2 && (
                   <Badge className="mt-2 bg-green-500">
                     <Trophy className="h-3 w-3 mr-1" />
@@ -345,6 +433,9 @@ export default function CompareUsers() {
               <div className="flex-1">
                 <CardTitle>{user2Data.user.name || user2Data.user.login}</CardTitle>
                 <CardDescription>@{user2Data.user.login}</CardDescription>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last updated: {user2LastUpdated}
+                </p>
                 {winner?.user2 > winner?.user1 && (
                   <Badge className="mt-2 bg-green-500">
                     <Trophy className="h-3 w-3 mr-1" />

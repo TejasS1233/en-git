@@ -19,6 +19,7 @@ import {
 import pLimit from "p-limit";
 import { inferDomain } from "../utils/skillDomain.js";
 import { generateCareerInsights, generateLearningPath } from "../services/ai.service.js";
+import { getGithubInsights as getInsightsService } from "../services/ai.service.js";
 
 export const getUserInsights = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -27,8 +28,8 @@ export const getUserInsights = asyncHandler(async (req, res) => {
   }
 
   try {
-    const user = await fetchUser(username);
-    const repos = await fetchUserRepos(username);
+    const [user, userLastUpdated] = await fetchUser(username);
+    const [repos, reposLastUpdated] = await fetchUserRepos(username);
 
     // fetch languages per repo (limit concurrency)
     const limit = pLimit(5);
@@ -36,38 +37,58 @@ export const getUserInsights = asyncHandler(async (req, res) => {
       repos.map((r) =>
         limit(() =>
           fetchRepoLanguages(r.owner.login, r.name)
-            .then((l) => [r, l])
+            .then(([langData]) => [r, langData]) // Destructure to get just the data
             .catch(() => [r, {}])
         )
       )
     );
     const repoLanguages = new Map(langEntries.map(([r, l]) => [`${r.owner.login}/${r.name}`, l]));
 
-    const events = await fetchUserEvents(username).catch(() => []);
+    const [eventsData] = await fetchUserEvents(username).catch((err) => {
+      console.error("fetchUserEvents error:", err.message);
+      return [[], new Date().toISOString()];
+    });
+
+    console.log(`Events data for ${username}:`, {
+      isArray: Array.isArray(eventsData),
+      length: eventsData?.length,
+      firstEvent: eventsData?.[0],
+    });
 
     const languagesAgg = aggregateLanguages(repos, repoLanguages);
     const topics = topicsFrequency(repos);
-    const commitTimes = commitTimeDistribution(events);
-    const weekly = weeklyActivity(events);
+    const commitTimes = commitTimeDistribution(eventsData || []);
+    const weekly = weeklyActivity(eventsData || []);
     const topStarred = mostStarred(repos, 3);
     const topActive = mostActive(repos, 3);
 
     const domain = inferDomain(languagesAgg.percentages, topics.slice(0, 10));
 
+    const insightsData = {
+      user,
+      reposCount: repos.length,
+      languages: languagesAgg,
+      topics: topics.slice(0, 20),
+      topStarred,
+      topActive,
+      commitTimes,
+      weekly,
+      domain,
+    };
+
+    // Use the most recent timestamp
+    const lastUpdated = new Date(
+      Math.max(new Date(userLastUpdated), new Date(reposLastUpdated))
+    ).toISOString();
+
     return res.status(200).json(
       new ApiResponse(200, "Insights fetched successfully", {
-        user,
-        reposCount: repos.length,
-        languages: languagesAgg,
-        topics: topics.slice(0, 20),
-        topStarred,
-        topActive,
-        commitTimes,
-        weekly,
-        domain,
+        data: insightsData,
+        lastUpdated,
       })
     );
   } catch (error) {
+    console.error("getUserInsights error:", error);
     if (error.response?.status === 403) {
       throw new ApiError(
         403,
@@ -88,26 +109,55 @@ export const getRecommendations = asyncHandler(async (req, res) => {
   }
 
   try {
-    const user = await fetchUser(username);
-    const repos = await fetchUserRepos(username);
+    const [user, userLastUpdated] = await fetchUser(username);
+    const [repos, reposLastUpdated] = await fetchUserRepos(username);
+
+    // Get user's top languages and topics
+    const limit = pLimit(5);
+    const langEntries = await Promise.all(
+      repos.slice(0, 20).map((r) =>
+        limit(() =>
+          fetchRepoLanguages(r.owner.login, r.name)
+            .then(([langData]) => [r, langData]) // Destructure to get just the data
+            .catch(() => [r, {}])
+        )
+      )
+    );
+    const repoLanguages = new Map(langEntries.map(([r, l]) => [`${r.owner.login}/${r.name}`, l]));
+    const languagesAgg = aggregateLanguages(repos, repoLanguages);
+
     const topics = topicsFrequency(repos)
-      .slice(0, 10)
+      .slice(0, 15)
       .map(([t]) => t);
 
-    // choose top language for trending
-    const limit = pLimit(4);
-    const trending = await Promise.all([
-      limit(() => fetchTrending("", "daily").catch(() => [])),
-      limit(() => fetchTrending("javascript", "daily").catch(() => [])),
-      limit(() => fetchTrending("python", "daily").catch(() => [])),
-      limit(() => fetchTrending("typescript", "daily").catch(() => [])),
-    ]);
-    const flat = trending.flat();
+    const topLanguages = Object.keys(languagesAgg.percentages)
+      .slice(0, 5)
+      .map((lang) => lang.toLowerCase());
 
-    const matched = flat.filter((item) => {
-      const lower =
-        (item.description || "").toLowerCase() + " " + (item.language || "").toLowerCase();
-      return topics.some((t) => lower.includes(t.toLowerCase()));
+    // Fetch trending repos for user's top languages + general
+    const trendingLimit = pLimit(6);
+    const languagesToFetch = ["", ...topLanguages.slice(0, 5)];
+    const trending = await Promise.all(
+      languagesToFetch.map((lang) =>
+        trendingLimit(() => fetchTrending(lang, "daily").catch(() => ({ data: [] })))
+      )
+    );
+    const flat = trending.flatMap((result) => result.data || []);
+
+    // Remove duplicates by URL
+    const uniqueRepos = Array.from(new Map(flat.map((item) => [item.url, item])).values());
+
+    // More flexible matching - check language, topics in description, or repo name
+    const matched = uniqueRepos.filter((item) => {
+      const itemLang = (item.language || "").toLowerCase();
+      const itemText =
+        (item.description || "").toLowerCase() + " " + (item.fullName || "").toLowerCase();
+
+      // Match by language
+      if (topLanguages.includes(itemLang)) return true;
+
+      // Match by topics in description/name
+      return topics.some((t) => itemText.includes(t.toLowerCase()));
     });
 
     const personalIdeas = topics.map((t) => ({
@@ -116,12 +166,22 @@ export const getRecommendations = asyncHandler(async (req, res) => {
       tag: t,
     }));
 
+    const recommendationsData = {
+      user: { login: user.login, avatar_url: user.avatar_url },
+      trendingMatches: matched.slice(0, 15),
+      personalIdeas: personalIdeas.slice(0, 10),
+      trendingSample: uniqueRepos.slice(0, 10),
+    };
+
+    // Use the most recent timestamp
+    const lastUpdated = new Date(
+      Math.max(new Date(userLastUpdated), new Date(reposLastUpdated))
+    ).toISOString();
+
     return res.status(200).json(
       new ApiResponse(200, "Recommendations fetched successfully", {
-        user: { login: user.login, avatar_url: user.avatar_url },
-        trendingMatches: matched.slice(0, 10),
-        personalIdeas: personalIdeas.slice(0, 10),
-        trendingSample: flat.slice(0, 10),
+        data: recommendationsData,
+        lastUpdated,
       })
     );
   } catch (error) {
@@ -143,8 +203,8 @@ export const getAIInsights = asyncHandler(async (req, res) => {
 
   try {
     // First, get the user's insights
-    const user = await fetchUser(username);
-    const repos = await fetchUserRepos(username);
+    const [user] = await fetchUser(username);
+    const [repos] = await fetchUserRepos(username);
 
     if (!repos || repos.length === 0) {
       throw new ApiError(404, "No repositories found for this user");
@@ -155,14 +215,14 @@ export const getAIInsights = asyncHandler(async (req, res) => {
       repos.slice(0, 50).map((r) =>
         limit(() =>
           fetchRepoLanguages(r.owner.login, r.name)
-            .then((l) => [r, l])
+            .then(([langData]) => [r, langData]) // Destructure to get just the data
             .catch(() => [r, {}])
         )
       )
     );
     const repoLanguages = new Map(langEntries.map(([r, l]) => [`${r.owner.login}/${r.name}`, l]));
 
-    const events = await fetchUserEvents(username);
+    const [events] = await fetchUserEvents(username);
     const commits = events
       .filter((e) => e.type === "PushEvent")
       .flatMap((e) => e.payload?.commits || []);
@@ -268,3 +328,21 @@ export const getAIInsights = asyncHandler(async (req, res) => {
     throw new ApiError(500, error.message || "Failed to generate AI insights");
   }
 });
+
+const getGithubInsights = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  // Correctly parse the 'refresh' query parameter from the request
+  const refresh = req.query.refresh === "true";
+
+  // Pass the refresh flag to the service layer
+  const { insightsData, lastUpdated } = await getInsightsService(username, refresh);
+
+  // The controller's job is to format the final API response
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { data: insightsData, lastUpdated }, "Insights fetched successfully")
+    );
+});
+
+export { getGithubInsights };

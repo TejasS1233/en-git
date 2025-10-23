@@ -250,3 +250,29 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 }
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+}
+
+.dark {
+  --bg-color: #0a0a0a;
+  --text-color: #ffffff;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Fix Recharts tooltip overflow */
+.recharts-tooltip-wrapper {
+  z-index: 1000 !important;
+  pointer-events: none;
+}
+
+.recharts-default-tooltip {
+  pointer-events: auto;
+}

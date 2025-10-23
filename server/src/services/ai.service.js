@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { fetchUser, fetchUserRepos } from "./github.service.js";
 
 const apiKey = process.env.GOOGLE_API_KEY;
 
@@ -117,3 +118,27 @@ Format as JSON: { phases: [{ months, skills[], resources[], project }] }`;
     throw error;
   }
 }
+
+// In whichever function calls the github service, e.g., getGithubInsights
+export const getGithubInsights = async (username, refresh = false) => {
+  // Destructure the tuple to get the raw data
+  const [user, userLastUpdated] = await fetchUser(username, refresh);
+  const [repos, reposLastUpdated] = await fetchUserRepos(username, refresh);
+
+  // Handle case where data fetching failed
+  if (!user || !repos) {
+    throw new Error(`Could not fetch GitHub data for ${username} to generate AI insights.`);
+  }
+
+  // Now use `user` and `repos` variables directly, as they contain the raw data
+  const prompt = `Analyze GitHub user ${user.login} who has ${repos.length} repositories...`;
+  // ... rest of the function ...
+
+  // You must also return the lastUpdated timestamp for the controller
+  const lastUpdated = new Date(userLastUpdated) > new Date(reposLastUpdated) ? userLastUpdated : reposLastUpdated;
+  
+  // Assuming this function returns an object with insights
+  const insightsData = { /*... your generated insights ...*/ };
+
+  return { insightsData, lastUpdated };
+};

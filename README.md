@@ -1,13 +1,12 @@
 <img width="200" height="80" alt="Screenshot 2025-10-19 134029-Photoroom" src="https://github.com/user-attachments/assets/8805d023-5923-4b37-8e8c-101a431e65c8" />
 
-
 **AI-Powered GitHub Analytics Platform**
 
 en-git transforms your GitHub data into actionable insights with advanced analytics, gamification, AI-powered career advice, and beautiful visualizations.
+
 <p align="center">
     <img src="https://skillicons.dev/icons?i=react,vite,tailwind,nodejs,express,mongodb,git,github,vercel,postman&perline=10" />
 </p>
-
 
 Get your personalized developer badge — show off your skills, top languages, and activity with a clean, shareable card.
 
@@ -16,17 +15,13 @@ Engage smarter, grow faster — let data guide your next project and highlight w
 
 <img width="1919" height="994" alt="image" src="https://github.com/user-attachments/assets/09126b5e-7c6f-44fc-a06e-bae24ee12e0d" />
 
-
 Compare with peers — analyze profiles side-by-side to track your growth and benchmark your progress.
 
 <img width="1888" height="913" alt="image" src="https://github.com/user-attachments/assets/6428e18e-3f50-40a8-bd59-fc77088eaa43" />
 
-
-
-
 ## ✨ Features
 
-###  Core Analytics
+### Core Analytics
 
 - **Language Analysis** - Top 3 programming languages with usage percentages
 - **Repository Insights** - Most starred & active repositories
@@ -38,7 +33,16 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
 
 ### 🎮 Gamification & Achievements
 
-- **Achievement Badges** - Unlock badges based on your activity
+- **Achievement System** - Track your GitHub journey with 15+ achievements! 🏆
+  - 📊 **[View All Achievements Guide →](./ACHIEVEMENTS.md)**
+  - Follower milestones (Growing Community, Rising Star, Influencer)
+  - Repository achievements (Productive, Prolific Creator)
+  - Star milestones (Great Work, Popular Project, Century Club)
+  - Fork achievements (Developers Love Your Code)
+  - Special achievements (Steady Growth, Explosive Growth)
+  - **Three Tiers**: Minor, Medium, and Major (Epic!) achievements
+  - Beautiful color-coded cards with icons
+- **Legacy Badges** - Activity-based badges
   - Polyglot (Bronze/Silver/Gold)
   - Night Owl / 🐦 Early Bird
   - Open Source Hero
@@ -49,6 +53,7 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
   - Issue Hunter
 - **Skill Radar Chart** - 6-dimensional visualization of technical expertise
 - **Tech Stack Badges** - Auto-generated shields.io badges for your README
+- **Progress Reports** - Track growth over time with detailed achievement summaries
 
 ### Blockchain-Verified Credentials
 
@@ -81,7 +86,7 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
 - **One-Click Analysis** - Analyze profiles & repos directly from GitHub
 - **Custom Themes** - Personalize GitHub with custom colors (primary, accent, background, text)
   <img width="1919" height="990" alt="image" src="https://github.com/user-attachments/assets/b5bc7cbf-5731-4f4a-b10b-1017ce775386" />
-<img width="1916" height="991" alt="image" src="https://github.com/user-attachments/assets/eedc042a-67c6-4575-acf8-7a68db6baf4f" />
+  <img width="1916" height="991" alt="image" src="https://github.com/user-attachments/assets/eedc042a-67c6-4575-acf8-7a68db6baf4f" />
 
 - **Custom Fonts** - Choose your preferred code font (Fira Code, JetBrains Mono, etc.)
 - **Keyboard Shortcuts** - Navigate faster (Ctrl+K search, Ctrl+Shift+N new repo, Ctrl+Shift+I issues)
@@ -215,7 +220,7 @@ npm run dev
 3. Click **Analyze**
 4. View:
    - **Profile Summary**: avatar, bio, followers, domain classification
-   - **Top Languages**: pie chart with percentages
+   - **Top Languages**: pie chart with percentages (small languages grouped into "Other")
    - **Most Starred/Active Repos**: ranked lists
    - **Popular Topics**: tag cloud
    - **Commit Timing**: hourly bar chart + profile badge (early-bird / night-coder)
@@ -225,11 +230,24 @@ npm run dev
      - Personal project ideas based on your top topics
      - Today's trending repos
 
+### 🏆 Track Your Progress
+
+5. Switch to the **History** tab to:
+   - **Capture Snapshots** - Save your current GitHub stats
+   - **View Trends** - See followers, repos, and stars over time
+   - **Unlock Achievements** - Earn badges as you grow! 🎉
+   - **Progress Reports** - Detailed summaries with all achievements
+   - **Compare Stats** - "Then vs Now" comparisons
+
+**📖 [Learn about all available achievements →](./ACHIEVEMENTS.md)**
+
 **Tips:**
 
 - Add a `GITHUB_TOKEN` to `.env` for higher API rate limits (5000/hr)
 - Without a token, public API allows 60 requests/hour
 - Results are cached for 5 minutes server-side to reduce API calls
+- Capture snapshots weekly or monthly for best trend visualization
+- Check your Progress Report to see unlocked achievements!
 
 ---
 
@@ -266,24 +284,33 @@ npm run dev
 
 ```
 Github/
-├── client/            # React frontend
-│   ├── src/
-│   │   ├── components/   # UI components (shadcn)
-│   │   ├── pages/        # Routes (Home, Dashboard, GitHubInsights, etc.)
-│   │   ├── lib/          # axios, github, auth, utils
-│   │   └── ...
-│   └── package.json
-├── server/            # Express backend
-│   ├── src/
-│   │   ├── controllers/  # Route handlers
-│   │   ├── routes/       # Express routes
-│   │   ├── models/       # Mongoose schemas
-│   │   ├── services/     # External APIs (github.service.js)
-│   │   ├── utils/        # Helpers (githubAnalytics, skillDomain, etc.)
-│   │   └── app.js
-│   └── package.json
 ├── README.md
-└── start_dev.bat
+├── ACHIEVEMENTS.md          # 🏆 Complete achievements guide
+├── LICENSE
+│
+├── client/                  # React + Vite Frontend
+│   ├── src/
+│   │   ├── pages/          # GitHubInsights, Dashboard, Profile, etc.
+│   │   ├── components/     # Charts, heatmaps, badges, AI insights
+│   │   ├── lib/            # GitHub API, auth, utils
+│   │   └── context/        # React contexts
+│   └── package.json
+│
+├── server/                  # Node.js + Express Backend
+│   ├── src/
+│   │   ├── controllers/    # Route handlers
+│   │   ├── services/       # GitHub API, snapshots, AI
+│   │   ├── models/         # MongoDB schemas
+│   │   ├── routes/         # API endpoints
+│   │   ├── utils/          # Analytics, helpers
+│   │   └── middlewares/    # Auth, file uploads
+│   └── package.json
+│
+└── chrome-extension/        # Browser Extension
+    ├── manifest.json
+    ├── popup.html/js
+    ├── settings.html/js
+    └── content.js           # GitHub page injections
 ```
 
 ---
