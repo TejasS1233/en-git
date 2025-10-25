@@ -1,4 +1,5 @@
 // Utility functions for managing localStorage
+import { exportUserBookmarks, importUserBookmarks } from "./bookmarkExport.js";
 
 const BOOKMARKS_KEY = "github_insights_bookmarks";
 const HISTORY_KEY = "github_insights_history";
@@ -74,4 +75,26 @@ export function addToSearchHistory(username, userData = {}) {
 export function clearSearchHistory() {
   localStorage.removeItem(HISTORY_KEY);
   return [];
+}
+
+// Export/Import functions
+export function exportBookmarks() {
+  return exportUserBookmarks();
+}
+
+export function importBookmarks(file) {
+  return importUserBookmarks(file);
+}
+
+// Get bookmark statistics
+export function getBookmarkStats() {
+  const bookmarks = getBookmarks();
+  return {
+    total: bookmarks.length,
+    recent: bookmarks.filter((b) => {
+      const addedDate = new Date(b.addedAt);
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      return addedDate > weekAgo;
+    }).length,
+  };
 }

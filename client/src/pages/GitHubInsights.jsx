@@ -31,6 +31,8 @@ import {
   FileDown,
   X,
   History,
+  Download,
+  Upload,
 } from "lucide-react";
 import {
   getBookmarks,
@@ -40,6 +42,9 @@ import {
   getSearchHistory,
   addToSearchHistory,
   clearSearchHistory,
+  exportBookmarks,
+  importBookmarks,
+  getBookmarkStats,
 } from "@/lib/localStorage";
 import { exportToPDF } from "@/lib/pdfExport";
 import { InsightsLoadingSkeleton } from "@/components/ui/skeleton-components";
@@ -172,6 +177,34 @@ export default function GitHubInsightsPage() {
       error: "Failed to generate PDF",
     });
   }
+
+  const handleExportBookmarks = async () => {
+    const result = exportBookmarks();
+    if (result.success) {
+      toast.success(`Exported ${result.count} bookmarks successfully!`);
+    } else {
+      toast.error(`Export failed: ${result.error}`);
+    }
+  };
+
+  const handleImportBookmarks = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.type !== "application/json") {
+      toast.error("Please select a valid JSON file");
+      return;
+    }
+
+    importBookmarks(file).then((result) => {
+      if (result.success) {
+        toast.success(`Imported ${result.imported} bookmarks (${result.skipped} skipped)`);
+        setBookmarks(getBookmarks());
+      } else {
+        toast.error(`Import failed: ${result.error}`);
+      }
+    });
+  };
 
   function handleHistoryClick(user) {
     navigate(`/stats/${user}`);
@@ -325,9 +358,35 @@ export default function GitHubInsightsPage() {
             {/* Bookmarks */}
             {bookmarks.length > 0 && !urlUsername && (
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Bookmark className="h-4 w-4" />
-                  <span>Bookmarked Profiles</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Bookmark className="h-4 w-4" />
+                    <span>Bookmarked Profiles</span>
+                    <span className="text-xs">
+                      ({getBookmarkStats().total} total, {getBookmarkStats().recent} this week)
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleExportBookmarks}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById("import-bookmarks").click()}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Import
+                    </Button>
+                    <input
+                      id="import-bookmarks"
+                      type="file"
+                      accept=".json"
+                      onChange={handleImportBookmarks}
+                      style={{ display: "none" }}
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {bookmarks.map((item) => (
