@@ -12,6 +12,8 @@ import {
   RotateCcw,
   Code,
   Github,
+  Download,
+  Upload,
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -22,6 +24,7 @@ import { Switch } from "./components/ui/switch";
 import { Separator } from "./components/ui/separator";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { Slider } from "./components/ui/slider";
+import { exportRepoBookmarks, importRepoBookmarks } from "./lib/bookmarkExport";
 
 const DEFAULT_SETTINGS = {
   theme: {
@@ -116,6 +119,39 @@ function SettingsApp() {
     const updated = bookmarks.filter((_, i) => i !== index);
     setBookmarks(updated);
     chrome.storage.sync.set({ bookmarkedRepos: updated });
+  };
+
+  const handleExportRepoBookmarks = async () => {
+    const result = exportRepoBookmarks(bookmarks);
+    if (result.success) {
+      // Show success message
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } else {
+      // Show error message
+      console.error("Export failed:", result.error);
+      alert(`Export failed: ${result.error}`);
+    }
+  };
+
+  const handleImportRepoBookmarks = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.type !== "application/json") {
+      alert("Please select a valid JSON file");
+      return;
+    }
+
+    importRepoBookmarks(file, bookmarks).then((result) => {
+      if (result.success) {
+        setBookmarks(result.bookmarks);
+        chrome.storage.sync.set({ bookmarkedRepos: result.bookmarks });
+        alert(`Imported ${result.imported} bookmarks (${result.skipped} skipped)`);
+      } else {
+        alert(`Import failed: ${result.error}`);
+      }
+    });
   };
 
   return (
@@ -479,8 +515,38 @@ function SettingsApp() {
             <TabsContent value="bookmarks" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Bookmarked Repositories</CardTitle>
-                  <CardDescription>Quick access to your favorite repositories</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Bookmarked Repositories</CardTitle>
+                      <CardDescription>Quick access to your favorite repositories</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleExportRepoBookmarks}
+                        disabled={bookmarks.length === 0}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Export
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById("import-repo-bookmarks").click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Import
+                      </Button>
+                      <input
+                        id="import-repo-bookmarks"
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportRepoBookmarks}
+                        style={{ display: "none" }}
+                      />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {bookmarks.length === 0 ? (
