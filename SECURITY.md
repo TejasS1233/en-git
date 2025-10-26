@@ -15,7 +15,7 @@
 If you discover a security issue or potential vulnerability in **en-git**, please **do not** open a public GitHub issue.  
 Instead, report it privately using one of the methods below:
 
-- 📧 **Email:** tejass1233@gmail.com (Repository Owner)  
+- 📧 **Email:** tsss1552@gmail.com (Repository Owner)  
 - 🧑‍💻 Or directly message a maintainer via GitHub profile contact.
 
 Please include:
