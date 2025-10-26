@@ -41,6 +41,15 @@ jobs:
         run: |
           echo "Deploying to Vercel staging environment..."
           cd client
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_SCOPE" ] || [ -z "$VERCEL_PROJECT_ID" ] || [ -z "$VERCEL_ORG_ID" ]; then
+            echo " Missing required Vercel secrets. Please configure:"
+            echo "   - VERCEL_TOKEN"
+            echo "   - VERCEL_SCOPE" 
+            echo "   - VERCEL_PROJECT_ID"
+            echo "   - VERCEL_ORG_ID"
+            echo "See: https://github.com/your-repo/VERCEL_DEPLOYMENT_SETUP.md"
+            exit 1
+          fi
           vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --env=staging --prod=false
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -88,6 +97,15 @@ jobs:
         run: |
           echo "Deploying to Vercel production environment..."
           cd client
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_SCOPE" ] || [ -z "$VERCEL_PROJECT_ID" ] || [ -z "$VERCEL_ORG_ID" ]; then
+            echo " Missing required Vercel secrets. Please configure:"
+            echo "   - VERCEL_TOKEN"
+            echo "   - VERCEL_SCOPE" 
+            echo "   - VERCEL_PROJECT_ID"
+            echo "   - VERCEL_ORG_ID"
+            echo "See: https://github.com/your-repo/VERCEL_DEPLOYMENT_SETUP.md"
+            exit 1
+          fi
           vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --prod
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
