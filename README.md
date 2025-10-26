@@ -127,12 +127,13 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
 - Node.js 18+
 - MongoDB running (local or Atlas)
 - GitHub personal access token (optional, for higher rate limits)
+- Vercel account (for deployment)
 
 ### 1. Clone the repo
 
 ```bash
 git clone <your-repo-url>
-cd Github
+cd en-git
 ```
 
 ### 2. Install dependencies
@@ -150,6 +151,54 @@ npm install
 cd client
 npm install
 ```
+
+### 3. Environment Setup
+
+**Client Environment Variables:**
+```bash
+cp client/.env.example client/.env.local
+# Edit client/.env.local with your GitHub token
+```
+
+**Server Environment Variables:**
+```bash
+cp server/.env.example server/.env
+# Edit server/.env with your configuration
+```
+
+### 4. Start Development Servers
+
+```bash
+# Start client (runs on http://localhost:5173)
+cd client
+npm run dev
+
+# Start server (runs on http://localhost:3000)
+cd server
+npm run dev
+```
+
+### 5. Access the Application
+
+- Open http://localhost:5173 in your browser
+- Enter your GitHub username to get started!
+
+## 🚀 Deployment
+
+The project includes a complete CI/CD pipeline with **Vercel deployment**:
+
+### Automated Deployment Pipeline
+- ✅ **Staging**: Push to `develop` branch → auto-deploys to Vercel staging
+- ✅ **Production**: Push to `main` branch → auto-deploys to Vercel production
+- ✅ **Testing**: Automated testing, security scanning, and performance checks
+- ✅ **Notifications**: Slack notifications for deployment status
+
+### Manual Setup
+See [Vercel Deployment Setup Guide](./VERCEL_DEPLOYMENT_SETUP.md) for detailed instructions on:
+- Setting up Vercel projects
+- Configuring GitHub secrets
+- Environment variables
+- Troubleshooting common issues
 
 ### 3. Configure environment variables
 

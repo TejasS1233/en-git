@@ -34,20 +34,32 @@ jobs:
         with:
           name: client-build
 
-      - name: Deploy to staging
-        run: |
-          echo "Deploying to staging environment..."
-          # Add your deployment commands here
-          # Example: rsync, scp, or your preferred deployment method
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
 
-      - name: Deploy server to staging
+      - name: Deploy to Vercel Staging
         run: |
-          # Add server deployment steps
-          echo "Deploying server to staging..."
+          echo "Deploying to Vercel staging environment..."
+          cd client
+          vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --env=staging --prod=false
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+      - name: Deploy Server to Vercel Staging
+        run: |
+          echo "Deploying server to Vercel staging..."
+          cd server
+          vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --env=staging --prod=false
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_SERVER_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
 
       - name: Run smoke tests
         run: |
           echo "Running smoke tests on staging..."
+          # Add your smoke test commands here
+          # Example: curl tests, API health checks, etc.
 
   # Deploy to production
   deploy-production:
@@ -69,20 +81,32 @@ jobs:
         with:
           name: client-build
 
-      - name: Deploy to production
-        run: |
-          echo "Deploying to production environment..."
-          # Add your deployment commands here
-          # Example: rsync, scp, or your preferred deployment method
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
 
-      - name: Deploy server to production
+      - name: Deploy to Vercel Production
         run: |
-          # Add server deployment steps
-          echo "Deploying server to production..."
+          echo "Deploying to Vercel production environment..."
+          cd client
+          vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --prod
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
 
-      - name: Run smoke tests
+      - name: Deploy Server to Vercel Production
         run: |
-          echo "Running smoke tests on production..."
+          echo "Deploying server to Vercel production..."
+          cd server
+          vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --prod
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_SERVER_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+      - name: Run Post-Deployment Tests
+        run: |
+          echo "Running post-deployment tests..."
+          # Add your post-deployment test commands here
+          # Example: curl tests, API health checks, etc.
 
       - name: Notify deployment
         uses: 8398a7/action-slack@v3

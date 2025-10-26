@@ -307,10 +307,16 @@ jobs:
         with:
           name: build-files
 
-      - name: Deploy to staging
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel Staging
         run: |
-          echo "Deploying to staging environment..."
-          # Add your deployment commands here
+          echo "Deploying to Vercel staging environment..."
+          vercel --token=\${{ secrets.VERCEL_TOKEN }} --scope=\${{ secrets.VERCEL_SCOPE }} --env=staging --prod=false
+        env:
+          VERCEL_PROJECT_ID: \${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: \${{ secrets.VERCEL_ORG_ID }}
 
   deploy-production:
     name: Deploy to Production
@@ -324,10 +330,21 @@ jobs:
         with:
           name: build-files
 
-      - name: Deploy to production
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel Production
         run: |
-          echo "Deploying to production environment..."
-          # Add your deployment commands here
+          echo "Deploying to Vercel production environment..."
+          vercel --token=\${{ secrets.VERCEL_TOKEN }} --scope=\${{ secrets.VERCEL_SCOPE }} --prod
+        env:
+          VERCEL_PROJECT_ID: \${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: \${{ secrets.VERCEL_ORG_ID }}
+
+      - name: Run Post-Deployment Tests
+        run: |
+          echo "Running post-deployment tests..."
+          # Add your post-deployment test commands here
 
       - name: Notify deployment
         uses: 8398a7/action-slack@v3

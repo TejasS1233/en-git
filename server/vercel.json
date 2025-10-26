@@ -3,26 +3,25 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/static-build",
+      "use": "@vercel/node",
       "config": {
-        "distDir": "dist"
+        "includeFiles": ["dist/**"]
       }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     }
   ],
   "env": {
     "NODE_ENV": "production"
   },
   "functions": {
-    "server/api/**/*.js": {
+    "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
   },
-  "regions": ["iad1"],
-  "framework": "vite"
+  "regions": ["iad1"]
 }

@@ -235,10 +235,17 @@ jobs:
         with:
           name: client-build
 
-      - name: Deploy to staging
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel Staging
         run: |
-          echo "Deploy to staging environment"
-          # Add actual deployment steps
+          echo "Deploying to Vercel staging environment..."
+          cd client
+          vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --env=staging --prod=false
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
 
   # Deploy to production
   deploy-production:
@@ -256,7 +263,19 @@ jobs:
         with:
           name: client-build
 
-      - name: Deploy to production
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel Production
         run: |
-          echo "Deploy to production environment"
-          # Add actual deployment steps
+          echo "Deploying to Vercel production environment..."
+          cd client
+          vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }} --prod
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+      - name: Run Post-Deployment Tests
+        run: |
+          echo "Running post-deployment tests..."
+          # Add your post-deployment test commands here
