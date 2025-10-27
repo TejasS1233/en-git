@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="en-git Chrome Extension - GitHub Analytics & Career Insights"
+    />
+    <title>en-git Chrome Extension</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        padding: 60px 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        max-width: 600px;
+      }
+
+      h1 {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+      }
+
+      .tagline {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 40px;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 30px;
+      }
+
+      .btn {
+        padding: 15px 30px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .features {
+        margin-top: 50px;
+        text-align: left;
+      }
+
+      .feature {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+      }
+
+      .feature-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .feature-desc {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .links {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #eee;
+      }
+
+      .links a {
+        color: #667eea;
+        text-decoration: none;
+        margin: 0 15px;
+        font-size: 0.9rem;
+      }
+
+      .links a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .container {
+          padding: 40px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀 en-git</h1>
+      <p class="tagline">GitHub Analytics & Career Insights</p>
+
+      <p style="color: #666; line-height: 1.8">
+        Transform your GitHub profile into actionable career insights with
+        AI-powered analytics, user comparisons, and repository deep-dive
+        features.
+      </p>
+
+      <div class="buttons">
+        <a
+          href="https://en-git-6fjm.vercel.app"
+          class="btn btn-primary"
+          target="_blank"
+        >
+          🌐 Open Web App
+        </a>
+        <a
+          href="https://github.com/TejasS1233/en-git"
+          class="btn btn-secondary"
+          target="_blank"
+        >
+          📦 View on GitHub
+        </a>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-title">📊 Real-time Analytics</div>
+          <div class="feature-desc">
+            Comprehensive GitHub statistics and visualizations
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">🤖 AI-Powered Insights</div>
+          <div class="feature-desc">
+            Career recommendations and skill assessments
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">⚡ User Comparison</div>
+          <div class="feature-desc">
+            Side-by-side developer comparisons with radar charts
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">🔍 Repository Deep Dive</div>
+          <div class="feature-desc">
+            Detailed repository and contributor analysis
+          </div>
+        </div>
+      </div>
+
+      <div class="links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="https://github.com/TejasS1233/en-git/issues" target="_blank"
+          >Support</a
+        >
+        <a href="https://github.com/TejasS1233/en-git" target="_blank"
+          >GitHub</a
+        >
+      </div>
+
+      <p style="margin-top: 30px; color: #999; font-size: 0.85rem">
+        Made with ❤️ by TejasS1233
+      </p>
+    </div>
+  </body>
+</html>

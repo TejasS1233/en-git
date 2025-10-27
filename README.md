@@ -1,13 +1,37 @@
-<img width="200" height="80" alt="Screenshot 2025-10-19 134029-Photoroom" src="https://github.com/user-attachments/assets/8805d023-5923-4b37-8e8c-101a431e65c8" />
+<h1 style="display: flex; align-items: center;">
+    <img width="48" height="48" alt="icon48" src="https://github.com/user-attachments/assets/2f4ade22-2913-43f2-8ef2-fd92134cdac0" />
+   en-git: Github enhancement platform and chome extension
+</h1>
 
-**AI-Powered GitHub Analytics Platform**
+
 
 en-git transforms your GitHub data into actionable insights with advanced analytics, gamification, AI-powered career advice, and beautiful visualizations.
+
+## 🚀 What's New
+
+- 🎯 **Profile Score (0-100)** - Get rated Elite, Expert, Advanced, Intermediate, or Beginner
+- 🐦 **One-Click Social Sharing** - Tweet your achievements instantly with beautiful formatting
+- 💡 **Personalized Tips** - Get actionable advice to improve your developer profile
+- 📈 **Improvement Plans** - See your potential score and timeframe to reach it
 
 <p align="center">
     <img src="https://skillicons.dev/icons?i=react,vite,tailwind,nodejs,express,mongodb,git,github,vercel,postman&perline=10" />
 </p>
-
+<p align="center">
+  <h3><b>Love this project? Please leave a star ⭐ to show your support!</b></h3>
+    <div align="center">
+  <a href="https://github.com/TejasS1233/en-git/stargazers">
+    <img 
+      src="https://img.shields.io/github/stars/TejasS1233/en-git?style=for-the-badge" 
+      alt="GitHub Stars" 
+      height="100"
+    />
+  </a>
+</div>
+  </a>
+  <br />
+  
+</p>
 Get your personalized developer badge — show off your skills, top languages, and activity with a clean, shareable card.
 
 <img width="1279" height="678" alt="image" src="https://github.com/user-attachments/assets/8df56508-ab2c-49b2-b67d-73e90f14ea6a" />
@@ -18,6 +42,45 @@ Engage smarter, grow faster — let data guide your next project and highlight w
 Compare with peers — analyze profiles side-by-side to track your growth and benchmark your progress.
 
 <img width="1888" height="913" alt="image" src="https://github.com/user-attachments/assets/6428e18e-3f50-40a8-bd59-fc77088eaa43" />
+
+## 🆕 New Viral Features!
+
+### 📊 Profile Score (0-100)
+
+Get a comprehensive score evaluating your GitHub profile across 5 key categories:
+
+- ✅ **Instant Evaluation** - See your score out of 100 with color-coded rating
+- ✅ **5 Category Breakdown** - Visual progress bars for each area
+- ✅ **Achievement List** - Celebrate what you've accomplished
+- ✅ **Top 5 Improvement Tips** - Actionable advice with point values
+- ✅ **Improvement Plan** - Personalized roadmap with timeframe
+- ✅ **Potential Score** - See how much you can improve
+
+**Rating System:** Elite 👑 (90-100) • Expert 🏆 (75-89) • Advanced ⭐ (60-74) • Intermediate 📈 (40-59) • Beginner 🌱 (0-39)
+
+### 🐦 One-Click Social Sharing
+
+Share your GitHub achievements with beautiful formatting:
+
+- ✅ **Copy to Clipboard** - Emoji-rich stats ready to paste
+- ✅ **Tweet Instantly** - Opens Twitter with pre-filled tweet
+- ✅ **LinkedIn Share** - Professional format for LinkedIn
+- ✅ **Viral Loop** - Every share includes link back to en-git
+
+**Tweet Format:**
+
+```
+🚀 My GitHub Stats:
+
+📦 42 repositories
+⭐ 1,337 total stars
+💻 Top language: JavaScript
+👥 256 followers
+
+Check your GitHub insights at en-git.vercel.app! 🔥
+```
+
+---
 
 ## ✨ Features
 
@@ -87,24 +150,56 @@ Behavior:
 
 - **Share Cards** - Generate beautiful 1200x630 images for social media
 - **Bookmarks** - Save favorite profiles for quick access
-
-### 🎨 Social & Sharing
-
-- **Share Cards** - Generate beautiful 1200x630 images for social media
-- **Bookmarks** - Save favorite profiles for quick access
 - **Search History** - Track recently viewed profiles
 - **PDF Export** - Download comprehensive reports
+- **🆕 Profile Score (0-100)** - Comprehensive profile evaluation across 5 categories
+  - Profile Completeness (20 pts)
+  - Repository Quality (30 pts)
+  - Skills & Diversity (20 pts)
+  - Community Engagement (15 pts)
+  - Activity & Consistency (15 pts)
+  - Get personalized improvement tips
+  - Track your progress with achievement badges
+  - Rating system: Elite 👑, Expert 🏆, Advanced ⭐, Intermediate 📈, Beginner 🌱
+- **🆕 One-Click Social Sharing** - Share your GitHub achievements instantly
+  - Copy Stats: Copy beautifully formatted stats to clipboard
+  - Tweet: Share on Twitter with pre-filled emoji-rich text
+  - LinkedIn: Share professional achievements on LinkedIn
+  - Automatic viral loop with link back to en-git
 
 ### 🔌 Chrome Extension
 
+#### 🆕 Code Quality Features
+
+- **🎯 Inline Profile Score Badge** - Profile score appears directly on GitHub profile pages
+  - Automatic detection when viewing any GitHub profile
+  - Shows score (0-100), rating (Elite/Expert/Advanced/Intermediate/Beginner), and rating icon
+  - Click to open full analysis on en-git website
+  - Purple "Deeper Analysis" button for detailed insights
+- **📊 Single File Code Quality Analysis** - Perfect for PR reviews and code reading!
+  - Appears automatically on single file views (`/blob/` pages)
+  - "Analyze Code Quality" button in file header
+  - Real-time code analysis with quality score (0-100)
+  - Complexity level (Low/Medium/High)
+  - Click for detailed modal with:
+    - Score breakdown (Structure, Documentation, Complexity, Best Practices)
+    - Issues found with specific warnings
+    - Improvement suggestions with actionable tips
+  - Automatic navigation detection - badge appears when you click through files
+  - No page reload needed!
+
+#### Core Features
+
 - **One-Click Analysis** - Analyze profiles & repos directly from GitHub
+- **Profile Score Integration** - View your 0-100 score right from GitHub popup
+- **Quick Share** - Share achievements without leaving GitHub
 - **Custom Themes** - Personalize GitHub with custom colors (primary, accent, background, text)
   <img width="1919" height="990" alt="image" src="https://github.com/user-attachments/assets/b5bc7cbf-5731-4f4a-b10b-1017ce775386" />
   <img width="1916" height="991" alt="image" src="https://github.com/user-attachments/assets/eedc042a-67c6-4575-acf8-7a68db6baf4f" />
 
 - **Custom Fonts** - Choose your preferred code font (Fira Code, JetBrains Mono, etc.)
 - **Keyboard Shortcuts** - Navigate faster (Ctrl+K search, Ctrl+Shift+N new repo, Ctrl+Shift+I issues)
-- **Repository Bookmarks** - Save and organize favorite repos
+- **Repository Bookmarks** - Save and organize favorite repos with import/export
 - **Visual Enhancements** - Enhanced contribution graphs, repo cards, and profile pages
 - **Settings Page** - Full control with tabs for themes, editor, shortcuts, and bookmarks
 
@@ -141,12 +236,13 @@ Behavior:
 - Node.js 18+
 - MongoDB running (local or Atlas)
 - GitHub personal access token (optional, for higher rate limits)
+- Vercel account (for deployment)
 
 ### 1. Clone the repo
 
 ```bash
 git clone <your-repo-url>
-cd Github
+cd en-git
 ```
 
 ### 2. Install dependencies
@@ -164,6 +260,93 @@ npm install
 cd client
 npm install
 ```
+
+### 3. Environment Setup
+
+**Client Environment Variables:**
+
+```bash
+cp client/.env.example client/.env.local
+# Edit client/.env.local with your GitHub token
+```
+
+**Server Environment Variables:**
+
+```bash
+cp server/.env.example server/.env
+# Edit server/.env with your configuration
+```
+
+### 4. Start Development Servers
+
+```bash
+# Start client (runs on http://localhost:5173)
+cd client
+npm run dev
+
+# Start server (runs on http://localhost:3000)
+cd server
+npm run dev
+```
+
+### 5. Access the Application
+
+- Open http://localhost:5173 in your browser
+- Enter your GitHub username to get started!
+
+## 🎯 Extension Code Quality Features
+
+### Inline Profile Score Badge
+
+When you visit any GitHub profile, the extension automatically injects a beautiful profile score badge showing:
+
+- Overall score (0-100)
+- Rating level with icon (👑 Elite, 🏆 Expert, ⭐ Advanced, 📈 Intermediate, 🌱 Beginner)
+- Purple "Deeper Analysis" button to open full analysis
+
+### Single File Code Quality Analysis
+
+Perfect for PR reviews and code reading! When viewing any code file:
+
+- "Analyze Code Quality" button appears in the file header
+- Click to analyze the file in real-time
+- See quality score, complexity level, and file size
+- Click the badge for detailed breakdown:
+  - **Score Breakdown**: Structure, Documentation, Complexity, Best Practices
+  - **Issues Found**: Specific problems detected (long functions, missing comments, debug statements)
+  - **Suggestions**: Actionable recommendations to improve code quality
+
+**Supported Languages**: JavaScript, TypeScript, Python, Java, C/C++, C#, Go, Rust, Ruby, PHP, Swift, Kotlin, and more!
+
+**Key Benefits**:
+
+- ✅ Instant feedback during code reviews
+- ✅ Learn best practices from analysis
+- ✅ Identify issues before merging PRs
+- ✅ No page reload needed - works on navigation
+- ✅ All analysis done client-side (privacy-focused)
+
+---
+
+## 🚀 Deployment
+
+The project includes a complete CI/CD pipeline with **Vercel deployment**:
+
+### Automated Deployment Pipeline
+
+- ✅ **Staging**: Push to `develop` branch → auto-deploys to Vercel staging
+- ✅ **Production**: Push to `main` branch → auto-deploys to Vercel production
+- ✅ **Testing**: Automated testing, security scanning, and performance checks
+- ✅ **Notifications**: Slack notifications for deployment status
+
+### Manual Setup
+
+See [Vercel Deployment Setup Guide](./VERCEL_DEPLOYMENT_SETUP.md) for detailed instructions on:
+
+- Setting up Vercel projects
+- Configuring GitHub secrets
+- Environment variables
+- Troubleshooting common issues
 
 ### 3. Configure environment variables
 
@@ -328,3 +511,55 @@ Github/
 ```
 
 ---
+
+## 🤝 Contributing
+
+We love contributions! Here''s how you can help:
+
+1. **Fork the repository**
+2. **Create a feature branch:** `git checkout -b feature/amazing-feature`
+3. **Commit your changes:** `git commit -m ''Add amazing feature''`
+4. **Push to the branch:** `git push origin feature/amazing-feature`
+5. **Open a Pull Request**
+
+### Development Guidelines
+
+- Follow existing code style and conventions
+- Add comments for complex logic
+- Test your changes thoroughly
+- Update documentation if needed
+- Keep PRs focused and atomic
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 💖 Support
+
+If you find this project helpful:
+
+- ⭐ **Star the repo** to show your support
+- 🐦 **Share on Twitter** using our one-click share feature
+- 💼 **Share on LinkedIn** to help others discover it
+- 🐛 **Report bugs** to help us improve
+- 💡 **Suggest features** we should build next
+
+---
+
+## 📬 Contact
+
+**Project Link:** [https://github.com/TejasS1233/en-git](https://github.com/TejasS1233/en-git)  
+**Live Demo:** [https://en-git-6fjm.vercel.app](https://en-git-6fjm.vercel.app)  
+**Chrome Extension:** Coming soon to Chrome Web Store!
+
+---
+
+<div align="center">
+  <h3>Made with ❤️ by developers, for developers</h3>
+  <p>Transform your GitHub profile • Get actionable insights • Share your achievements</p>
+  <p><b>Start analyzing your profile today! 🚀</b></p>
+</div>

@@ -14,6 +14,7 @@ import Dashboard from "@/pages/Dashboard";
 import GitHubInsights from "@/pages/GitHubInsights";
 import CompareUsers from "@/pages/CompareUsers";
 import RepositoryDeepDive from "@/pages/RepositoryDeepDive";
+import CICDPipeline from "@/pages/CICDPipeline";
 import AuthCallback from "@/pages/AuthCallback"; // <-- import the new AuthCallback page
 
 const hiddenLayoutRoutes = ["/login", "/signup", "/dashboard", "/auth/callback"];
@@ -47,6 +48,7 @@ function App() {
           <Route path="/compare/:user1/:user2" element={<CompareUsers />} />
           <Route path="/repo" element={<RepositoryDeepDive />} />
           <Route path="/repo/:owner/:repo" element={<RepositoryDeepDive />} />
+          <Route path="/cicd" element={<CICDPipeline />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />

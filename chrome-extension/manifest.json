@@ -3,12 +3,7 @@
   "name": "en-git - GitHub Analytics & Career Insights",
   "version": "1.0.0",
   "description": "AI-powered GitHub analytics with career insights, user comparison, and repository deep dive",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "tabs",
-    "contextMenus"
-  ],
+  "permissions": ["activeTab", "storage", "tabs", "contextMenus"],
   "host_permissions": [
     "https://api.github.com/*",
     "https://github.com/*",
@@ -18,9 +13,9 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.svg",
-      "48": "icons/icon48.svg",
-      "128": "icons/icon128.svg"
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
     },
     "default_title": "en-git - Analyze GitHub Profile"
   },
@@ -31,16 +26,17 @@
     {
       "matches": ["https://github.com/*"],
       "js": ["content.js"],
-      "css": ["content.css"],
+      "css": ["content.css", "styles/codeQualityBadges.css"],
       "run_at": "document_idle"
     }
   ],
   "icons": {
-    "16": "icons/icon16.svg",
-    "48": "icons/icon48.svg",
-    "128": "icons/icon128.svg"
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
+  "homepage_url": "https://tejass1233.github.io/en-git/",
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   }
 }

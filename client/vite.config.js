@@ -28,6 +28,8 @@ export default defineConfig(({ mode }) => {
               entryFileNames: "[name].js",
               chunkFileNames: "chunks/[name].js",
               assetFileNames: "assets/[name].[ext]",
+              format: "es",
+              manualChunks: undefined,
             },
           },
           minify: true,
