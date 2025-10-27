@@ -21,6 +21,20 @@ Compare with peers — analyze profiles side-by-side to track your growth and be
 
 ## ✨ Features
 
+## Repository Deep Dive — GitHub URL input
+
+A new input was added to the Repository Deep Dive page which lets users paste a GitHub repository URL (or shorthand) and have the owner and repository fields auto-filled.
+
+Supported inputs:
+- Full URL: `https://github.com/owner/repo`
+- SSH URL: `git@github.com:owner/repo.git`
+- Short form: `owner/repo`
+
+Behavior:
+- Pasting a supported value will auto-fill the `Owner` and `Repository` fields.
+- Invalid or unparsable input will show an inline error message.
+- After the fields are filled, click `Analyze Repository` to trigger the existing analysis flow.
+
 ### Core Analytics
 
 - **Language Analysis** - Top 3 programming languages with usage percentages
