@@ -40,7 +40,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { validateRepoOwner, validateRepoName } from "@/lib/utils";
+import { validateRepoOwner, validateRepoName, parseGithubRepoUrl } from "@/lib/utils";
 
 const COLORS = ["#667eea", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899"];
 
@@ -50,6 +50,8 @@ export default function RepositoryDeepDive() {
 
   const [ownerInput, setOwnerInput] = useState(owner || "");
   const [repoInput, setRepoInput] = useState(repo || "");
+  const [urlInput, setUrlInput] = useState("");
+  const [urlError, setUrlError] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [lastUpdated, setLastUpdated] = useState("");
@@ -151,6 +153,37 @@ export default function RepositoryDeepDive() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">GitHub URL</label>
+                  <Input
+                    placeholder="https://github.com/facebook/react"
+                    value={urlInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setUrlInput(val);
+                      if (!val.trim()) {
+                        setUrlError("");
+                        return;
+                      }
+                      const res = parseGithubRepoUrl(val);
+                      if (res.valid) {
+                        setOwnerInput(res.owner);
+                        setRepoInput(res.repo);
+                        setOwnerError("");
+                        setRepoError("");
+                        setUrlError("");
+                      } else {
+                        setUrlError(res.message || "Invalid GitHub URL");
+                      }
+                    }}
+                    disabled={loading}
+                  />
+                  {urlError && (
+                    <p className="text-sm text-red-500" role="alert">
+                      {urlError}
+                    </p>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Owner</label>
