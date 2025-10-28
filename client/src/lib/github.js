@@ -59,3 +59,12 @@ export const fetchRepoStats = async (owner, repo, refresh = false) => {
     throw error;
   }
 };
+
+export const fetchRepositoryBranches = async (owner, repo, refresh = false) => {
+  const params = refresh ? { refresh: true } : {};
+  const { data } = await api.get(
+    `/repository/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/branches`,
+    { params }
+  );
+  return data;
+};

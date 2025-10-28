@@ -23,9 +23,10 @@ import {
   Award,
   History, // Import the History icon
 } from "lucide-react";
-import { getRepositoryInsights } from "@/lib/github";
+import { getRepositoryInsights, fetchRepositoryBranches } from "@/lib/github";
 import { toast } from "sonner";
 import { RepositoryAnalysisTips } from "@/components/AnalysisTips";
+import BranchVisualization from "@/components/BranchVisualization";
 import {
   BarChart,
   Bar,
@@ -55,6 +56,8 @@ export default function RepositoryDeepDive() {
   const [urlError, setUrlError] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const [branchData, setBranchData] = useState(null);
+  const [branchLoading, setBranchLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
   const [error, setError] = useState(null); // Add error state
   const [ownerError, setOwnerError] = useState("");
@@ -94,12 +97,28 @@ export default function RepositoryDeepDive() {
       } else {
         setLastUpdated(new Date().toLocaleString());
       }
+
+      // Fetch branch data
+      fetchBranchData(ownerParam, repoParam, refresh);
     } catch (err) {
       console.error(err);
       setError("Failed to load repository data.");
       toast.error("Failed to load repository data.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchBranchData(ownerParam, repoParam, refresh = false) {
+    setBranchLoading(true);
+    try {
+      const response = await fetchRepositoryBranches(ownerParam, repoParam, refresh);
+      setBranchData(response);
+    } catch (err) {
+      console.error("Failed to load branch data:", err);
+      // Don't show error toast for branch data - it's optional
+    } finally {
+      setBranchLoading(false);
     }
   }
 
@@ -564,9 +583,12 @@ export default function RepositoryDeepDive() {
       </Card>
 
       <Tabs defaultValue="languages" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
           <TabsTrigger value="languages" className="text-xs sm:text-sm">
             Languages
+          </TabsTrigger>
+          <TabsTrigger value="branches" className="text-xs sm:text-sm">
+            Branches
           </TabsTrigger>
           <TabsTrigger value="commits" className="text-xs sm:text-sm">
             Commits
@@ -663,6 +685,13 @@ export default function RepositoryDeepDive() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="branches">
+          <BranchVisualization
+            commits={branchData?.commits || []}
+            branches={branchData?.branches || []}
+          />
         </TabsContent>
 
         <TabsContent value="commits">

@@ -304,3 +304,121 @@ function getCommitFrequency(commits) {
     .sort((a, b) => new Date(a.week) - new Date(b.week))
     .slice(-12); // Last 12 weeks
 }
+
+// Get repository branches and commits for visualization
+export const getRepositoryBranches = asyncHandler(async (req, res) => {
+  const { owner, repo } = req.params;
+
+  if (!owner || !repo) {
+    throw new ApiError(400, "Owner and repository name are required");
+  }
+
+  try {
+    // Fetch branches and commits
+    const [branches, commitsData] = await Promise.all([
+      axios.get(`${GITHUB_API}/repos/${owner}/${repo}/branches?per_page=100`, { headers }),
+      axios.get(`${GITHUB_API}/repos/${owner}/${repo}/commits?per_page=100`, { headers }),
+    ]);
+
+    // Process commits to extract branch information
+    const commits = commitsData.data.map((commit) => ({
+      sha: commit.sha,
+      message: commit.commit.message.split("\n")[0],
+      author: commit.commit.author.name,
+      date: commit.commit.author.date,
+      parents: commit.parents.map((p) => p.sha),
+    }));
+
+    // Build commit graph
+    const commitGraph = buildCommitGraph(commits);
+
+    return res.status(200).json(
+      new ApiResponse(200, "Repository branches fetched successfully", {
+        branches: branches.data.map((b) => ({
+          name: b.name,
+          commit: b.commit.sha,
+        })),
+        commits: commitGraph,
+        totalCommits: commits.length,
+      })
+    );
+  } catch (error) {
+    console.error("Repository Branches Error:", error);
+    if (error.response?.status === 404) {
+      throw new ApiError(404, `Repository '${owner}/${repo}' not found`);
+    }
+    if (error.response?.status === 403) {
+      throw new ApiError(
+        403,
+        "GitHub API rate limit exceeded. Please add a GITHUB_TOKEN to your .env file."
+      );
+    }
+    throw new ApiError(500, error.message || "Failed to fetch repository branches");
+  }
+});
+
+function buildCommitGraph(commits) {
+  // Create a map of commits by SHA
+  const commitMap = new Map();
+  commits.forEach((commit) => {
+    commitMap.set(commit.sha, { ...commit, children: [], level: -1, branch: null });
+  });
+
+  // Build parent-child relationships
+  commitMap.forEach((commit, sha) => {
+    commit.parents.forEach((parentSha) => {
+      const parent = commitMap.get(parentSha);
+      if (parent) {
+        if (!parent.children.includes(sha)) {
+          parent.children.push(sha);
+        }
+      }
+    });
+  });
+
+  // Assign levels using BFS from the earliest commits
+  const roots = Array.from(commitMap.values()).filter((c) => c.parents.length === 0);
+  
+  // If no roots, start from oldest commit
+  if (roots.length === 0) {
+    const oldestCommit = commits[commits.length - 1];
+    roots.push(commitMap.get(oldestCommit.sha));
+  }
+
+  const queue = roots.map((root) => ({ commit: root, level: 0 }));
+  const visited = new Set();
+
+  while (queue.length > 0) {
+    const { commit, level } = queue.shift();
+    
+    if (visited.has(commit.sha)) continue;
+    visited.add(commit.sha);
+    
+    commit.level = level;
+
+    // Process children
+    commit.children.forEach((childSha) => {
+      const child = commitMap.get(childSha);
+      if (child && !visited.has(childSha)) {
+        queue.push({ commit: child, level: level + 1 });
+      }
+    });
+
+    // Process merge parents (commits with multiple parents)
+    if (commit.parents.length > 1) {
+      commit.parents.forEach((parentSha) => {
+        const parent = commitMap.get(parentSha);
+        if (parent && !visited.has(parentSha)) {
+          queue.push({ commit: parent, level });
+        }
+      });
+    }
+  }
+
+  // Convert to array and sort by date
+  const sortedCommits = Array.from(commitMap.values()).sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  return sortedCommits.slice(0, 50); // Limit to 50 most recent commits
+}
