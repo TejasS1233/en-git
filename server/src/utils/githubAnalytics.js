@@ -4,13 +4,22 @@ function sortEntriesDesc(mapObj) {
   return Object.entries(mapObj).sort((a, b) => b[1] - a[1]);
 }
 
-export function aggregateLanguages(repos, repoLanguages) {
+export function aggregateLanguages(repos, repoLanguages, contributionRatios = new Map()) {
   const total = {};
   for (const r of repos) {
     const key = `${r.owner.login}/${r.name}`;
     const langs = repoLanguages.get(key) || {};
+    
+    // For forked repositories, scale by contribution ratio
+    const isFork = r.fork || false;
+    const contributionRatio = contributionRatios.get(key) || 1;
+    
+    // If it's a fork, scale the language stats by contribution ratio
+    // If contribution ratio is 0 or very low (e.g., user made no commits to fork), exclude it
+    const multiplier = isFork ? (contributionRatio > 0.01 ? contributionRatio : 0) : 1;
+    
     for (const [lang, bytes] of Object.entries(langs)) {
-      total[lang] = (total[lang] || 0) + bytes;
+      total[lang] = (total[lang] || 0) + bytes * multiplier;
     }
   }
   const sorted = sortEntriesDesc(total);
