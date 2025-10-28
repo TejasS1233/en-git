@@ -61,14 +61,14 @@ const DEFAULT_SETTINGS = {
 // Helper component for Label with Tooltip
 function LabelWithTooltip({ htmlFor, tooltip, children }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       <Label htmlFor={htmlFor}>{children}</Label>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
         </TooltipTrigger>
         <TooltipContent side="right" className="max-w-xs">
-          {tooltip}
+          <p className="text-xs">{tooltip}</p>
         </TooltipContent>
       </Tooltip>
     </div>
@@ -354,14 +354,14 @@ function SettingsApp() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <Label>Enhanced Contribution Graph</Label>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="max-w-xs">
-                            Displays additional statistics when you hover over contribution squares on your profile.
+                            <p className="text-xs">Displays additional statistics when you hover over contribution squares on your profile.</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -374,14 +374,14 @@ function SettingsApp() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <Label>Enhanced Repository Cards</Label>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="max-w-xs">
-                            Shows language breakdown, last updated date, and star count directly on repository cards.
+                            <p className="text-xs">Shows language breakdown, last updated date, and star count directly on repository cards.</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -394,14 +394,14 @@ function SettingsApp() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <Label>Enhanced Profile</Label>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="max-w-xs">
-                            Adds visual analytics, contribution heatmaps, and detailed activity breakdowns to user profiles.
+                            <p className="text-xs">Adds visual analytics, contribution heatmaps, and detailed activity breakdowns to user profiles.</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
