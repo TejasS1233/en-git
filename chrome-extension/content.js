@@ -737,7 +737,35 @@ function addDeeperAnalysisButtonToProfile() {
   }
 }
 
-// Keyboard shortcuts
+// Helper function to parse shortcut string (e.g., "Ctrl+Shift+K")
+function parseShortcut(shortcut) {
+  const parts = shortcut.split("+");
+  return {
+    ctrl: parts.includes("Ctrl"),
+    alt: parts.includes("Alt"),
+    shift: parts.includes("Shift"),
+    meta: parts.includes("Meta"),
+    key: parts[parts.length - 1]
+  };
+}
+
+// Helper function to check if keyboard event matches a shortcut
+function matchesShortcut(e, shortcutString) {
+  const shortcut = parseShortcut(shortcutString);
+  
+  const ctrlMatch = (!shortcut.ctrl || e.ctrlKey) && (shortcut.ctrl || !e.ctrlKey);
+  const altMatch = (!shortcut.alt || e.altKey) && (shortcut.alt || !e.altKey);
+  const shiftMatch = (!shortcut.shift || e.shiftKey) && (shortcut.shift || !e.shiftKey);
+  const metaMatch = (!shortcut.meta || e.metaKey) && (shortcut.meta || !e.metaKey);
+  
+  // Convert key to uppercase for comparison
+  const eventKey = e.key.toUpperCase();
+  const shortcutKey = shortcut.key.toUpperCase();
+  
+  return ctrlMatch && altMatch && shiftMatch && metaMatch && (eventKey === shortcutKey);
+}
+
+// Keyboard shortcuts - now supports custom user shortcuts
 document.addEventListener("keydown", (e) => {
   if (!settings || !settings.shortcuts || !settings.shortcuts.enabled) return;
 
