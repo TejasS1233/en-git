@@ -41,6 +41,8 @@
     "peer": "^1.0.2",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
-    "twilio": "^5.8.0"
+    "twilio": "^5.8.0",
+    "uuid": "^10.0.0",
+    "agora-access-token": "^2.0.4"
   }
 }

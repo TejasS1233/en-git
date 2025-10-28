@@ -75,6 +75,9 @@ import githubRouter from "./routes/github.routes.js";
 import repositoryRouter from "./routes/repository.routes.js";
 import statsHistoryRouter from "./routes/statsHistory.routes.js";
 import badgeRouter from "./routes/badge.routes.js";
+import reviewRouter from "./routes/review.routes.js";
+import agoraRouter from "./routes/agora.routes.js";
+import { setupReviewSocketHandlers } from "./socket/review.socket.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -85,12 +88,10 @@ app.use("/api/v1/github", githubRouter);
 app.use("/api/v1/repository", repositoryRouter);
 app.use("/api/v1/stats", statsHistoryRouter);
 app.use("/api/v1/badges", badgeRouter);
+app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/agora", agoraRouter);
 
-io.on("connection", (socket) => {
-  console.log(`Socket.IO client connected: ${socket.id}`);
-  socket.on("disconnect", () => {
-    console.log(`Socket.IO client disconnected: ${socket.id}`);
-  });
-});
+// Setup review socket handlers
+setupReviewSocketHandlers(io);
 
 export { httpServer };
