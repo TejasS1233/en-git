@@ -1,5 +1,6 @@
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 import {
   Form,
   FormControl,
@@ -37,6 +38,7 @@ const formSchema = z.object({
 
 const SignUp = () => {
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -56,9 +58,7 @@ const SignUp = () => {
   const onSubmit = async (data) => {
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
-      if (data[key]) {
-        formData.append(key, data[key]);
-      }
+      if (data[key]) formData.append(key, data[key]);
     });
 
     try {
@@ -83,23 +83,25 @@ const SignUp = () => {
 
   useEffect(() => {
     return () => {
-      if (avatarPreview) {
-        URL.revokeObjectURL(avatarPreview);
-      }
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
     };
   }, [avatarPreview]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-xs w-full flex flex-col items-center">
-        <Logo className="h-9 w-9" />
-        <p className="mt-4 text-xl font-bold tracking-tight">Sign up</p>
+    <div className="min-h-screen flex items-center justify-center bg-background transition-colors px-4">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-md p-8 transition-colors">
+
+        <div className="flex flex-col items-center">
+          <Logo className="h-9 w-9" />
+          <p className="mt-4 text-xl font-bold tracking-tight">Sign up</p>
+        </div>
 
         <Form {...form}>
           <form className="w-full space-y-4 mt-6" onSubmit={form.handleSubmit(onSubmit)}>
+            {/* Google Sign-in */}
             <Button
               type="button"
-              className="mt-8 w-full gap-3"
+              className="w-full gap-3"
               onClick={() =>
                 (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/users/auth/google`)
               }
@@ -108,9 +110,10 @@ const SignUp = () => {
               Continue with Google
             </Button>
 
+            {/* GitHub Sign-in */}
             <Button
               type="button"
-              className="mt-3 w-full gap-3 bg-[#24292e] text-white hover:bg-[#333]"
+              className="w-full gap-3 bg-[#24292e] text-white hover:bg-[#333]"
               onClick={() =>
                 (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/users/auth/github`)
               }
@@ -119,13 +122,13 @@ const SignUp = () => {
               Continue with GitHub
             </Button>
 
-            <div className="my-7 w-full flex items-center justify-center overflow-hidden">
-              <Separator />
-              <span className="text-sm px-2">OR</span>
+            <div className="my-6 flex items-center justify-center overflow-hidden">
+              <Separator/>
+              <span className="text-sm px-2 text-muted-foreground">OR</span>
               <Separator />
             </div>
 
-            {/* Rest of form fields */}
+            {/* Avatar Upload */}
             <FormField
               control={form.control}
               name="avatar"
@@ -141,7 +144,6 @@ const SignUp = () => {
                       />
                     </div>
                   )}
-                  <FormMessage />
                   <FormControl>
                     <Input
                       type="file"
@@ -152,9 +154,12 @@ const SignUp = () => {
                       onChange={handleAvatarChange}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Full Name */}
             <FormField
               control={form.control}
               name="fullname"
@@ -169,6 +174,7 @@ const SignUp = () => {
               )}
             />
 
+            {/* Email */}
             <FormField
               control={form.control}
               name="email"
@@ -183,6 +189,7 @@ const SignUp = () => {
               )}
             />
 
+            {/* Country Code & Phone */}
             <div className="flex gap-2">
               <FormField
                 control={form.control}
@@ -221,6 +228,7 @@ const SignUp = () => {
               />
             </div>
 
+            {/* Address */}
             <FormField
               control={form.control}
               name="address"
@@ -235,27 +243,41 @@ const SignUp = () => {
               )}
             />
 
+            {/* Password with toggle */}
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Password" {...field} />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <div
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
+                    </div>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Submit Button */}
             <Button type="submit" className="mt-4 w-full">
               Continue with Email
             </Button>
           </form>
         </Form>
 
-        <p className="mt-5 text-sm text-center">
+        <p className="mt-6 text-sm text-center">
           Already have an account?
           <Link to="/login" className="ml-1 underline text-muted-foreground">
             Log in
@@ -266,62 +288,28 @@ const SignUp = () => {
   );
 };
 
+/* SVG Logos */
 const GoogleLogo = () => (
-  <svg
-    width="1.2em"
-    height="1.2em"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="inline-block shrink-0 align-sub text-[inherit]"
-  >
-    <g clipPath="url(#clip0)">
-      <path
-        d="M15.6823 8.18368C15.6823 7.63986 15.6382 7.0931 15.5442 6.55811H7.99829V9.63876H12.3194C12.1401 10.6323 11.564 11.5113 10.7203 12.0698V14.0687H13.2983C14.8122 12.6753 15.6823 10.6176 15.6823 8.18368Z"
-        fill="#4285F4"
-      ></path>
-      <path
-        d="M7.99812 16C10.1558 16 11.9753 15.2915 13.3011 14.0687L10.7231 12.0698C10.0058 12.5578 9.07988 12.8341 8.00106 12.8341C5.91398 12.8341 4.14436 11.426 3.50942 9.53296H0.849121V11.5936C2.2072 14.295 4.97332 16 7.99812 16Z"
-        fill="#34A853"
-      ></path>
-      <path
-        d="M3.50665 9.53295C3.17154 8.53938 3.17154 7.4635 3.50665 6.46993V4.4093H0.849292C-0.285376 6.66982 -0.285376 9.33306 0.849292 11.5936L3.50665 9.53295Z"
-        fill="#FBBC04"
-      ></path>
-      <path
-        d="M7.99812 3.16589C9.13867 3.14825 10.241 3.57743 11.067 4.36523L13.3511 2.0812C11.9048 0.723121 9.98526 -0.0235266 7.99812 -1.02057e-05C4.97332 -1.02057e-05 2.2072 1.70493 0.849121 4.40932L3.50648 6.46995C4.13848 4.57394 5.91104 3.16589 7.99812 3.16589Z"
-        fill="#EA4335"
-      ></path>
-    </g>
-    <defs>
-      <clipPath id="clip0">
-        <rect width="15.6825" height="16" fill="white"></rect>
-      </clipPath>
-    </defs>
-  </svg>
-);
-const GitHubLogo = () => (
-  <svg
-    width="1.2em"
-    height="1.2em"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="inline-block shrink-0 align-sub text-[inherit]"
-  >
+  <svg width="1.2em" height="1.2em" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
-      0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
-      -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64
-      -3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.66 7.66 0 012-.27c.68.003
-      1.36.092 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15
-      0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013
-      8.013 0 0016 8c0-4.42-3.58-8-8-8z"
-      fill="currentColor"
+      d="M15.6823 8.18368C15.6823 7.63986 15.6382 7.0931 15.5442 6.55811H7.99829V9.63876H12.3194C12.1401 10.6323 11.564 11.5113 10.7203 12.0698V14.0687H13.2983C14.8122 12.6753 15.6823 10.6176 15.6823 8.18368Z"
+      fill="#4285F4"
+    />
+    <path
+      d="M7.99812 16C10.1558 16 11.9753 15.2915 13.3011 14.0687L10.7231 12.0698C10.0058 12.5578 9.07988 12.8341 8.00106 12.8341C5.91398 12.8341 4.14436 11.426 3.50942 9.53296H0.849121V11.5936C2.2072 14.295 4.97332 16 7.99812 16Z"
+      fill="#34A853"
+    />
+    <path
+      d="M3.50665 9.53295C3.17154 8.53938 3.17154 7.4635 3.50665 6.46993V4.4093H0.849292C-0.285376 6.66982 -0.285376 9.33306 0.849292 11.5936L3.50665 9.53295Z"
+      fill="#FBBC04"
+    />
+    <path
+      d="M7.99812 3.16589C9.13867 3.14825 10.241 3.57743 11.067 4.36523L13.3511 2.0812C11.9048 0.723121 9.98526 -0.0235266 7.99812 -1.02057e-05C4.97332 -1.02057e-05 2.2072 1.70493 0.849121 4.40932L3.50648 6.46995C4.13848 4.57394 5.91104 3.16589 7.99812 3.16589Z"
+      fill="#EA4335"
     />
   </svg>
 );
+
+const GitHubLogo = () => (<svg width="1.2em" height="1.2em" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block shrink-0 align-sub text-[inherit]" > <path fillRule="evenodd" clipRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52 -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64 -3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.66 7.66 0 012-.27c.68.003 1.36.092 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" fill="currentColor" /> </svg>);
 
 export default SignUp;

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "@/lib/axios";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/Logo";
 import { Separator } from "@/components/ui/separator";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -28,6 +29,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const [searchParams] = useSearchParams();
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("expired") === "true") {
@@ -52,7 +54,6 @@ export default function Login() {
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
       const message = err?.response?.data?.message?.toString?.() || err?.message || "Login failed.";
-
       if (err?.response?.data?.errors?.length) {
         err.response.data.errors.forEach((e) => {
           toast.error(e?.message?.toString() || "Something went wrong.");
@@ -60,17 +61,18 @@ export default function Login() {
       } else {
         toast.error(message);
       }
-
       console.error("Login Error:", message, err);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-xs w-full flex flex-col items-center">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-muted/10">
+      {/* Boxed login card */}
+      <div className="w-full max-w-sm rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors">
         <Logo className="h-9 w-9" />
         <p className="mt-4 text-xl font-bold tracking-tight text-center">Log in</p>
 
+        {/* Social buttons */}
         <Button
           className="mt-8 w-full gap-3"
           onClick={() =>
@@ -91,12 +93,14 @@ export default function Login() {
           Continue with GitHub
         </Button>
 
+        {/* OR Separator */}
         <div className="my-7 w-full flex items-center justify-center overflow-hidden">
           <Separator />
           <span className="text-sm px-2">OR</span>
           <Separator />
         </div>
 
+        {/* Login form */}
         <Form {...form}>
           <form className="w-full space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
@@ -112,25 +116,43 @@ export default function Login() {
                 </FormItem>
               )}
             />
+
+            {/* Password field with toggle */}
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Password" {...field} />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        {...field}
+                        className="pr-10"
+                      />
+                    </FormControl>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
+                    </button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <Button type="submit" className="mt-4 w-full">
               Continue with Email
             </Button>
           </form>
         </Form>
 
+        {/* Footer link */}
         <p className="mt-5 text-sm text-center">
           Don't have an account?
           <Link to="/signup" className="ml-1 underline text-muted-foreground">
@@ -142,6 +164,7 @@ export default function Login() {
   );
 }
 
+/* Logos */
 function GoogleLogo() {
   return (
     <svg
