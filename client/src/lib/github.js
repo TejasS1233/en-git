@@ -18,6 +18,12 @@ export async function getAIInsights(username, refresh = false) {
   return data;
 }
 
+export async function getLearningRecommendations(username, refresh = false) {
+  const params = refresh ? { refresh: true } : {};
+  const { data } = await api.get(`/github/learning-recommendations/${encodeURIComponent(username)}`, { params });
+  return data;
+}
+
 export async function getRepositoryInsights(owner, repo, refresh = false) {
   const params = refresh ? { refresh: true } : {};
   const { data } = await api.get(

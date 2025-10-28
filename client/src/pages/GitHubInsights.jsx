@@ -54,6 +54,7 @@ import {
 import { exportToPDF } from "@/lib/pdfExport";
 import { InsightsLoadingSkeleton } from "@/components/ui/skeleton-components";
 import { AIInsights } from "@/components/AIInsights";
+import { LearningRecommendations } from "@/components/LearningRecommendations";
 import { GamificationBadges } from "@/components/GamificationBadges";
 import { SkillRadarChart } from "@/components/SkillRadarChart";
 import { TechStackBadges } from "@/components/TechStackBadges";
@@ -626,6 +627,7 @@ export default function GitHubInsightsPage() {
 
               <TabsContent value="ai" className="space-y-6">
                 <AIInsights username={insights.user.login} onInsightsGenerated={setAiInsights} />
+                <LearningRecommendations username={insights.user.login} insights={insights} />
               </TabsContent>
 
               <TabsContent value="share" className="space-y-6 mt-6">
