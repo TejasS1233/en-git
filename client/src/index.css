@@ -401,3 +401,7 @@ body {
 .recharts-default-tooltip {
   pointer-events: auto;
 }
+/* Fix for dark mode recommendation link hover */
+.dark .group:hover a.text-primary {
+  color: white !important; /* Force white text on hover within the group in dark mode */
+}

@@ -1099,7 +1099,7 @@ function RecommendationsSection({ recommendations }) {
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-primary hover:underline"
+                    className="font-semibold text-primary hover:underline dark:hover:text-foreground"
                   >
                     {item.fullName}
                   </a>
@@ -1140,40 +1140,41 @@ function RecommendationsSection({ recommendations }) {
           </CardContent>
         </Card>
       )}
-      {trendingSample && trendingSample.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Currently Trending on GitHub</CardTitle>
-            <CardDescription>Today's popular repositories</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {trendingSample.slice(0, 5).map((item, i) => (
-                <div key={i} className="p-3 border rounded hover:bg-accent transition">
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-primary hover:underline"
-                  >
-                    {item.fullName}
-                  </a>
-                  <p className="text-sm text-muted-foreground">
-                    {item.description || "No description"}
-                  </p>
-                  <div className="flex gap-2 mt-2">
-                    {item.language && <Badge variant="secondary">{item.language}</Badge>}
-                    <Badge variant="outline" className="flex items-center gap-1">
-                      <Star className="h-3 w-3" />
-                      {item.stars}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+  {trendingSample && trendingSample.length > 0 && (
+  <Card>
+    <CardHeader>
+      <CardTitle>Currently Trending on GitHub</CardTitle>
+      <CardDescription>Today's popular repositories</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-2">
+        {trendingSample.slice(0, 5).map((item, i) => (
+  <div key={i} className="p-3 border rounded hover:bg-accent transition group"> {/* Added 'group' */}
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+       // Added 'dark:group-hover:text-white'
+      className="font-semibold text-primary hover:underline dark:group-hover:text-white"
+    >
+      {item.fullName}
+    </a>
+            <p className="text-sm text-muted-foreground">
+              {item.description || "No description"}
+            </p>
+            <div className="flex gap-2 mt-2">
+              {item.language && <Badge variant="secondary">{item.language}</Badge>}
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Star className="h-3 w-3" />
+                {item.stars}
+              </Badge>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        ))}
+      </div>
+    </CardContent>
+  </Card>
+)}
     </div>
   );
 }
