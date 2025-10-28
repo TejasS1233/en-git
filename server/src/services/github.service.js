@@ -169,3 +169,32 @@ export async function fetchTrending(language = "", since = "daily", refresh = fa
   cache.set(key, value, 60 * 30); // 30 minutes
   return value;
 }
+
+// Fetch PR files for collaborative code review
+export async function fetchPRFiles(owner, repo, prNumber, refresh = false) {
+  const ttl = 60 * 10; // 10 minutes (PR files can change)
+  return cachedGet(
+    `pr-files:${owner}/${repo}:${prNumber}`,
+    `/repos/${owner}/${repo}/pulls/${prNumber}/files`,
+    {
+      params: { per_page: 100 },
+      ttl,
+      refresh,
+    }
+  );
+}
+
+// Post comment to GitHub PR
+export async function postPRComment(owner, repo, prNumber, commentData) {
+  try {
+    const response = await gh.post(
+      `/repos/${owner}/${repo}/pulls/${prNumber}/comments`,
+      commentData,
+      { headers: authHeader() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error posting PR comment:", error);
+    throw error;
+  }
+}
