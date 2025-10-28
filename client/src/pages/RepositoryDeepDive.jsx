@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { getRepositoryInsights } from "@/lib/github";
 import { toast } from "sonner";
+import { RepositoryAnalysisTips } from "@/components/AnalysisTips";
 import {
   BarChart,
   Bar,
@@ -82,7 +83,17 @@ export default function RepositoryDeepDive() {
         throw new Error("Received no data for this repository.");
       }
       setData(response.data);
-      setLastUpdated(new Date(response.lastUpdated).toLocaleString());
+      // Handle lastUpdated with fallback
+      if (response.lastUpdated) {
+        const date = new Date(response.lastUpdated);
+        if (!isNaN(date.getTime())) {
+          setLastUpdated(date.toLocaleString());
+        } else {
+          setLastUpdated(new Date().toLocaleString());
+        }
+      } else {
+        setLastUpdated(new Date().toLocaleString());
+      }
     } catch (err) {
       console.error(err);
       setError("Failed to load repository data.");
@@ -135,11 +146,6 @@ export default function RepositoryDeepDive() {
   if (!data) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-4 sm:mb-6">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
-
         <div className="max-w-2xl mx-auto">
           <Card className="border-2 border-purple-500/20">
             <CardHeader>
@@ -258,13 +264,20 @@ export default function RepositoryDeepDive() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Show tips when no repository has been searched yet */}
+        {!loading && !error && (
+          <div className="mt-6">
+            <RepositoryAnalysisTips />
+          </div>
+        )}
       </div>
     );
   }
 
   const {
     repository,
-    languages,
+    languages = [],
     commits,
     contributors,
     issues,
@@ -275,11 +288,7 @@ export default function RepositoryDeepDive() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <Button variant="ghost" onClick={() => navigate("/")}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
+      <div className="flex items-center justify-end mb-4 sm:mb-6">
         {/* Add Refresh Button and Timestamp here */}
         <div className="flex items-center gap-4">
           <Button
@@ -580,26 +589,49 @@ export default function RepositoryDeepDive() {
                 <CardTitle>Language Distribution</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={languages}
-                        dataKey="percentage"
-                        nameKey="language"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        label={(entry) => `${entry.language} (${entry.percentage}%)`}
-                      >
-                        {languages.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                {languages && languages.length > 0 ? (
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={languages.map((lang) => ({
+                            ...lang,
+                            percentage: parseFloat(lang.percentage) || 0,
+                          }))}
+                          dataKey="percentage"
+                          nameKey="language"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          label={(entry) => {
+                            // Only show label if percentage > 5% to avoid overlap
+                            if (entry.percentage > 5) {
+                              return `${entry.language} (${entry.percentage.toFixed(1)}%)`;
+                            }
+                            return "";
+                          }}
+                          labelLine={false}
+                        >
+                          {languages.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => `${value.toFixed(2)}%`} />
+                        <Legend
+                          verticalAlign="bottom"
+                          height={36}
+                          formatter={(value, entry) =>
+                            `${value} (${entry.payload.percentage.toFixed(2)}%)`
+                          }
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                    <p>No language data available for this repository</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -608,20 +640,26 @@ export default function RepositoryDeepDive() {
                 <CardTitle>Language Breakdown</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {languages.map((lang, idx) => (
-                    <div key={idx} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">{lang.language}</span>
-                        <span className="text-muted-foreground">{lang.percentage}%</span>
+                {languages && languages.length > 0 ? (
+                  <div className="space-y-4">
+                    {languages.map((lang, idx) => (
+                      <div key={idx} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">{lang.language}</span>
+                          <span className="text-muted-foreground">{lang.percentage}%</span>
+                        </div>
+                        <Progress value={parseFloat(lang.percentage)} />
+                        <div className="text-xs text-muted-foreground">
+                          {(lang.bytes / 1024).toFixed(2)} KB
+                        </div>
                       </div>
-                      <Progress value={parseFloat(lang.percentage)} />
-                      <div className="text-xs text-muted-foreground">
-                        {(lang.bytes / 1024).toFixed(2)} KB
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <p>No language data available</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

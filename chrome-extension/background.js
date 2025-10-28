@@ -7,7 +7,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     console.log("en-git extension installed!");
     // Open welcome page on first install
     chrome.tabs.create({
-      url: "https://en-git-6fjm.vercel.app",
+      url: "https://en-git.vercel.app",
     });
   }
 });
@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "analyzeProfile") {
     const username = request.username;
     chrome.tabs.create({
-      url: `https://en-git-6fjm.vercel.app/stats/${username}`,
+      url: `https://en-git.vercel.app/stats/${username}`,
     });
     sendResponse({ success: true });
   }
@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "compareUsers") {
     const { user1, user2 } = request;
     chrome.tabs.create({
-      url: `https://en-git-6fjm.vercel.app/compare/${user1}/${user2}`,
+      url: `https://en-git.vercel.app/compare/${user1}/${user2}`,
     });
     sendResponse({ success: true });
   }
@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "analyzeRepo") {
     const { owner, repo } = request;
     chrome.tabs.create({
-      url: `https://en-git-6fjm.vercel.app/repo/${owner}/${repo}`,
+      url: `https://en-git.vercel.app/repo/${owner}/${repo}`,
     });
     sendResponse({ success: true });
   }
@@ -61,7 +61,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (pathParts.length >= 1) {
       const username = pathParts[0];
       chrome.tabs.create({
-        url: `https://en-git-6fjm.vercel.app/stats/${username}`,
+        url: `https://en-git.vercel.app/stats/${username}`,
       });
     }
   }

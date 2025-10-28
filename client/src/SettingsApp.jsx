@@ -157,7 +157,7 @@ function SettingsApp() {
   return (
     <div className="w-full min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6">
+      <div className="bg-gradient-to-r from-sky-600 to-blue-600 p-6">
         <div className="flex items-center gap-3">
           <SettingsIcon className="h-8 w-8 text-white" />
           <div>

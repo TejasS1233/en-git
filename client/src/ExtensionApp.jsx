@@ -12,6 +12,8 @@ import {
   Loader2,
   Code,
   Settings as SettingsIcon,
+  Trophy,
+  Target,
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -20,6 +22,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { Badge } from "./components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 import { Separator } from "./components/ui/separator";
+import { calculateProfileScore } from "./lib/extensionProfileScore";
+import engitIcon from "/engit-icon.png";
 
 function ExtensionApp() {
   const [username, setUsername] = useState("");
@@ -177,27 +181,27 @@ function ExtensionApp() {
     if (!username.trim()) return;
     saveToRecent(username);
     chrome.tabs.create({
-      url: `https://en-git-6fjm.vercel.app/stats/${username}`,
+      url: `https://en-git.vercel.app/stats/${username}`,
     });
   };
 
   const analyzeRepository = () => {
     if (!currentRepo) return;
     chrome.tabs.create({
-      url: `https://en-git-6fjm.vercel.app/repo/${currentRepo.owner}/${currentRepo.repo}`,
+      url: `https://en-git.vercel.app/repo/${currentRepo.owner}/${currentRepo.repo}`,
     });
   };
 
   const compareUsers = () => {
     if (!username.trim() || !username2.trim()) return;
     chrome.tabs.create({
-      url: `https://en-git-6fjm.vercel.app/compare/${username}/${username2}`,
+      url: `https://en-git.vercel.app/compare/${username}/${username2}`,
     });
   };
 
   const openDashboard = () => {
     chrome.tabs.create({
-      url: "https://en-git-6fjm.vercel.app",
+      url: "https://en-git.vercel.app",
     });
   };
 
@@ -210,10 +214,14 @@ function ExtensionApp() {
   return (
     <div className="w-full min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4">
+      <div className="bg-gradient-to-r from-sky-600 to-blue-600 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Github className="h-6 w-6 text-white" />
+            <img
+              src={new URL("/engit-icon.png", import.meta.url).href}
+              alt="en-git"
+              className="h-6 w-auto"
+            />
             <h1 className="text-xl font-bold text-white whitespace-nowrap">en-git</h1>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -237,10 +245,10 @@ function ExtensionApp() {
       <div className="p-4 space-y-4">
         {/* Repository Context */}
         {currentRepo && !loading && !stats && (
-          <Card className="border-purple-500/20">
+          <Card className="border-sky-500/20">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-purple-500" />
+                <BookOpen className="h-5 w-5 text-sky-500" />
                 <div>
                   <CardTitle className="text-base">Repository Detected</CardTitle>
                   <CardDescription className="text-xs">
@@ -278,7 +286,7 @@ function ExtensionApp() {
         {loading && (
           <Card>
             <CardContent className="py-8 flex flex-col items-center gap-2">
-              <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
               <p className="text-sm text-muted-foreground">Loading stats...</p>
             </CardContent>
           </Card>
@@ -298,7 +306,7 @@ function ExtensionApp() {
 
         {/* Stats Display */}
         {stats && !loading && (
-          <Card className="border-purple-500/20">
+          <Card className="border-sky-500/20">
             <CardHeader className="pb-3">
               <div className="flex items-start gap-3">
                 <Avatar className="h-12 w-12">
@@ -318,6 +326,54 @@ function ExtensionApp() {
               {stats.user.bio && (
                 <p className="text-xs text-muted-foreground line-clamp-2">{stats.user.bio}</p>
               )}
+
+              {/* Profile Score */}
+              {(() => {
+                const profileScore = calculateProfileScore(stats);
+                if (!profileScore) return null;
+
+                return (
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-purple-50 to-white dark:from-purple-950 dark:to-gray-900 border-2 border-purple-200 dark:border-purple-800">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-purple-500" />
+                        <span className="text-xs font-semibold">Profile Score</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                          {profileScore.score}
+                        </span>
+                        <span className="text-xs text-muted-foreground">/100</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">{profileScore.ratingIcon}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {profileScore.rating} Developer
+                      </Badge>
+                    </div>
+                    {profileScore.tips.length > 0 && (
+                      <div className="space-y-1 pt-2 border-t border-purple-200 dark:border-purple-800">
+                        <p className="text-xs font-medium flex items-center gap-1">
+                          <Target className="h-3 w-3" />
+                          Quick Wins:
+                        </p>
+                        {profileScore.tips.map((tip, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-start gap-2 text-xs bg-white/50 dark:bg-gray-900/50 p-2 rounded"
+                          >
+                            <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                              +{tip.points}
+                            </Badge>
+                            <span className="flex-1">{tip.tip}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-2">
@@ -343,7 +399,7 @@ function ExtensionApp() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                  <GitFork className="h-4 w-4 text-purple-500" />
+                  <GitFork className="h-4 w-4 text-sky-500" />
                   <div>
                     <p className="text-xs text-muted-foreground">Forks</p>
                     <p className="text-sm font-semibold">{stats.totalForks}</p>

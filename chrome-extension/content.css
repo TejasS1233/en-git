@@ -2,7 +2,7 @@
 
 .en-git-analyze-btn button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
 }
 
 .en-git-analyze-btn button:active {
@@ -10,10 +10,87 @@
 }
 
 .en-git-repo-btn:hover {
-  background: #4f46e5 !important;
+  background: #0284c7 !important;
   transform: scale(1.05);
 }
 
 .en-git-repo-btn:active {
   transform: scale(0.95);
+}
+
+/* Profile Score Badge Styles */
+
+/* Professional badge style: no shadow, subtle border, rounded */
+.en-git-profile-score-badge {
+  animation: slideInUp 0.5s ease-out;
+  box-shadow: none !important;
+  border: 1px solid #e0e7ef;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.en-git-profile-score-badge:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3) !important;
+}
+
+.en-git-profile-score-badge:active {
+  transform: translateY(0) !important;
+}
+
+/* Tooltip styles */
+.en-git-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10000;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .en-git-profile-score-badge {
+    filter: brightness(1.1);
+  }
 }

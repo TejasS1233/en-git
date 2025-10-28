@@ -4,12 +4,32 @@ AI-Powered GitHub Analytics right in your browser!
 
 ## Features
 
+### 🆕 New Code Quality Features
+
+- 🎯 **Inline Profile Score Badge**: Profile score appears directly on GitHub profile pages
+  - Automatic detection when viewing any profile
+  - Shows score (0-100), rating, and icon
+  - Purple "Deeper Analysis" button below badge
+  - Click to open full analysis on en-git website
+- 📊 **Single File Code Quality Analysis**: Perfect for PR reviews!
+  - Appears on single file views (`/blob/` pages)
+  - "Analyze Code Quality" button in file header
+  - Real-time analysis with quality score (0-100)
+  - Complexity level (Low/Medium/High)
+  - Detailed modal with score breakdown, issues, and suggestions
+  - Automatic navigation detection - no reload needed!
+
+### Core Features
+
 - 🎯 **Quick Analysis**: Analyze any GitHub profile with one click
 - 📊 **Compare Users**: Side-by-side comparison of developers
 - 💡 **AI Insights**: Get career recommendations powered by Google Gemini
 - 🏆 **Gamification**: View badges and achievements
 - 📈 **Repository Deep Dive**: Detailed repo health scores and analytics
 - ⚡ **GitHub Integration**: Adds analyze buttons directly on GitHub pages
+- 🎨 **Custom Themes**: Personalize GitHub with custom colors
+- ⌨️ **Keyboard Shortcuts**: Navigate faster with hotkeys
+- 🔖 **Repository Bookmarks**: Save and organize favorite repos
 
 ## Installation (Development)
 

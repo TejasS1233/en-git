@@ -33,9 +33,10 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      name: "en-git",
+      logo: "/engit-icon.png",
+      plan: "Pro",
+      isImage: true,
     },
     {
       name: "Acme Corp.",

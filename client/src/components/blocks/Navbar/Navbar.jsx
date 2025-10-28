@@ -13,8 +13,9 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Settings, LayoutDashboard, User, Github } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, User } from "lucide-react";
 import { NavigationSheet } from "./navigation-sheet";
+import { Logo } from "@/components/Logo";
 
 export default function Navbar() {
   const { pathname } = useLocation();
@@ -55,11 +56,8 @@ export default function Navbar() {
    w-full max-w-6xl h-16"
       >
         <div className="flex items-center justify-between p-3">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Github className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              en-git
-            </span>
+          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <Logo />
           </Link>
           <ul className="hidden md:flex gap-8">
             {NAV_LINKS.map((item) => (

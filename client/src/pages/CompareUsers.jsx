@@ -156,8 +156,8 @@ export default function CompareUsers() {
     if (scores.categories.followers.winner === 2) scores.user2++;
 
     // Languages diversity
-    const langCount1 = data1.languages?.percentages?.size || 0;
-    const langCount2 = data2.languages?.percentages?.size || 0;
+    const langCount1 = data1.languages?.percentages?.length || 0;
+    const langCount2 = data2.languages?.percentages?.length || 0;
     scores.categories.languages = {
       user1: langCount1,
       user2: langCount2,
@@ -192,8 +192,8 @@ export default function CompareUsers() {
     const maxStars = Math.max(stars1, stars2);
     const maxFollowers = Math.max(user1Data?.user?.followers || 0, user2Data?.user?.followers || 0);
     const maxLangs = Math.max(
-      user1Data.languages?.percentages?.size || 0,
-      user2Data.languages?.percentages?.size || 0
+      user1Data.languages?.percentages?.length || 0,
+      user2Data.languages?.percentages?.length || 0
     );
 
     return [
@@ -217,9 +217,9 @@ export default function CompareUsers() {
       {
         metric: "Languages",
         [user1Data?.user?.login || "User 1"]:
-          ((user1Data.languages?.percentages?.size || 0) / maxLangs) * 100,
+          ((user1Data.languages?.percentages?.length || 0) / maxLangs) * 100,
         [user2Data?.user?.login || "User 2"]:
-          ((user2Data.languages?.percentages?.size || 0) / maxLangs) * 100,
+          ((user2Data.languages?.percentages?.length || 0) / maxLangs) * 100,
       },
       {
         metric: "Following",
@@ -238,11 +238,6 @@ export default function CompareUsers() {
   if (!user1Data || !user2Data || !user1Data.user || !user2Data.user) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
-
         <div className="max-w-2xl mx-auto">
           <Card className="border-2 border-purple-500/20">
             <CardHeader>
@@ -338,11 +333,7 @@ export default function CompareUsers() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <Button variant="ghost" onClick={() => navigate("/")}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
+      <div className="flex items-center justify-end mb-4 sm:mb-6">
         <Button
           variant="outline"
           onClick={() => fetchComparison(urlUser1, urlUser2, true)}

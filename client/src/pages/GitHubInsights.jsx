@@ -33,6 +33,9 @@ import {
   History,
   Download,
   Upload,
+  Twitter,
+  Linkedin,
+  Copy,
 } from "lucide-react";
 import {
   getBookmarks,
@@ -54,6 +57,14 @@ import { SkillRadarChart } from "@/components/SkillRadarChart";
 import { TechStackBadges } from "@/components/TechStackBadges";
 import { ShareCard } from "@/components/ShareCard";
 import { ContributionHeatmap } from "@/components/ContributionHeatmap";
+import ProfileScore from "@/components/ProfileScore";
+import { ProfileAnalysisTips } from "@/components/AnalysisTips";
+import {
+  generateTweetText,
+  copyToClipboard,
+  shareOnTwitter,
+  shareOnLinkedIn,
+} from "@/lib/socialShare";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HistoricalChart } from "@/components/HistoricalChart";
@@ -406,6 +417,9 @@ export default function GitHubInsightsPage() {
           </CardContent>
         </Card>
 
+        {/* Show tips when no profile has been searched yet */}
+        {!insights && !loading && !error && <ProfileAnalysisTips />}
+
         {/* Action Buttons */}
         {insights && (
           <div className="flex justify-center items-center gap-3">
@@ -438,13 +452,15 @@ export default function GitHubInsightsPage() {
               reposCount={insights.reposCount}
               domain={insights.domain}
               lastUpdated={lastUpdated} // Pass timestamp to summary component
+              insights={insights} // Pass full insights for social sharing
             />
 
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="activity">Activity</TabsTrigger>
                 <TabsTrigger value="skills">Skills</TabsTrigger>
+                <TabsTrigger value="score">Profile Score</TabsTrigger>
                 <TabsTrigger value="history">History</TabsTrigger>
                 <TabsTrigger value="ai">AI Insights</TabsTrigger>
                 <TabsTrigger value="share">Share</TabsTrigger>
@@ -471,6 +487,10 @@ export default function GitHubInsightsPage() {
               <TabsContent value="skills" className="space-y-6 mt-6">
                 <SkillRadarChart insights={insights} />
                 <TechStackBadges insights={insights} />
+              </TabsContent>
+
+              <TabsContent value="score" className="space-y-6 mt-6">
+                <ProfileScore insights={insights} />
               </TabsContent>
 
               <TabsContent value="history" className="space-y-6 mt-6">
@@ -564,8 +584,30 @@ export default function GitHubInsightsPage() {
   );
 }
 
-function ProfileSummary({ user, reposCount, domain, lastUpdated }) {
-  // Add lastUpdated prop
+function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
+  // Add insights prop for social sharing
+
+  const handleCopyTweet = async () => {
+    const tweetText = generateTweetText(insights);
+    const success = await copyToClipboard(tweetText);
+    if (success) {
+      toast.success("Tweet copied to clipboard! 📋");
+    } else {
+      toast.error("Failed to copy to clipboard");
+    }
+  };
+
+  const handleShareTwitter = () => {
+    shareOnTwitter(insights);
+    toast.success("Opening Twitter... 🐦");
+  };
+
+  const handleShareLinkedIn = async () => {
+    toast.success("Content copied to clipboard! 📋");
+    await shareOnLinkedIn(insights);
+    toast.info("Opening LinkedIn - paste your content! 💼");
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between items-start">
@@ -592,6 +634,32 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated }) {
             <span>
               <strong>{user.following || 0}</strong> following
             </span>
+          </div>
+
+          {/* Social Share Buttons */}
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={handleCopyTweet} className="gap-2">
+              <Copy className="h-4 w-4" />
+              Copy Stats
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareTwitter}
+              className="gap-2 hover:bg-blue-50 dark:hover:bg-blue-950"
+            >
+              <Twitter className="h-4 w-4 text-blue-500" />
+              Tweet
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareLinkedIn}
+              className="gap-2 hover:bg-blue-50 dark:hover:bg-blue-950"
+            >
+              <Linkedin className="h-4 w-4 text-blue-600" />
+              Share
+            </Button>
           </div>
           <div className="flex gap-2 flex-wrap mt-2">
             <Badge variant="secondary">Domain: {domain?.domain || "Generalist"}</Badge>

@@ -14,7 +14,9 @@ import Dashboard from "@/pages/Dashboard";
 import GitHubInsights from "@/pages/GitHubInsights";
 import CompareUsers from "@/pages/CompareUsers";
 import RepositoryDeepDive from "@/pages/RepositoryDeepDive";
-import AuthCallback from "@/pages/AuthCallback"; // <-- import the new AuthCallback page
+import AuthCallback from "@/pages/AuthCallback";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import ContactUs from "@/pages/ContactUs";
 
 const hiddenLayoutRoutes = ["/login", "/signup", "/dashboard", "/auth/callback"];
 
@@ -50,7 +52,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/auth/callback" element={<AuthCallback />} /> {/* <-- add this */}
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/contact" element={<ContactUs />} />
         </Routes>
       </Layout>
     </Router>

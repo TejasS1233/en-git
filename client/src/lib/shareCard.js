@@ -145,7 +145,7 @@ export async function generateShareCard(insights) {
   }
 
   // Language polyglot badge
-  const langCount = insights.languages?.percentages?.size || 0;
+  const langCount = insights.languages?.percentages?.length || 0;
   if (langCount > 5) {
     badges.push({ label: "Polyglot", color: "#ec4899", icon: "🗣️" });
   }
