@@ -20,6 +20,10 @@ import pLimit from "p-limit";
 import { inferDomain } from "../utils/skillDomain.js";
 import { generateCareerInsights, generateLearningPath } from "../services/ai.service.js";
 import { getGithubInsights as getInsightsService } from "../services/ai.service.js";
+import {
+  generateLearningRecommendations,
+  getSkillGaps,
+} from "../services/learningRecommendations.service.js";
 
 export const getUserInsights = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -326,6 +330,80 @@ export const getAIInsights = asyncHandler(async (req, res) => {
       throw new ApiError(404, `GitHub user '${username}' not found`);
     }
     throw new ApiError(500, error.message || "Failed to generate AI insights");
+  }
+});
+
+export const getLearningRecommendations = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    // First, get the user's insights
+    const [user] = await fetchUser(username);
+    const [repos] = await fetchUserRepos(username);
+
+    if (!repos || repos.length === 0) {
+      throw new ApiError(404, "No repositories found for this user");
+    }
+
+    const limit = pLimit(5);
+    const langEntries = await Promise.all(
+      repos.slice(0, 50).map((r) =>
+        limit(() =>
+          fetchRepoLanguages(r.owner.login, r.name)
+            .then(([langData]) => [r, langData])
+            .catch(() => [r, {}])
+        )
+      )
+    );
+    const repoLanguages = new Map(langEntries.map(([r, l]) => [`${r.owner.login}/${r.name}`, l]));
+
+    const languages = aggregateLanguages(repos, repoLanguages);
+    const topics = topicsFrequency(repos);
+    const domain = inferDomain(
+      languages.percentages,
+      topics.map(([t]) => t)
+    );
+
+    const insights = {
+      user: {
+        login: user.login,
+        name: user.name,
+        avatar_url: user.avatar_url,
+      },
+      reposCount: user.public_repos,
+      languages,
+      domain,
+      topics,
+    };
+
+    // Get skill gaps and generate recommendations
+    const skillGaps = await getSkillGaps(
+      insights,
+      languages.top3 || [],
+      topics.slice(0, 10).map(([t]) => t)
+    );
+
+    const recommendations = await generateLearningRecommendations(insights, skillGaps);
+
+    return res.status(200).json(
+      new ApiResponse(200, "Learning recommendations generated successfully", {
+        skillGaps,
+        recommendations,
+        generatedAt: new Date().toISOString(),
+      })
+    );
+  } catch (error) {
+    console.error("Learning Recommendations Error:", error);
+    if (error.response?.status === 403) {
+      throw new ApiError(
+        403,
+        "GitHub API rate limit exceeded. Please add a GITHUB_TOKEN to your .env file or try again later."
+      );
+    }
+    if (error.response?.status === 404) {
+      throw new ApiError(404, `GitHub user '${username}' not found`);
+    }
+    throw new ApiError(500, error.message || "Failed to generate learning recommendations");
   }
 });
 
