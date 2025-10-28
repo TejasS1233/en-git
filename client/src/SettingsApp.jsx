@@ -231,7 +231,14 @@ function SettingsApp() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <LabelWithTooltip htmlFor="primary-color" tooltip="Main brand color used for buttons, links, and highlights throughout GitHub.">Primary Color</LabelWithTooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label htmlFor="primary-color" className="cursor-help">Primary Color</Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="text-xs">Main brand color used for buttons, links, and highlights throughout GitHub.</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="primary-color"
@@ -252,7 +259,14 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <LabelWithTooltip htmlFor="accent-color" tooltip="Secondary color for special elements and call-to-action buttons.">Accent Color</LabelWithTooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label htmlFor="accent-color" className="cursor-help">Accent Color</Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="text-xs">Secondary color for special elements and call-to-action buttons.</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="accent-color"
@@ -273,7 +287,14 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <LabelWithTooltip htmlFor="bg-color" tooltip="Main background color for the entire GitHub interface.">Background Color</LabelWithTooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label htmlFor="bg-color" className="cursor-help">Background Color</Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="text-xs">Main background color for the entire GitHub interface.</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="bg-color"
@@ -294,7 +315,14 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <LabelWithTooltip htmlFor="text-color" tooltip="Primary text color for all content on GitHub.">Text Color</LabelWithTooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label htmlFor="text-color" className="cursor-help">Text Color</Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="text-xs">Primary text color for all content on GitHub.</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="text-color"
@@ -427,7 +455,14 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <LabelWithTooltip htmlFor="font-enabled" tooltip="Apply your preferred font to code blocks and files on GitHub for better readability.">Enable Custom Font</LabelWithTooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Label htmlFor="font-enabled" className="cursor-help">Enable Custom Font</Label>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-xs">
+                        <p className="text-xs">Apply your preferred font to code blocks and files on GitHub for better readability.</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <Switch
                       id="font-enabled"
                       checked={settings.font.enabled}
@@ -439,7 +474,14 @@ function SettingsApp() {
 
                   <div className="space-y-3">
                     <div>
-                      <LabelWithTooltip htmlFor="font-family" tooltip="Choose your preferred programming font. Popular options include JetBrains Mono and Fira Code which support ligatures.">Font Family</LabelWithTooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label htmlFor="font-family" className="cursor-help">Font Family</Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="text-xs">Choose your preferred programming font. Popular options include JetBrains Mono and Fira Code which support ligatures.</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <select
                         id="font-family"
                         value={settings.font.family}
@@ -458,8 +500,15 @@ function SettingsApp() {
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <LabelWithTooltip htmlFor="font-size" tooltip="Adjust the font size for code blocks (10-24px). Larger sizes improve readability on high-resolution displays.">Font Size: {settings.font.size}px</LabelWithTooltip>
+                      <div className="flex items-center mb-2">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Label htmlFor="font-size" className="cursor-help">Font Size: {settings.font.size}px</Label>
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-xs">
+                            <p className="text-xs">Adjust the font size for code blocks (10-24px). Larger sizes improve readability on high-resolution displays.</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <Slider
                         id="font-size"
@@ -500,7 +549,14 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <LabelWithTooltip htmlFor="shortcuts-enabled" tooltip="Enable keyboard shortcuts for quick navigation and actions on GitHub pages.">Enable Shortcuts</LabelWithTooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Label htmlFor="shortcuts-enabled" className="cursor-help">Enable Shortcuts</Label>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-xs">
+                        <p className="text-xs">Enable keyboard shortcuts for quick navigation and actions on GitHub pages.</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <Switch
                       id="shortcuts-enabled"
                       checked={settings.shortcuts.enabled}
