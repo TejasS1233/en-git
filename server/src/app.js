@@ -77,6 +77,7 @@ import statsHistoryRouter from "./routes/statsHistory.routes.js";
 import badgeRouter from "./routes/badge.routes.js";
 import reviewRouter from "./routes/review.routes.js";
 import agoraRouter from "./routes/agora.routes.js";
+import challengeRouter from "./routes/challenge.routes.js";
 import { setupReviewSocketHandlers } from "./socket/review.socket.js";
 
 app.use("/api/v1/users", userRouter);
@@ -90,6 +91,7 @@ app.use("/api/v1/stats", statsHistoryRouter);
 app.use("/api/v1/badges", badgeRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/agora", agoraRouter);
+app.use("/api/v1/challenges", challengeRouter);
 
 // Setup review socket handlers
 setupReviewSocketHandlers(io);
