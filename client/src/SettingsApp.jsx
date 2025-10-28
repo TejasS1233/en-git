@@ -14,7 +14,9 @@ import {
   Github,
   Download,
   Upload,
+  AlertCircle,
 } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "./components/ui/alert";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
@@ -60,6 +62,8 @@ function SettingsApp() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [bookmarks, setBookmarks] = useState([]);
+  const [editingShortcut, setEditingShortcut] = useState(null);
+  const [conflicts, setConflicts] = useState({});
 
   useEffect(() => {
     // Load settings from storage
@@ -113,6 +117,63 @@ function SettingsApp() {
       ...prev,
       enhancements: { ...prev.enhancements, [key]: value },
     }));
+  };
+
+  // Check for conflicts with Chrome/GitHub shortcuts
+  const checkConflict = (shortcut) => {
+    const conflictMap = {
+      "Ctrl+Shift+I": "Chrome opens DevTools",
+      "Ctrl+Shift+J": "Chrome opens Console",
+      "Ctrl+/": "Chrome focuses main content",
+      "Ctrl+F": "Chrome Find",
+      "Ctrl+R": "Chrome Reload",
+      "Ctrl+W": "Chrome Close Tab",
+    };
+    return conflictMap[shortcut] || null;
+  };
+
+  // Handle keyboard shortcut capture
+  const handleShortcutCapture = (e, shortcutKey) => {
+    e.preventDefault();
+    const keys = [];
+    
+    if (e.ctrlKey) keys.push("Ctrl");
+    if (e.altKey) keys.push("Alt");
+    if (e.shiftKey) keys.push("Shift");
+    if (e.metaKey) keys.push("Meta");
+    
+    // Only add if it's not a modifier key
+    if (!["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
+      keys.push(e.key.toUpperCase());
+    }
+    
+    if (keys.length > 0 && !["Control", "Alt", "Shift", "Meta"].includes(keys[keys.length - 1])) {
+      const shortcut = keys.join("+");
+      
+      // Check for conflicts
+      const conflict = checkConflict(shortcut);
+      if (conflict) {
+        setConflicts((prev) => ({ ...prev, [shortcutKey]: conflict }));
+      } else {
+        setConflicts((prev) => {
+          const newConflicts = { ...prev };
+          delete newConflicts[shortcutKey];
+          return newConflicts;
+        });
+      }
+      
+      // Update the shortcut
+      setSettings((prev) => ({
+        ...prev,
+        shortcuts: {
+          ...prev.shortcuts,
+          [shortcutKey]: shortcut,
+        },
+      }));
+      
+      // Stop editing after capturing
+      setEditingShortcut(null);
+    }
   };
 
   const removeBookmark = (index) => {
@@ -447,7 +508,7 @@ function SettingsApp() {
               <Card>
                 <CardHeader>
                   <CardTitle>Keyboard Shortcuts</CardTitle>
-                  <CardDescription>Quick actions for faster GitHub navigation</CardDescription>
+                  <CardDescription>Customize keyboard shortcuts for faster GitHub navigation</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -466,46 +527,136 @@ function SettingsApp() {
 
                   <Separator />
 
+                  {!settings.shortcuts.enabled && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Shortcuts Disabled</AlertTitle>
+                      <AlertDescription>
+                        Enable shortcuts above to customize your keyboard bindings
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   <div className="space-y-3">
-                    <div className="p-3 bg-muted rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
+                    {/* Quick Search */}
+                    <div className="p-3 bg-muted rounded-lg border-2 hover:border-primary/20 transition-colors">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1">
                           <p className="font-medium text-sm">Quick Search</p>
                           <p className="text-xs text-muted-foreground">Open search anywhere</p>
+                          {conflicts.quickSearch && (
+                            <Alert variant="destructive" className="mt-2 py-2">
+                              <AlertCircle className="h-3 w-3" />
+                              <AlertDescription className="text-xs">
+                                Conflict detected: {conflicts.quickSearch}
+                              </AlertDescription>
+                            </Alert>
+                          )}
                         </div>
-                        <kbd className="px-2 py-1 bg-background rounded text-xs">Ctrl+K</kbd>
+                        {editingShortcut === "quickSearch" ? (
+                          <Input
+                            className="w-36 text-center"
+                            placeholder="Press keys..."
+                            onKeyDown={(e) => handleShortcutCapture(e, "quickSearch")}
+                            onBlur={() => setEditingShortcut(null)}
+                            autoFocus
+                          />
+                        ) : (
+                          <kbd 
+                            className="px-3 py-1.5 bg-background rounded cursor-pointer hover:bg-background/80 transition-colors min-w-[120px] text-center"
+                            onClick={() => editingShortcut === null && setEditingShortcut("quickSearch")}
+                          >
+                            {settings.shortcuts.quickSearch}
+                          </kbd>
+                        )}
                       </div>
                     </div>
 
-                    <div className="p-3 bg-muted rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
+                    {/* New Repository */}
+                    <div className="p-3 bg-muted rounded-lg border-2 hover:border-primary/20 transition-colors">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1">
                           <p className="font-medium text-sm">New Repository</p>
                           <p className="text-xs text-muted-foreground">Create new repository</p>
+                          {conflicts.newRepo && (
+                            <Alert variant="destructive" className="mt-2 py-2">
+                              <AlertCircle className="h-3 w-3" />
+                              <AlertDescription className="text-xs">
+                                Conflict detected: {conflicts.newRepo}
+                              </AlertDescription>
+                            </Alert>
+                          )}
                         </div>
-                        <kbd className="px-2 py-1 bg-background rounded text-xs">Ctrl+Shift+N</kbd>
+                        {editingShortcut === "newRepo" ? (
+                          <Input
+                            className="w-36 text-center"
+                            placeholder="Press keys..."
+                            onKeyDown={(e) => handleShortcutCapture(e, "newRepo")}
+                            onBlur={() => setEditingShortcut(null)}
+                            autoFocus
+                          />
+                        ) : (
+                          <kbd 
+                            className="px-3 py-1.5 bg-background rounded cursor-pointer hover:bg-background/80 transition-colors min-w-[120px] text-center"
+                            onClick={() => editingShortcut === null && setEditingShortcut("newRepo")}
+                          >
+                            {settings.shortcuts.newRepo}
+                          </kbd>
+                        )}
                       </div>
                     </div>
 
-                    <div className="p-3 bg-muted rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
+                    {/* View Issues */}
+                    <div className="p-3 bg-muted rounded-lg border-2 hover:border-primary/20 transition-colors">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1">
                           <p className="font-medium text-sm">View Issues</p>
                           <p className="text-xs text-muted-foreground">Open issues page</p>
+                          {conflicts.viewIssues && (
+                            <Alert variant="destructive" className="mt-2 py-2">
+                              <AlertCircle className="h-3 w-3" />
+                              <AlertDescription className="text-xs">
+                                Conflict detected: {conflicts.viewIssues}
+                              </AlertDescription>
+                            </Alert>
+                          )}
                         </div>
-                        <kbd className="px-2 py-1 bg-background rounded text-xs">Ctrl+Shift+I</kbd>
+                        {editingShortcut === "viewIssues" ? (
+                          <Input
+                            className="w-36 text-center"
+                            placeholder="Press keys..."
+                            onKeyDown={(e) => handleShortcutCapture(e, "viewIssues")}
+                            onBlur={() => setEditingShortcut(null)}
+                            autoFocus
+                          />
+                        ) : (
+                          <kbd 
+                            className="px-3 py-1.5 bg-background rounded cursor-pointer hover:bg-background/80 transition-colors min-w-[120px] text-center"
+                            onClick={() => editingShortcut === null && setEditingShortcut("viewIssues")}
+                          >
+                            {settings.shortcuts.viewIssues}
+                          </kbd>
+                        )}
                       </div>
                     </div>
+                  </div>
 
-                    <div className="p-3 bg-muted rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-sm">Toggle Dark Mode</p>
-                          <p className="text-xs text-muted-foreground">Switch theme quickly</p>
-                        </div>
-                        <kbd className="px-2 py-1 bg-background rounded text-xs">Ctrl+Shift+D</kbd>
-                      </div>
-                    </div>
+                  {/* Reset to Defaults Button */}
+                  <div className="flex justify-end pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSettings((prev) => ({
+                          ...prev,
+                          shortcuts: DEFAULT_SETTINGS.shortcuts,
+                        }));
+                        setConflicts({});
+                      }}
+                    >
+                      <RotateCcw className="h-3 w-3 mr-2" />
+                      Reset to Defaults
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
