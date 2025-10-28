@@ -14,6 +14,7 @@ import {
   Github,
   Download,
   Upload,
+  Info,
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -24,6 +25,7 @@ import { Switch } from "./components/ui/switch";
 import { Separator } from "./components/ui/separator";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { Slider } from "./components/ui/slider";
+import { Tooltip, TooltipTrigger, TooltipContent } from "./components/ui/tooltip";
 import { exportRepoBookmarks, importRepoBookmarks } from "./lib/bookmarkExport";
 
 const DEFAULT_SETTINGS = {
@@ -55,6 +57,23 @@ const DEFAULT_SETTINGS = {
     enhancedProfile: true,
   },
 };
+
+// Helper component for Label with Tooltip
+function LabelWithTooltip({ htmlFor, tooltip, children }) {
+  return (
+    <div className="flex items-center gap-1">
+      <Label htmlFor={htmlFor}>{children}</Label>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+        </TooltipTrigger>
+        <TooltipContent side="right" className="max-w-xs">
+          {tooltip}
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
 
 function SettingsApp() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -212,7 +231,7 @@ function SettingsApp() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="primary-color">Primary Color</Label>
+                      <LabelWithTooltip htmlFor="primary-color" tooltip="Main brand color used for buttons, links, and highlights throughout GitHub.">Primary Color</LabelWithTooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="primary-color"
@@ -233,7 +252,7 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="accent-color">Accent Color</Label>
+                      <LabelWithTooltip htmlFor="accent-color" tooltip="Secondary color for special elements and call-to-action buttons.">Accent Color</LabelWithTooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="accent-color"
@@ -254,7 +273,7 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="bg-color">Background Color</Label>
+                      <LabelWithTooltip htmlFor="bg-color" tooltip="Main background color for the entire GitHub interface.">Background Color</LabelWithTooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="bg-color"
@@ -275,7 +294,7 @@ function SettingsApp() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="text-color">Text Color</Label>
+                      <LabelWithTooltip htmlFor="text-color" tooltip="Primary text color for all content on GitHub.">Text Color</LabelWithTooltip>
                       <div className="flex items-center gap-2">
                         <Input
                           id="text-color"
@@ -335,7 +354,17 @@ function SettingsApp() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Enhanced Contribution Graph</Label>
+                      <div className="flex items-center gap-1">
+                        <Label>Enhanced Contribution Graph</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-xs">
+                            Displays additional statistics when you hover over contribution squares on your profile.
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <p className="text-xs text-muted-foreground">Show detailed stats on hover</p>
                     </div>
                     <Switch
@@ -345,7 +374,17 @@ function SettingsApp() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Enhanced Repository Cards</Label>
+                      <div className="flex items-center gap-1">
+                        <Label>Enhanced Repository Cards</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-xs">
+                            Shows language breakdown, last updated date, and star count directly on repository cards.
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <p className="text-xs text-muted-foreground">Add quick stats to repo cards</p>
                     </div>
                     <Switch
@@ -355,7 +394,17 @@ function SettingsApp() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Enhanced Profile</Label>
+                      <div className="flex items-center gap-1">
+                        <Label>Enhanced Profile</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-xs">
+                            Adds visual analytics, contribution heatmaps, and detailed activity breakdowns to user profiles.
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         Show additional profile insights
                       </p>
@@ -378,7 +427,7 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="font-enabled">Enable Custom Font</Label>
+                    <LabelWithTooltip htmlFor="font-enabled" tooltip="Apply your preferred font to code blocks and files on GitHub for better readability.">Enable Custom Font</LabelWithTooltip>
                     <Switch
                       id="font-enabled"
                       checked={settings.font.enabled}
@@ -390,7 +439,7 @@ function SettingsApp() {
 
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="font-family">Font Family</Label>
+                      <LabelWithTooltip htmlFor="font-family" tooltip="Choose your preferred programming font. Popular options include JetBrains Mono and Fira Code which support ligatures.">Font Family</LabelWithTooltip>
                       <select
                         id="font-family"
                         value={settings.font.family}
@@ -410,7 +459,7 @@ function SettingsApp() {
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <Label htmlFor="font-size">Font Size: {settings.font.size}px</Label>
+                        <LabelWithTooltip htmlFor="font-size" tooltip="Adjust the font size for code blocks (10-24px). Larger sizes improve readability on high-resolution displays.">Font Size: {settings.font.size}px</LabelWithTooltip>
                       </div>
                       <Slider
                         id="font-size"
@@ -451,7 +500,7 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="shortcuts-enabled">Enable Shortcuts</Label>
+                    <LabelWithTooltip htmlFor="shortcuts-enabled" tooltip="Enable keyboard shortcuts for quick navigation and actions on GitHub pages.">Enable Shortcuts</LabelWithTooltip>
                     <Switch
                       id="shortcuts-enabled"
                       checked={settings.shortcuts.enabled}
