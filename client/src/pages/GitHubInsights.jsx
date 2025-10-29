@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getGithubInsights, getGithubRecommendations } from "@/lib/github";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { CustomLoader } from "@/components/CustomLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -302,9 +304,11 @@ export default function GitHubInsightsPage() {
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-6">
+      {loading && <CustomLoader />}
+
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
-        <div className="text-center space-y-4 sm:space-y-6 pt-4 pb-3 px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent animate-gradient-subtle animate-fade-in">
+        <div className="text-center space-y-4 sm:space-y-6 pt-4 pb-3 px-4 animate-in fade-in duration-500">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent leading-tight">
             Analyze Any GitHub Profile
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium px-2">
@@ -444,8 +448,12 @@ export default function GitHubInsightsPage() {
           </Card>
         </div>
 
-        {/* Show tips when no profile has been searched yet */}
-        {!insights && !loading && !error && <ProfileAnalysisTips />}
+        {/* Tips section - always visible below the search, requires scroll */}
+        {!insights && !loading && !error && (
+          <div className="mt-32 mb-12 animate-in fade-in duration-500 delay-300">
+            <ProfileAnalysisTips />
+          </div>
+        )}
 
         {/* Action Buttons */}
         {insights && (

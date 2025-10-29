@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { CustomLoader } from "@/components/CustomLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -246,7 +247,8 @@ export default function CompareUsers() {
   if (!user1Data || !user2Data || !user1Data.user || !user2Data.user) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        {loading && <CustomLoader />}
+        <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
           <Card className="border-2 border-purple-500/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl">

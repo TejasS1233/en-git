@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { RepositoryAnalysisTips } from "@/components/AnalysisTips";
 import { AIRepoDescription } from "@/components/AIRepoDescription";
 import { RepoHealthScore } from "@/components/RepoHealthScore";
+import { CustomLoader } from "@/components/CustomLoader";
 import {
   BarChart,
   Bar,
@@ -156,7 +157,7 @@ export default function RepositoryDeepDive() {
   if (!data) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
           <Card className="border-2 border-purple-500/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl">
@@ -298,6 +299,7 @@ export default function RepositoryDeepDive() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {loading && <CustomLoader />}
       {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
       {/* Repository Header */}
