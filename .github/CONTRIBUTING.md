@@ -32,7 +32,7 @@ npm install
 npm run dev
 ```
 
-The client will be available at `http://localhost:5173`
+The client will be available at `http://localhost:3000`
 
 ### Chrome Extension Setup
 
