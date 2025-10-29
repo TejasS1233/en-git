@@ -57,13 +57,7 @@ test-output/
 *.temp
 *.orig
 
-# Optional: ignore static assets
-public/**/*.svg
-public/**/*.png
-public/**/*.jpg
-public/**/*.jpeg
-public/**/*.webp
-public/**/*.ico
+
 
 # Optional: ignore generated types or API clients
 generated/
