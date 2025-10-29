@@ -25,6 +25,8 @@
 
 - **Visualization & Gamification**: See your stats in a new way with skill radar charts, contribution heatmaps, and topic clouds. Earn achievement badges and a profile score.
 
+- **Global Leaderboard**: Compete with developers worldwide! See your ranking based on profile score, compare yourself with top developers, and track your position on the global leaderboard.
+
 - **Utility Features**: Bookmark favorite profiles, export reports to PDF, share stats on social media, and switch between dark/light modes.
 
 ### **Chrome extension**

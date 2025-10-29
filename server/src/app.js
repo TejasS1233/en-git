@@ -75,6 +75,7 @@ import githubRouter from "./routes/github.routes.js";
 import repositoryRouter from "./routes/repository.routes.js";
 import statsHistoryRouter from "./routes/statsHistory.routes.js";
 import badgeRouter from "./routes/badge.routes.js";
+import leaderboardRouter from "./routes/leaderboard.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -85,6 +86,7 @@ app.use("/api/v1/github", githubRouter);
 app.use("/api/v1/repository", repositoryRouter);
 app.use("/api/v1/stats", statsHistoryRouter);
 app.use("/api/v1/badges", badgeRouter);
+app.use("/api/v1/leaderboard", leaderboardRouter);
 
 io.on("connection", (socket) => {
   console.log(`Socket.IO client connected: ${socket.id}`);

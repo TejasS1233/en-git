@@ -10,6 +10,15 @@ const Footer = () => {
             <span className="text-muted-foreground text-xs sm:text-sm">
               &copy; {new Date().getFullYear()} en-git. Built by Tejas.
             </span>
+            <a
+              href="https://tejass1233.hashnode.dev/i-built-a-tool-to-stalk-github-profiles-legally"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-foreground transition-colors text-sm text-muted-foreground"
+              title="Blog"
+            >
+              <span className="hidden sm:inline">Blog</span>
+            </a>
             <Link
               to="/contact"
               className="flex items-center gap-1.5 hover:text-foreground transition-colors text-sm text-muted-foreground"

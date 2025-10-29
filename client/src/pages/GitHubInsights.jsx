@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getGithubInsights, getGithubRecommendations } from "@/lib/github";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { CustomLoader } from "@/components/CustomLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,7 +54,6 @@ import {
   getBookmarkStats,
 } from "@/lib/localStorage";
 import { exportToPDF } from "@/lib/pdfExport";
-import { InsightsLoadingSkeleton } from "@/components/ui/skeleton-components";
 import { AIInsights } from "@/components/AIInsights";
 import { GamificationBadges } from "@/components/GamificationBadges";
 import { SkillRadarChart } from "@/components/SkillRadarChart";
@@ -164,6 +162,9 @@ export default function GitHubInsightsPage() {
       // Add to search history
       addToSearchHistory(user, insResponse.data.data.user);
       setSearchHistory(getSearchHistory());
+
+      // Store last analyzed profile for leaderboard
+      localStorage.setItem("lastAnalyzedProfile", user);
 
       // Load historical data
       loadHistoricalData(user);
@@ -304,8 +305,6 @@ export default function GitHubInsightsPage() {
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-6">
-      {loading && <CustomLoader />}
-
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         <div className="text-center space-y-4 sm:space-y-6 pt-4 pb-3 px-4 animate-in fade-in duration-500">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent leading-tight">
@@ -496,7 +495,18 @@ export default function GitHubInsightsPage() {
           </div>
         )}
 
-        {loading && <InsightsLoadingSkeleton />}
+        {loading && !insights && (
+          <div className="space-y-6 animate-pulse">
+            <div className="h-48 bg-muted rounded-xl"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="h-32 bg-muted rounded-xl"></div>
+              <div className="h-32 bg-muted rounded-xl"></div>
+              <div className="h-32 bg-muted rounded-xl"></div>
+            </div>
+            <div className="h-96 bg-muted rounded-xl"></div>
+          </div>
+        )}
+
         {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
         {insights && !loading && (

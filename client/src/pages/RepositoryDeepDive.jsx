@@ -29,7 +29,6 @@ import { toast } from "sonner";
 import { RepositoryAnalysisTips } from "@/components/AnalysisTips";
 import { AIRepoDescription } from "@/components/AIRepoDescription";
 import { RepoHealthScore } from "@/components/RepoHealthScore";
-import { CustomLoader } from "@/components/CustomLoader";
 import {
   BarChart,
   Bar,
@@ -299,7 +298,6 @@ export default function RepositoryDeepDive() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      {loading && <CustomLoader />}
       {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
       {/* Repository Header */}

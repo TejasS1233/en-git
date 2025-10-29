@@ -19,6 +19,7 @@ import RepositoryDeepDive from "@/pages/RepositoryDeepDive";
 import AuthCallback from "@/pages/AuthCallback";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import ContactUs from "@/pages/ContactUs";
+import Leaderboard from "@/pages/Leaderboard";
 
 const hiddenLayoutRoutes = ["/login", "/signup", "/dashboard", "/auth/callback"];
 
@@ -51,6 +52,7 @@ function App() {
           <Route path="/compare/:user1/:user2" element={<CompareUsers />} />
           <Route path="/repo" element={<RepositoryDeepDive />} />
           <Route path="/repo/:owner/:repo" element={<RepositoryDeepDive />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />

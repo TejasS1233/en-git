@@ -20,6 +20,8 @@ import pLimit from "p-limit";
 import { inferDomain } from "../utils/skillDomain.js";
 import { generateCareerInsights, generateLearningPath } from "../services/ai.service.js";
 import { getGithubInsights as getInsightsService } from "../services/ai.service.js";
+import { updateLeaderboardEntry } from "./leaderboard.controller.js";
+import { calculateProfileScore } from "../utils/profileScore.js";
 
 export const getUserInsights = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -76,10 +78,18 @@ export const getUserInsights = asyncHandler(async (req, res) => {
       domain,
     };
 
+    // Calculate profile score for leaderboard
+    insightsData.profileScore = calculateProfileScore(insightsData);
+
     // Use the most recent timestamp
     const lastUpdated = new Date(
       Math.max(new Date(userLastUpdated), new Date(reposLastUpdated))
     ).toISOString();
+
+    // Update leaderboard (async, don't wait)
+    updateLeaderboardEntry(username, insightsData).catch((err) =>
+      console.error("Leaderboard update failed:", err)
+    );
 
     return res.status(200).json(
       new ApiResponse(200, "Insights fetched successfully", {
