@@ -14,7 +14,6 @@ import {
   Github,
   Download,
   Upload,
-  Info,
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -25,8 +24,8 @@ import { Switch } from "./components/ui/switch";
 import { Separator } from "./components/ui/separator";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { Slider } from "./components/ui/slider";
-import { Tooltip, TooltipTrigger, TooltipContent } from "./components/ui/tooltip";
 import { exportRepoBookmarks, importRepoBookmarks } from "./lib/bookmarkExport";
+import { Tooltip, TooltipTrigger, TooltipContent } from "./components/ui/tooltip";
 
 const DEFAULT_SETTINGS = {
   theme: {
@@ -57,23 +56,6 @@ const DEFAULT_SETTINGS = {
     enhancedProfile: true,
   },
 };
-
-// Helper component for Label with Tooltip
-function LabelWithTooltip({ htmlFor, tooltip, children }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
-        </TooltipTrigger>
-        <TooltipContent side="right" className="max-w-xs">
-          <p className="text-xs">{tooltip}</p>
-        </TooltipContent>
-      </Tooltip>
-    </div>
-  );
-}
 
 function SettingsApp() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -219,7 +201,19 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="theme-enabled">Enable Custom Theme</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Label
+                          htmlFor="theme-enabled"
+                          className="cursor-help underline decoration-dotted underline-offset-2"
+                        >
+                          Enable Custom Theme
+                        </Label>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        Turn on to apply your chosen colors across GitHub pages.
+                      </TooltipContent>
+                    </Tooltip>
                     <Switch
                       id="theme-enabled"
                       checked={settings.theme.enabled}
@@ -233,10 +227,15 @@ function SettingsApp() {
                     <div className="flex items-center justify-between">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Label htmlFor="primary-color" className="cursor-help">Primary Color</Label>
+                          <Label
+                            htmlFor="primary-color"
+                            className="cursor-help underline decoration-dotted underline-offset-2"
+                          >
+                            Primary Color
+                          </Label>
                         </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-xs">
-                          <p className="text-xs">Main brand color used for buttons, links, and highlights throughout GitHub.</p>
+                        <TooltipContent side="top">
+                          Used for highlights like links, borders, and key accents.
                         </TooltipContent>
                       </Tooltip>
                       <div className="flex items-center gap-2">
@@ -261,10 +260,15 @@ function SettingsApp() {
                     <div className="flex items-center justify-between">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Label htmlFor="accent-color" className="cursor-help">Accent Color</Label>
+                          <Label
+                            htmlFor="accent-color"
+                            className="cursor-help underline decoration-dotted underline-offset-2"
+                          >
+                            Accent Color
+                          </Label>
                         </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-xs">
-                          <p className="text-xs">Secondary color for special elements and call-to-action buttons.</p>
+                        <TooltipContent side="top">
+                          Secondary emphasis color for buttons and interactive elements.
                         </TooltipContent>
                       </Tooltip>
                       <div className="flex items-center gap-2">
@@ -289,10 +293,15 @@ function SettingsApp() {
                     <div className="flex items-center justify-between">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Label htmlFor="bg-color" className="cursor-help">Background Color</Label>
+                          <Label
+                            htmlFor="bg-color"
+                            className="cursor-help underline decoration-dotted underline-offset-2"
+                          >
+                            Background Color
+                          </Label>
                         </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-xs">
-                          <p className="text-xs">Main background color for the entire GitHub interface.</p>
+                        <TooltipContent side="top">
+                          Page background color. Choose a value with good contrast.
                         </TooltipContent>
                       </Tooltip>
                       <div className="flex items-center gap-2">
@@ -317,10 +326,15 @@ function SettingsApp() {
                     <div className="flex items-center justify-between">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Label htmlFor="text-color" className="cursor-help">Text Color</Label>
+                          <Label
+                            htmlFor="text-color"
+                            className="cursor-help underline decoration-dotted underline-offset-2"
+                          >
+                            Text Color
+                          </Label>
                         </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-xs">
-                          <p className="text-xs">Primary text color for all content on GitHub.</p>
+                        <TooltipContent side="top">
+                          Default text color. Aim for AA contrast against the background.
                         </TooltipContent>
                       </Tooltip>
                       <div className="flex items-center gap-2">
@@ -382,17 +396,16 @@ function SettingsApp() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <Label>Enhanced Contribution Graph</Label>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
-                          </TooltipTrigger>
-                          <TooltipContent side="right" className="max-w-xs">
-                            <p className="text-xs">Displays additional statistics when you hover over contribution squares on your profile.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label className="cursor-help underline decoration-dotted underline-offset-2">
+                            Enhanced Contribution Graph
+                          </Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          Adds extra insights and hover details to your contribution heatmap.
+                        </TooltipContent>
+                      </Tooltip>
                       <p className="text-xs text-muted-foreground">Show detailed stats on hover</p>
                     </div>
                     <Switch
@@ -402,17 +415,16 @@ function SettingsApp() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <Label>Enhanced Repository Cards</Label>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
-                          </TooltipTrigger>
-                          <TooltipContent side="right" className="max-w-xs">
-                            <p className="text-xs">Shows language breakdown, last updated date, and star count directly on repository cards.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label className="cursor-help underline decoration-dotted underline-offset-2">
+                            Enhanced Repository Cards
+                          </Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          Displays stars, forks, languages, and more at a glance.
+                        </TooltipContent>
+                      </Tooltip>
                       <p className="text-xs text-muted-foreground">Add quick stats to repo cards</p>
                     </div>
                     <Switch
@@ -422,20 +434,17 @@ function SettingsApp() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <Label>Enhanced Profile</Label>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
-                          </TooltipTrigger>
-                          <TooltipContent side="right" className="max-w-xs">
-                            <p className="text-xs">Adds visual analytics, contribution heatmaps, and detailed activity breakdowns to user profiles.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Show additional profile insights
-                      </p>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label className="cursor-help underline decoration-dotted underline-offset-2">
+                            Enhanced Profile
+                          </Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          Adds badges and insights to your profile for richer context.
+                        </TooltipContent>
+                      </Tooltip>
+                      <p className="text-xs text-muted-foreground">Show additional profile insights</p>
                     </div>
                     <Switch
                       checked={settings.enhancements.enhancedProfile}
@@ -455,14 +464,19 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Label htmlFor="font-enabled" className="cursor-help">Enable Custom Font</Label>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-xs">
-                        <p className="text-xs">Apply your preferred font to code blocks and files on GitHub for better readability.</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Label
+                        htmlFor="font-enabled"
+                        className="cursor-help underline decoration-dotted underline-offset-2"
+                      >
+                        Enable Custom Font
+                      </Label>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      Toggle to apply your selected font across code blocks on GitHub.
+                    </TooltipContent>
+                  </Tooltip>
                     <Switch
                       id="font-enabled"
                       checked={settings.font.enabled}
@@ -474,14 +488,19 @@ function SettingsApp() {
 
                   <div className="space-y-3">
                     <div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Label htmlFor="font-family" className="cursor-help">Font Family</Label>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-xs">
-                          <p className="text-xs">Choose your preferred programming font. Popular options include JetBrains Mono and Fira Code which support ligatures.</p>
-                        </TooltipContent>
-                      </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Label
+                          htmlFor="font-family"
+                          className="cursor-help underline decoration-dotted underline-offset-2"
+                        >
+                          Font Family
+                        </Label>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        Choose a monospaced font for better code readability.
+                      </TooltipContent>
+                    </Tooltip>
                       <select
                         id="font-family"
                         value={settings.font.family}
@@ -500,15 +519,20 @@ function SettingsApp() {
                     </div>
 
                     <div>
-                      <div className="flex items-center mb-2">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Label htmlFor="font-size" className="cursor-help">Font Size: {settings.font.size}px</Label>
-                          </TooltipTrigger>
-                          <TooltipContent side="right" className="max-w-xs">
-                            <p className="text-xs">Adjust the font size for code blocks (10-24px). Larger sizes improve readability on high-resolution displays.</p>
-                          </TooltipContent>
-                        </Tooltip>
+                      <div className="flex items-center justify-between mb-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label
+                            htmlFor="font-size"
+                            className="cursor-help underline decoration-dotted underline-offset-2"
+                          >
+                            Font Size: {settings.font.size}px
+                          </Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          Adjust code font size between 10 and 24 pixels.
+                        </TooltipContent>
+                      </Tooltip>
                       </div>
                       <Slider
                         id="font-size"
@@ -549,14 +573,19 @@ function SettingsApp() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Label htmlFor="shortcuts-enabled" className="cursor-help">Enable Shortcuts</Label>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-xs">
-                        <p className="text-xs">Enable keyboard shortcuts for quick navigation and actions on GitHub pages.</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Label
+                        htmlFor="shortcuts-enabled"
+                        className="cursor-help underline decoration-dotted underline-offset-2"
+                      >
+                        Enable Shortcuts
+                      </Label>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      Enables keyboard shortcuts like Quick Search and Dark Mode toggle.
+                    </TooltipContent>
+                  </Tooltip>
                     <Switch
                       id="shortcuts-enabled"
                       checked={settings.shortcuts.enabled}
