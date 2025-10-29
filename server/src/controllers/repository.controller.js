@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import axios from "axios";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GITHUB_API = "https://api.github.com";
 const headers = process.env.GITHUB_TOKEN
@@ -304,3 +305,64 @@ function getCommitFrequency(commits) {
     .sort((a, b) => new Date(a.week) - new Date(b.week))
     .slice(-12); // Last 12 weeks
 }
+
+// Generate compelling project description using Gemini
+export const generateRepoDescription = asyncHandler(async (req, res) => {
+  const { owner, repo } = req.params;
+  const { repoData } = req.body;
+
+  if (!owner || !repo) {
+    throw new ApiError(400, "Owner and repository name are required");
+  }
+
+  if (!process.env.GOOGLE_API_KEY) {
+    throw new ApiError(500, "Google API key not configured");
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+    // Build context from repository data
+    const context = `
+Repository: ${repoData.repository.full_name}
+Current Description: ${repoData.repository.description || "No description"}
+Stars: ${repoData.repository.stargazers_count}
+Forks: ${repoData.repository.forks_count}
+Primary Language: ${repoData.languages[0]?.language || "Unknown"}
+Topics: ${repoData.repository.topics?.join(", ") || "None"}
+Health Score: ${repoData.healthScore.score}/100 (${repoData.healthScore.grade})
+Total Commits: ${repoData.commits.total}
+Contributors: ${repoData.contributors.length}
+Open Issues: ${repoData.issues.open}
+License: ${repoData.repository.license?.name || "None"}
+Last Updated: ${repoData.repository.pushed_at}
+    `.trim();
+
+    const prompt = `You are a technical writer creating compelling GitHub repository descriptions.
+
+Based on this repository data:
+${context}
+
+Generate a SHORT, IMPACTFUL project description (2-3 sentences max, ~100-150 characters) that:
+- Clearly states what the project does
+- Highlights its key value proposition
+- Uses active, engaging language
+- Avoids generic phrases like "this project" or "this repository"
+- Sounds professional and exciting
+
+Return ONLY the description text, nothing else. No quotes, no explanations.`;
+
+    const result = await model.generateContent(prompt);
+    const description = result.response.text().trim();
+
+    return res.status(200).json(
+      new ApiResponse(200, "Description generated successfully", {
+        description,
+      })
+    );
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new ApiError(500, error.message || "Failed to generate description");
+  }
+});

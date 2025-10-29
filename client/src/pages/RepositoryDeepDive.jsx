@@ -27,6 +27,8 @@ import {
 import { getRepositoryInsights } from "@/lib/github";
 import { toast } from "sonner";
 import { RepositoryAnalysisTips } from "@/components/AnalysisTips";
+import { AIRepoDescription } from "@/components/AIRepoDescription";
+import { RepoHealthScore } from "@/components/RepoHealthScore";
 import {
   BarChart,
   Bar,
@@ -295,26 +297,7 @@ export default function RepositoryDeepDive() {
   } = data;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="flex items-center justify-end mb-4 sm:mb-6">
-        {/* Add Refresh Button and Timestamp here */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => fetchRepositoryWithParams(owner, repo, true)}
-            disabled={loading || !owner || !repo}
-          >
-            <History className="h-4 w-4 mr-2" />
-            {loading ? "Refreshing..." : "Refresh"}
-          </Button>
-          {lastUpdated && (
-            <p className="text-sm text-muted-foreground hidden sm:block">
-              Last updated: {lastUpdated}
-            </p>
-          )}
-        </div>
-      </div>
-
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
       {error && <div className="text-red-500 text-center my-4">{error}</div>}
 
       {/* Repository Header */}
@@ -370,206 +353,19 @@ export default function RepositoryDeepDive() {
       </Card>
 
       {/* Health Score */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-5 w-5" />
-            Repository Health Score
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-6 mb-4">
-            <div className="text-center">
-              <div className={`text-6xl font-bold ${getHealthColor(healthScore.score)}`}>
-                {healthScore.grade}
-              </div>
-              <div className="text-2xl font-semibold mt-2">{healthScore.score}/100</div>
-            </div>
-            <div className="flex-1">
-              <Progress value={healthScore.percentage} className="h-4 mb-4" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {healthScore.factors.map((factor, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span>{factor.factor}</span>
-                    <Badge variant="outline" className="ml-auto">
-                      +{factor.points}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+      <RepoHealthScore
+        healthScore={healthScore}
+        repository={repository}
+        issues={issues}
+        pullRequests={pullRequests}
+        commits={commits}
+        onRefresh={() => fetchRepositoryWithParams(owner, repo, true)}
+        loading={loading}
+        lastUpdated={lastUpdated}
+      />
 
-          {/* Improvement Suggestions */}
-          {healthScore.score < 100 && (
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                How to Improve Your Score ({100 - healthScore.score} points available)
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {!repository.description && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-orange-600">Add a description</p>
-                      <p className="text-muted-foreground mt-1">
-                        Help others understand what your project does (+10 pts)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {!repository.license && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-orange-600">Add a license</p>
-                      <p className="text-muted-foreground mt-1">
-                        Choose a license to clarify usage rights (+10 pts)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {(!repository.topics || repository.topics.length === 0) && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-orange-600">Add topics</p>
-                      <p className="text-muted-foreground mt-1">
-                        Tag your repo to improve discoverability (+10 pts)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {repository.topics &&
-                  repository.topics.length > 0 &&
-                  repository.topics.length < 5 && (
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                      <TrendingUp className="h-4 w-4 text-blue-500 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-medium text-blue-600">Add more topics</p>
-                        <p className="text-muted-foreground mt-1">
-                          You have {repository.topics.length} topics. Add more for better
-                          discoverability!
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                {(Date.now() - new Date(repository.pushed_at)) / (1000 * 60 * 60 * 24) > 90 && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <Clock className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-orange-600">Update more frequently</p>
-                      <p className="text-muted-foreground mt-1">
-                        Last updated{" "}
-                        {Math.floor(
-                          (Date.now() - new Date(repository.pushed_at)) / (1000 * 60 * 60 * 24)
-                        )}{" "}
-                        days ago (+10-20 pts)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {(Date.now() - new Date(repository.pushed_at)) / (1000 * 60 * 60 * 24) > 7 &&
-                  (Date.now() - new Date(repository.pushed_at)) / (1000 * 60 * 60 * 24) <= 90 && (
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                      <Clock className="h-4 w-4 text-blue-500 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-medium text-blue-600">Keep your momentum</p>
-                        <p className="text-muted-foreground mt-1">
-                          Update within a week to maintain your +20 pts bonus
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                {issues.closeRate >= 50 && issues.closeRate < 80 && issues.total > 0 && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-blue-600">Improve issue close rate</p>
-                      <p className="text-muted-foreground mt-1">
-                        Current: {issues.closeRate}%. Get to 80%+ for full points (+
-                        {20 - Math.floor(issues.closeRate * 0.2)} more pts available)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {issues.closeRate < 50 && issues.total > 0 && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-orange-600">Close more issues</p>
-                      <p className="text-muted-foreground mt-1">
-                        Current close rate: {issues.closeRate}% (target: 50%+ for +20 pts)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {pullRequests.mergeRate >= 50 &&
-                  pullRequests.mergeRate < 80 &&
-                  pullRequests.total > 0 && (
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                      <GitPullRequest className="h-4 w-4 text-blue-500 mt-0.5" />
-                      <div className="text-sm">
-                        <p className="font-medium text-blue-600">Improve PR merge rate</p>
-                        <p className="text-muted-foreground mt-1">
-                          Current: {pullRequests.mergeRate}%. Get to 80%+ for full points (+
-                          {20 - Math.floor(pullRequests.mergeRate * 0.2)} more pts available)
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                {pullRequests.mergeRate < 50 && pullRequests.total > 0 && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <GitPullRequest className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-orange-600">Merge more pull requests</p>
-                      <p className="text-muted-foreground mt-1">
-                        Current merge rate: {pullRequests.mergeRate}% (target: 50%+ for +20 pts)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {commits.total >= 20 && commits.total < 50 && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <Code className="h-4 w-4 text-blue-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-blue-600">Increase commit activity</p>
-                      <p className="text-muted-foreground mt-1">
-                        {commits.total} commits. Reach 50+ for maximum points (+5 more pts
-                        available)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {commits.total < 20 && (
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <Code className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-orange-600">Increase commit activity</p>
-                      <p className="text-muted-foreground mt-1">
-                        {commits.total} commits (target: 20+ for +5 pts, 50+ for +10 pts)
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {healthScore.score >= 80 && (
-                  <div className="md:col-span-2 flex items-start gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <Award className="h-4 w-4 text-green-500 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-green-600">Excellent repository health! 🎉</p>
-                      <p className="text-muted-foreground mt-1">
-                        Keep up the great work maintaining this project!
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* AI-Generated Description */}
+      <AIRepoDescription owner={owner} repo={repo} repoData={data} />
 
       <Tabs defaultValue="languages" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1">
