@@ -49,7 +49,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
 
   if (!insights && !loading) {
     return (
-      <Card className="border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-blue-500/5">
+      <Card className="border-purple-500/20 bg-linear-to-br from-purple-500/5 to-blue-500/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
@@ -102,7 +102,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
     <div className="space-y-6">
       {/* Career Summary */}
       {aiData?.summary && (
-        <Card className="border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-blue-500/5">
+        <Card className="border-purple-500/20 bg-linear-to-br from-purple-500/5 to-blue-500/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-purple-500" />

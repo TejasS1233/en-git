@@ -356,7 +356,7 @@ export default function CompareUsers() {
 
       {/* Winner Banner */}
       {winner && winner.user1 !== winner.user2 && (
-        <Card className="mb-6 border-2 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-orange-500/10">
+        <Card className="mb-6 border-2 border-yellow-500 bg-linear-to-r from-yellow-500/10 to-orange-500/10">
           <CardContent className="py-6">
             <div className="flex items-center justify-center gap-4">
               <Trophy className="h-12 w-12 text-yellow-500" />

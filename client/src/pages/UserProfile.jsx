@@ -38,7 +38,7 @@ export default function UserProfile() {
 
   const getExplorerUrl = (chainId, txHash) => {
     if (!chainId || !txHash) return "#";
-    
+
     const explorerMap = {
       "1": "https://etherscan.io", // Ethereum Mainnet
       "11155111": "https://sepolia.etherscan.io", // Sepolia Testnet
@@ -51,7 +51,7 @@ export default function UserProfile() {
       "10": "https://optimistic.etherscan.io", // Optimism
       "420": "https://sepolia-optimism.etherscan.io", // Optimism Sepolia
     };
-    
+
     const baseUrl = explorerMap[chainId] || "https://etherscan.io";
     return `${baseUrl}/tx/${txHash}`;
   };

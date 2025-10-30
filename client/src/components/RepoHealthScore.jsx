@@ -76,7 +76,7 @@ export function RepoHealthScore({
                 </div>
                 <div className="flex items-baseline gap-3">
                   <div
-                    className={`text-8xl md:text-9xl font-black bg-gradient-to-br ${getHealthColor(healthScore.score)} bg-clip-text text-transparent leading-none`}
+                    className={`text-8xl md:text-9xl font-black bg-linear-to-br ${getHealthColor(healthScore.score)} bg-clip-text text-transparent leading-none`}
                   >
                     {healthScore.score}
                   </div>

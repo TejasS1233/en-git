@@ -88,10 +88,10 @@ export default function Leaderboard() {
       {/* Header */}
       <div className="text-center mb-12">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500">
+          <div className="p-3 rounded-xl bg-linear-to-br from-yellow-500 to-orange-500">
             <Trophy className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-5xl font-black bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-black bg-linear-to-r from-yellow-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
             Global Leaderboard
           </h1>
         </div>
@@ -203,7 +203,7 @@ export default function Leaderboard() {
 
                 {/* Score */}
                 <div className="text-right">
-                  <p className="text-3xl font-black bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">
+                  <p className="text-3xl font-black bg-linear-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">
                     {entry.score}
                   </p>
                   <p className="text-xs text-muted-foreground">points</p>
@@ -302,7 +302,7 @@ export default function Leaderboard() {
 
               {/* Score */}
               <div className="text-right">
-                <p className="text-3xl font-black bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">
+                <p className="text-3xl font-black bg-linear-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">
                   {currentUser.score}
                 </p>
                 <p className="text-xs text-muted-foreground">points</p>

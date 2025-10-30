@@ -214,9 +214,9 @@ function ExtensionApp() {
   return (
     <div className="w-full min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="bg-gradient-to-r from-sky-600 to-blue-600 p-4">
+      <div className="bg-linear-to-r from-sky-600 to-blue-600 p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <img
               src={new URL("/engit-icon.png", import.meta.url).href}
               alt="en-git"
@@ -224,7 +224,7 @@ function ExtensionApp() {
             />
             <h1 className="text-xl font-bold text-white whitespace-nowrap">en-git</h1>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Theme Toggle Button*/}
             <Button onClick={toggleTheme} size="sm" variant="secondary" className="gap-1">
               {theme === "light" ? "Dark" : "Light"}
@@ -333,7 +333,7 @@ function ExtensionApp() {
                 if (!profileScore) return null;
 
                 return (
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-purple-50 to-white dark:from-purple-950 dark:to-gray-900 border-2 border-purple-200 dark:border-purple-800">
+                  <div className="p-3 rounded-lg bg-linear-to-br from-purple-50 to-white dark:from-purple-950 dark:to-gray-900 border-2 border-purple-200 dark:border-purple-800">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Trophy className="h-4 w-4 text-purple-500" />

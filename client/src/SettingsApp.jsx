@@ -185,7 +185,7 @@ function SettingsApp() {
     <TooltipProvider>
       <div className="w-full min-h-screen bg-background text-foreground">
         {/* Header */}
-        <div className="bg-gradient-to-r from-sky-600 to-blue-600 p-6">
+        <div className="bg-linear-to-r from-sky-600 to-blue-600 p-6">
           <div className="flex items-center gap-3">
             <SettingsIcon className="h-8 w-8 text-white" />
             <div>
@@ -201,7 +201,7 @@ function SettingsApp() {
             <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
               <CardContent className="pt-4">
                 <div className="flex gap-3">
-                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
                       Hover over the info icons for detailed explanations
@@ -719,7 +719,7 @@ function SettingsApp() {
                     <Card className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900">
                       <CardContent className="pt-4">
                         <div className="flex gap-3">
-                          <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                          <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                           <div className="space-y-1 text-sm">
                             <p className="font-medium text-amber-900 dark:text-amber-100">
                               How to test shortcuts:

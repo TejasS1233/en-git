@@ -200,7 +200,7 @@ const ChatBotButton = () => {
           side="top"
           align="end"
           sideOffset={16}
-          className="w-[90vw] max-w-[400px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-xl z-[9999]"
+          className="w-[90vw] max-w-[400px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-xl z-9999"
         >
           <div className="border-b px-4 py-2 text-sm font-semibold flex justify-between items-center">
             Nexus Assistant
@@ -218,11 +218,10 @@ const ChatBotButton = () => {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`px-3 py-2 rounded-lg max-w-[85%] whitespace-pre-wrap ${
-                  msg.from === "user"
+                className={`px-3 py-2 rounded-lg max-w-[85%] whitespace-pre-wrap ${msg.from === "user"
                     ? "ml-auto bg-primary text-primary-foreground"
                     : "bg-muted text-foreground"
-                }`}
+                  }`}
               >
                 {msg.text}
               </div>

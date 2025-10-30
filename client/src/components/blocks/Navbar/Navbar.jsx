@@ -49,11 +49,10 @@ export default function Navbar() {
   };
 
   return (
-    <div className="flex justify-center w-full fixed top-0 left-0 right-0 z-[999] bg-background border-b border-border px-3 sm:px-6">
+    <div className="flex justify-center w-full fixed top-0 left-0 right-0 z-999 bg-background border-b border-border px-3 sm:px-6">
       <nav
         id="main-nav"
-        className="z-[1000]
-   w-full max-w-6xl h-16"
+        className="z-1000 w-full max-w-6xl h-16"
       >
         <div className="flex items-center justify-between p-3">
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
@@ -74,11 +73,10 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to={item.href}
-                    className={`transition-colors ${
-                      activePath === item.href
-                        ? "text-foreground font-medium"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
+                    className={`transition-colors ${activePath === item.href
+                      ? "text-foreground font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
                   >
                     {item.label}
                   </Link>
@@ -97,7 +95,7 @@ export default function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="z-[9999] w-48 rounded-xl shadow-md border bg-background"
+                  className="z-9999 w-48 rounded-xl shadow-md border bg-background"
                 >
                   <DropdownMenuItem onClick={() => navigate(getDashboardPath())} className="gap-2">
                     <LayoutDashboard className="h-4 w-4" />

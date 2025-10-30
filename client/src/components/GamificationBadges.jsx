@@ -41,7 +41,7 @@ export function GamificationBadges({ insights }) {
   }
 
   return (
-    <Card className="border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-orange-500/5">
+    <Card className="border-yellow-500/20 bg-linear-to-br from-yellow-500/5 to-orange-500/5">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -67,7 +67,7 @@ export function GamificationBadges({ insights }) {
               key={idx}
               className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >
-              <div className="text-3xl flex-shrink-0">{BADGE_ICONS[badge.name] || "🏆"}</div>
+              <div className="text-3xl shrink-0">{BADGE_ICONS[badge.name] || "🏆"}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-semibold text-sm truncate">{badge.name}</h4>
@@ -111,7 +111,7 @@ export function GamificationBadges({ insights }) {
         </div>
 
         {badges.length >= 5 && (
-          <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+          <div className="mt-4 p-3 rounded-lg bg-linear-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 text-purple-500" />
               <p className="text-sm font-medium">

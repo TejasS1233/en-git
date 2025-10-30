@@ -307,7 +307,7 @@ export default function GitHubInsightsPage() {
     <div className="min-h-screen bg-background p-3 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         <div className="text-center space-y-4 sm:space-y-6 pt-4 pb-3 px-4 animate-in fade-in duration-500">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight bg-linear-to-r from-teal-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent leading-tight">
             Analyze Any GitHub Profile
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium px-2">
@@ -320,7 +320,7 @@ export default function GitHubInsightsPage() {
           <Card className="border-beam-card border-0">
             <CardHeader className="pb-4 sm:pb-6 pt-8 sm:pt-12 text-center px-4 sm:px-6">
               <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-                <Github className="h-6 w-6 sm:h-7 sm:w-7 text-teal-500 flex-shrink-0" />
+                <Github className="h-6 w-6 sm:h-7 sm:w-7 text-teal-500 shrink-0" />
                 <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold font-mono">
                   Enter GitHub Username
                 </CardTitle>
@@ -350,7 +350,7 @@ export default function GitHubInsightsPage() {
                   type="submit"
                   disabled={loading || !!usernameError || username.trim() === ""}
                   aria-disabled={loading || !!usernameError || username.trim() === ""}
-                  className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold shadow-lg bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 w-full sm:w-auto"
+                  className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold shadow-lg bg-linear-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 w-full sm:w-auto"
                   size="lg"
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />}
@@ -700,7 +700,7 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
         )}
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-        <Avatar className="h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0">
+        <Avatar className="h-20 w-20 sm:h-24 sm:w-24 shrink-0">
           <AvatarImage src={user.avatar_url} alt={user.login} />
           <AvatarFallback>{user.login?.[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>

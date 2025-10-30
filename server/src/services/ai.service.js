@@ -26,19 +26,18 @@ export async function generateCareerInsights(insights, commits = []) {
 - Primary Domain: ${insights.domain?.domain}
 - Coding Pattern: ${insights.commitTimes?.profile === "night-coder" ? "Night Coder" : "Early Bird"}
 - Popular Topics: ${insights.topics
-      ?.slice(0, 10)
-      .map(([t]) => t)
-      .join(", ")}
+        ?.slice(0, 10)
+        .map(([t]) => t)
+        .join(", ")}
 - Total Stars: ${insights.topStarred?.reduce((sum, r) => sum + (r.stargazers_count || 0), 0)}
 
-${
-  commits.length > 0
-    ? `**Recent Commit Messages (sample):**\n${commits
-        .slice(0, 10)
-        .map((c) => `- ${c.commit?.message || ""}`)
-        .join("\n")}`
-    : ""
-}
+${commits.length > 0
+        ? `**Recent Commit Messages (sample):**\n${commits
+          .slice(0, 10)
+          .map((c) => `- ${c.commit?.message || ""}`)
+          .join("\n")}`
+        : ""
+      }
 
 Provide:
 1. **Career Summary** (2-3 sentences about their profile)
@@ -136,7 +135,7 @@ export const getGithubInsights = async (username, refresh = false) => {
 
   // You must also return the lastUpdated timestamp for the controller
   const lastUpdated = new Date(userLastUpdated) > new Date(reposLastUpdated) ? userLastUpdated : reposLastUpdated;
-  
+
   // Assuming this function returns an object with insights
   const insightsData = { /*... your generated insights ...*/ };
 

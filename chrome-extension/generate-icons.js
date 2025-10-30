@@ -13,9 +13,8 @@ function generateSVGIcon(size) {
     </linearGradient>
   </defs>
   <rect width="${size}" height="${size}" rx="${size * 0.2}" fill="url(#grad)"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="${
-    size * 0.5
-  }" font-weight="bold" fill="white">eg</text>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="${size * 0.5
+    }" font-weight="bold" fill="white">eg</text>
 </svg>`;
 }
 

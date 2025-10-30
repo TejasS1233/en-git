@@ -92,11 +92,11 @@ export async function generateActivityLineChart(username, theme) {
       
       <!-- Grid lines -->
       ${[0, 1, 2, 3, 4]
-        .map((i) => {
-          const y = startY + (i * chartHeight) / 4;
-          return `<line x1="${startX}" y1="${y}" x2="${startX + chartWidth}" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.2" stroke-dasharray="5,5"/>`;
-        })
-        .join("")}
+      .map((i) => {
+        const y = startY + (i * chartHeight) / 4;
+        return `<line x1="${startX}" y1="${y}" x2="${startX + chartWidth}" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.2" stroke-dasharray="5,5"/>`;
+      })
+      .join("")}
       
       <!-- Area fill -->
       <path d="${areaPath}" fill="url(#areaGrad)"/>
@@ -106,24 +106,24 @@ export async function generateActivityLineChart(username, theme) {
       
       <!-- Data points -->
       ${points
-        .map(
-          (point, idx) => `
+      .map(
+        (point, idx) => `
         <circle cx="${point.x}" cy="${point.y}" r="5" fill="${bg}" stroke="url(#lineGrad)" stroke-width="3" filter="url(#glow)">
           <title>Week ${idx + 1}: ${point.value} contributions</title>
         </circle>
       `
-        )
-        .join("")}
+      )
+      .join("")}
       
       <!-- Week labels -->
       ${points
-        .map((point, idx) => {
-          if (idx % 2 === 0 || weeks.length <= 6) {
-            return `<text x="${point.x}" y="${startY + chartHeight + 20}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">W${idx + 1}</text>`;
-          }
-          return "";
-        })
-        .join("")}
+      .map((point, idx) => {
+        if (idx % 2 === 0 || weeks.length <= 6) {
+          return `<text x="${point.x}" y="${startY + chartHeight + 20}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">W${idx + 1}</text>`;
+        }
+        return "";
+      })
+      .join("")}
       
       <!-- Y-axis labels -->
       <text x="${startX - 10}" y="${startY + 5}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">

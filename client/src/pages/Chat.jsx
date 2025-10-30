@@ -172,9 +172,8 @@ const Chat = () => {
               return (
                 <div
                   key={chat._id}
-                  className={`p-4 cursor-pointer hover:bg-gray-100 ${
-                    selectedChat?._id === chat._id ? "bg-gray-200" : ""
-                  }`}
+                  className={`p-4 cursor-pointer hover:bg-gray-100 ${selectedChat?._id === chat._id ? "bg-gray-200" : ""
+                    }`}
                   onClick={() => setSelectedChat(chat)}
                 >
                   <div className="flex items-center">
@@ -208,9 +207,8 @@ const Chat = () => {
                   className={`mb-4 ${message.sender._id === user._id ? "text-right" : ""}`}
                 >
                   <p
-                    className={`p-2 rounded-lg inline-block ${
-                      message.sender._id === user._id ? "bg-blue-500 text-white" : "bg-gray-200"
-                    }`}
+                    className={`p-2 rounded-lg inline-block ${message.sender._id === user._id ? "bg-blue-500 text-white" : "bg-gray-200"
+                      }`}
                   >
                     {message.content}
                   </p>

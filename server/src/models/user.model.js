@@ -6,7 +6,7 @@ const userSchema = new Schema(
   {
     fullname: {
       type: String,
-      required: function() {
+      required: function () {
         // Required if user signs up via password or no OAuth provider
         return !this.googleId && !this.githubId;
       },
@@ -25,25 +25,25 @@ const userSchema = new Schema(
     },
     phoneNumber: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
     address: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
     avatar: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
     password: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
@@ -76,7 +76,7 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           if (!v) return true; // Allow empty wallet address
           // Basic Ethereum address validation (42 chars, starts with 0x)
           return /^0x[a-fA-F0-9]{40}$/.test(v);

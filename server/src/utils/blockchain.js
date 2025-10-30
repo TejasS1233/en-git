@@ -232,7 +232,7 @@ export async function mintCredentialBadge({ toAddress, badgeId, metadataURI }) {
     const { contract } = getBadgeContract();
     const tx = await contract.mintBadge(toAddress, badgeId, metadataURI);
     const receipt = await tx.wait();
-    
+
     // Parse Transfer event to get tokenId
     let tokenId = undefined;
     if (receipt?.logs) {
@@ -240,14 +240,14 @@ export async function mintCredentialBadge({ toAddress, badgeId, metadataURI }) {
       const transferEvent = receipt.logs.find(log => {
         try {
           const parsed = contract.interface.parseLog(log);
-          return parsed && parsed.name === 'Transfer' && 
-                 parsed.args.from === ethers.ZeroAddress && 
-                 parsed.args.to.toLowerCase() === toAddress.toLowerCase();
+          return parsed && parsed.name === 'Transfer' &&
+            parsed.args.from === ethers.ZeroAddress &&
+            parsed.args.to.toLowerCase() === toAddress.toLowerCase();
         } catch (e) {
           return false;
         }
       });
-      
+
       if (transferEvent) {
         try {
           const parsed = contract.interface.parseLog(transferEvent);
@@ -257,7 +257,7 @@ export async function mintCredentialBadge({ toAddress, badgeId, metadataURI }) {
         }
       }
     }
-    
+
     return {
       txHash: tx.hash,
       tokenId: tokenId,

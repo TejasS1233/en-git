@@ -15,7 +15,7 @@ export default function ProfileScore({ insights }) {
   return (
     <div className="space-y-6">
       {/* Main Score Card */}
-      <Card className="border-2 border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-white dark:from-purple-950 dark:to-gray-900">
+      <Card className="border-2 border-purple-200 dark:border-purple-800 bg-linear-to-br from-purple-50 to-white dark:from-purple-950 dark:to-gray-900">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -122,7 +122,7 @@ export default function ProfileScore({ insights }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {profileScore.achievements.slice(0, 8).map((achievement, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                   <span>{achievement}</span>
                 </div>
               ))}
@@ -147,7 +147,7 @@ export default function ProfileScore({ insights }) {
                 key={idx}
                 className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-900"
               >
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center font-bold text-blue-600 dark:text-blue-400">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center font-bold text-blue-600 dark:text-blue-400">
                   +{tip.points}
                 </div>
                 <div>
@@ -164,7 +164,7 @@ export default function ProfileScore({ insights }) {
 
       {/* Improvement Plan */}
       {improvementPlan && (
-        <Card className="border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50 to-white dark:from-green-950 dark:to-gray-900">
+        <Card className="border-green-200 dark:border-green-800 bg-linear-to-br from-green-50 to-white dark:from-green-950 dark:to-gray-900">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Target className="w-5 h-5 text-green-500" />
@@ -199,7 +199,7 @@ export default function ProfileScore({ insights }) {
               <p className="font-semibold text-sm">Priority Actions:</p>
               {improvementPlan.priority.map((tip, idx) => (
                 <div key={idx} className="flex items-center gap-2 text-sm">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center font-bold text-green-600 dark:text-green-400 text-xs">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center font-bold text-green-600 dark:text-green-400 text-xs">
                     {idx + 1}
                   </span>
                   <span>{tip.tip}</span>
