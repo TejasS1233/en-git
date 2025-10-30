@@ -9,8 +9,14 @@ export const generateWidget = asyncHandler(async (req, res) => {
 
   console.log(`\n🎨 Widget Request: ${username}, type: ${type}, theme: ${theme}`);
 
+  // Debug: Check MongoDB connection
+  const mongoose = (await import("mongoose")).default;
+  console.log(`MongoDB connection state: ${mongoose.connection.readyState}`); // 1 = connected
+  console.log(`MongoDB database name: ${mongoose.connection.name}`);
+
   // Fetch user data from leaderboard
   const userData = await Leaderboard.findOne({ username }).lean();
+  console.log(`Leaderboard data found: ${!!userData}`);
 
   if (!userData) {
     // Return a "not found" SVG instead of error
@@ -265,21 +271,26 @@ function generateNotFoundSvg(username, theme) {
   const border = isDark ? "#30363d" : "#d0d7de";
   const text = isDark ? "#c9d1d9" : "#24292f";
   const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = isDark ? "#58a6ff" : "#0969da";
 
   return `
     <svg width="300" height="180" xmlns="http://www.w3.org/2000/svg">
       <rect width="300" height="180" fill="${bg}" stroke="${border}" stroke-width="1" rx="6"/>
       
-      <text x="150" y="80" fill="${text}" font-size="16" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
+      <text x="150" y="70" fill="${text}" font-size="16" font-weight="600" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
         @${escapeXml(username)}
       </text>
       
-      <text x="150" y="105" fill="${subtext}" font-size="12" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
-        Not analyzed yet
+      <text x="150" y="95" fill="${subtext}" font-size="12" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
+        Profile not analyzed yet
       </text>
       
-      <text x="150" y="130" fill="${subtext}" font-size="10" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
-        Visit en-git.vercel.app to analyze
+      <text x="150" y="120" fill="${accent}" font-size="11" font-weight="500" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
+        Visit en-git.vercel.app
+      </text>
+      
+      <text x="150" y="140" fill="${subtext}" font-size="10" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
+        to analyze this profile
       </text>
     </svg>
   `;
@@ -480,15 +491,25 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
 
   // Try to get full insights from cache
   const WidgetCache = (await import("../models/widgetCache.model.js")).default;
+  console.log(`🔍 Querying WidgetCache for username: "${username}"`);
+
   const cached = await WidgetCache.findOne({ username }).lean();
+  console.log(`Cache result:`, cached ? `Found (${Object.keys(cached).join(", ")})` : "Not found");
 
   if (!cached) {
-    console.log(`❌ No cache found for ${username}`);
+    console.log(`❌ No cache found for ${username} in MongoDB`);
+    // Check if there's any data in the collection
+    const count = await WidgetCache.countDocuments();
+    console.log(`Total documents in WidgetCache collection: ${count}`);
     return generateNotFoundSvg(username, theme);
   }
 
   if (!cached.insights?.languages) {
     console.log(`❌ No languages data in cache for ${username}`);
+    console.log(
+      `Available insights keys:`,
+      cached.insights ? Object.keys(cached.insights) : "No insights"
+    );
     return generateNotFoundSvg(username, theme);
   }
 
