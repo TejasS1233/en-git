@@ -1,6 +1,7 @@
 import connectDB from "./db/index.js";
 import dotenv from "dotenv";
 import { httpServer } from "./app.js";
+import { initializeCronJobs } from "./services/cron.service.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -11,6 +12,9 @@ connectDB()
       console.log(
         `❤️  Check health at: http://localhost:${process.env.PORT || 8000}/api/v1/health`
       );
+
+      // Initialize automated email cron jobs
+      initializeCronJobs();
     });
   })
   .catch((err) => {

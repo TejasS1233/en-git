@@ -6,7 +6,7 @@ const userSchema = new Schema(
   {
     fullname: {
       type: String,
-      required: function() {
+      required: function () {
         // Required if user signs up via password or no OAuth provider
         return !this.googleId && !this.githubId;
       },
@@ -25,25 +25,25 @@ const userSchema = new Schema(
     },
     phoneNumber: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
     address: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
     avatar: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
     password: {
       type: String,
-      required: function() {
+      required: function () {
         return !this.googleId && !this.githubId;
       },
     },
@@ -76,12 +76,12 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           if (!v) return true; // Allow empty wallet address
           // Basic Ethereum address validation (42 chars, starts with 0x)
           return /^0x[a-fA-F0-9]{40}$/.test(v);
         },
-        message: 'Invalid Ethereum wallet address format'
+        message: "Invalid Ethereum wallet address format",
       },
       index: true,
     },
@@ -95,6 +95,12 @@ const userSchema = new Schema(
         mintedAt: { type: Date, default: Date.now },
       },
     ],
+    emailPreferences: {
+      weeklyReport: { type: Boolean, default: true },
+      scoreAlerts: { type: Boolean, default: true },
+      achievements: { type: Boolean, default: true },
+      leaderboardUpdates: { type: Boolean, default: false },
+    },
   },
   { timestamps: true }
 );
@@ -132,11 +138,9 @@ userSchema.methods.generateAuthToken = function () {
 
 // Generate refresh token
 userSchema.methods.generateRefreshToken = function () {
-  return jwt.sign(
-    { _id: this._id },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
-  );
+  return jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+  });
 };
 
 export const User = mongoose.model("User", userSchema);

@@ -22,11 +22,14 @@ export default function UserProfile() {
     const fetchUser = async () => {
       try {
         setLoading(true);
+        console.log("Fetching user profile for ID:", id);
         const res = await axiosInstance.get(`/users/profile/${id}`);
+        console.log("User profile data:", res.data);
         setUser(res.data.data);
         setFormData(res.data.data);
       } catch (error) {
-        toast.error("Failed to load user profile");
+        console.error("Profile fetch error:", error);
+        toast.error(error.response?.data?.message || "Failed to load user profile");
       } finally {
         setLoading(false);
       }
@@ -38,20 +41,20 @@ export default function UserProfile() {
 
   const getExplorerUrl = (chainId, txHash) => {
     if (!chainId || !txHash) return "#";
-    
+
     const explorerMap = {
-      "1": "https://etherscan.io", // Ethereum Mainnet
-      "11155111": "https://sepolia.etherscan.io", // Sepolia Testnet
-      "137": "https://polygonscan.com", // Polygon Mainnet
-      "80001": "https://mumbai.polygonscan.com", // Polygon Mumbai Testnet
-      "56": "https://bscscan.com", // BSC Mainnet
-      "97": "https://testnet.bscscan.com", // BSC Testnet
-      "42161": "https://arbiscan.io", // Arbitrum One
-      "421614": "https://sepolia.arbiscan.io", // Arbitrum Sepolia
-      "10": "https://optimistic.etherscan.io", // Optimism
-      "420": "https://sepolia-optimism.etherscan.io", // Optimism Sepolia
+      1: "https://etherscan.io", // Ethereum Mainnet
+      11155111: "https://sepolia.etherscan.io", // Sepolia Testnet
+      137: "https://polygonscan.com", // Polygon Mainnet
+      80001: "https://mumbai.polygonscan.com", // Polygon Mumbai Testnet
+      56: "https://bscscan.com", // BSC Mainnet
+      97: "https://testnet.bscscan.com", // BSC Testnet
+      42161: "https://arbiscan.io", // Arbitrum One
+      421614: "https://sepolia.arbiscan.io", // Arbitrum Sepolia
+      10: "https://optimistic.etherscan.io", // Optimism
+      420: "https://sepolia-optimism.etherscan.io", // Optimism Sepolia
     };
-    
+
     const baseUrl = explorerMap[chainId] || "https://etherscan.io";
     return `${baseUrl}/tx/${txHash}`;
   };
@@ -147,9 +150,44 @@ export default function UserProfile() {
         </div>
       </div>
 
+      {/* Account Overview Section */}
+      <div className="border rounded-lg p-6 bg-background shadow-sm">
+        <h3 className="text-lg font-medium mb-4">Account Overview</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 border rounded-lg">
+            <p className="text-sm text-muted-foreground">Account Type</p>
+            <p className="text-lg font-semibold">{capitalize(user.role)}</p>
+          </div>
+          <div className="p-4 border rounded-lg">
+            <p className="text-sm text-muted-foreground">Member Since</p>
+            <p className="text-lg font-semibold">{new Date(user.createdAt).toLocaleDateString()}</p>
+          </div>
+          <div className="p-4 border rounded-lg">
+            <p className="text-sm text-muted-foreground">Connected Accounts</p>
+            <div className="flex gap-2 mt-1">
+              {user.googleId && (
+                <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
+                  Google
+                </span>
+              )}
+              {user.githubId && (
+                <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded">
+                  GitHub
+                </span>
+              )}
+              {!user.googleId && !user.githubId && (
+                <span className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded">
+                  Email
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Profile Form-like Section */}
       <div className="border rounded-lg p-6 bg-background shadow-sm">
-        <h3 className="text-lg font-medium mb-4">Account</h3>
+        <h3 className="text-lg font-medium mb-4">Personal Information</h3>
         <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <Label>Full Name</Label>
@@ -217,13 +255,133 @@ export default function UserProfile() {
           )}
         </div>
       </div>
+      {/* Email Notifications Section */}
+      <div className="border rounded-lg p-6 bg-background shadow-sm">
+        <h3 className="text-lg font-medium mb-4">Email Notifications</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Choose which emails you'd like to receive from en-git
+        </p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Weekly Progress Report</p>
+              <p className="text-sm text-muted-foreground">
+                Get a summary of your GitHub activity every week
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.emailPreferences?.weeklyReport ?? true}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    emailPreferences: {
+                      ...formData.emailPreferences,
+                      weeklyReport: e.target.checked,
+                    },
+                  })
+                }
+                disabled={!editMode}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Score Change Alerts</p>
+              <p className="text-sm text-muted-foreground">
+                Get notified when your en-git score changes significantly
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.emailPreferences?.scoreAlerts ?? true}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    emailPreferences: {
+                      ...formData.emailPreferences,
+                      scoreAlerts: e.target.checked,
+                    },
+                  })
+                }
+                disabled={!editMode}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Achievement Unlocked</p>
+              <p className="text-sm text-muted-foreground">
+                Celebrate when you unlock new achievements
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.emailPreferences?.achievements ?? true}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    emailPreferences: {
+                      ...formData.emailPreferences,
+                      achievements: e.target.checked,
+                    },
+                  })
+                }
+                disabled={!editMode}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Leaderboard Position Changes</p>
+              <p className="text-sm text-muted-foreground">
+                Know when your rank on the leaderboard changes
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.emailPreferences?.leaderboardUpdates ?? false}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    emailPreferences: {
+                      ...formData.emailPreferences,
+                      leaderboardUpdates: e.target.checked,
+                    },
+                  })
+                }
+                disabled={!editMode}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
       {/* Credential Badges Section */}
       {user?.credentialBadges?.length ? (
         <div className="border rounded-lg p-6 bg-background shadow-sm">
           <h3 className="text-lg font-medium mb-4">Blockchain Credentials</h3>
           <div className="space-y-3">
             {user.credentialBadges.map((b, i) => (
-              <div key={i} className="text-sm flex items-center justify-between gap-4 p-3 border rounded">
+              <div
+                key={i}
+                className="text-sm flex items-center justify-between gap-4 p-3 border rounded"
+              >
                 <div className="truncate">
                   <div className="font-medium">{b.badgeId}</div>
                   <div className="text-muted-foreground truncate">Token: {b.tokenId || "-"}</div>
