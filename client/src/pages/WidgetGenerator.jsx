@@ -21,7 +21,8 @@ export default function WidgetGenerator() {
 
   const baseUrl = "https://en-git.onrender.com"; // Backend URL
   const colorParams = `&accent=${encodeURIComponent(accentColor)}&success=${encodeURIComponent(successColor)}&purple=${encodeURIComponent(purpleColor)}`;
-  const widgetUrl = `${baseUrl}/widget/${username}?type=${widgetType}&theme=${theme}${colorParams}`;
+  const repoParam = widgetType === "repo" ? `&repo=${encodeURIComponent(username)}` : "";
+  const widgetUrl = `${baseUrl}/widget/${widgetType === "repo" ? "repo" : username}?type=${widgetType}&theme=${theme}${colorParams}${repoParam}`;
   const profileUrl = "https://en-git.vercel.app/stats/" + username; // Frontend URL
 
   const markdownCode = `[![en-git stats](${widgetUrl})](${profileUrl})`;
@@ -39,6 +40,7 @@ export default function WidgetGenerator() {
     card: { width: 300, height: 180 },
     full: { width: 495, height: 195 },
     score: { width: 600, height: 420 },
+    repo: { width: 600, height: 550 },
     skills: { width: 600, height: 400 },
     languages: { width: 500, height: 320 },
     activity: { width: 800, height: 240 },
@@ -69,23 +71,28 @@ export default function WidgetGenerator() {
             <CardContent className="space-y-6">
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username">GitHub Username</Label>
+                <Label htmlFor="username">
+                  {widgetType === "repo" ? "Repository (owner/repo)" : "GitHub Username"}
+                </Label>
                 <Input
                   id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter GitHub username"
+                  placeholder={
+                    widgetType === "repo" ? "e.g., TejasS1233/en-git" : "Enter GitHub username"
+                  }
                 />
               </div>
 
               {/* Widget Type */}
               <div className="space-y-2">
-                <Label>Widget Type (8 Available)</Label>
+                <Label>Widget Type (9 Available)</Label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     "card",
                     "full",
                     "score",
+                    "repo",
                     "skills",
                     "languages",
                     "activity",

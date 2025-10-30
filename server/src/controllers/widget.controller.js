@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import Leaderboard from "../models/leaderboard.model.js";
+import { getOrGenerateWidgetCache } from "../utils/widgetCacheHelper.js";
 
 // Generate SVG widget
 export const generateWidget = asyncHandler(async (req, res) => {
@@ -13,6 +14,29 @@ export const generateWidget = asyncHandler(async (req, res) => {
   const mongoose = (await import("mongoose")).default;
   console.log(`MongoDB connection state: ${mongoose.connection.readyState}`); // 1 = connected
   console.log(`MongoDB database name: ${mongoose.connection.name}`);
+
+  // Get custom colors from query params
+  const customColors = {
+    accent: req.query.accent,
+    success: req.query.success,
+    purple: req.query.purple,
+  };
+
+  // Skip leaderboard check for repo widget
+  if (type === "repo") {
+    const repo = req.query.repo;
+    if (!repo) {
+      return res.status(400).send("Missing repo parameter. Use: ?type=repo&repo=owner/repo");
+    }
+    const svg = await generateRepoWidget(repo, theme, customColors);
+    res.setHeader("Content-Type", "image/svg+xml");
+    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=86400");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("CDN-Cache-Control", "public, max-age=3600");
+    return res.send(svg);
+  }
 
   // Fetch user data from leaderboard
   const userData = await Leaderboard.findOne({ username }).lean();
@@ -32,13 +56,6 @@ export const generateWidget = asyncHandler(async (req, res) => {
   // Calculate rank
   const rank = (await Leaderboard.countDocuments({ score: { $gt: userData.score } })) + 1;
   userData.rank = rank;
-
-  // Get custom colors from query params
-  const customColors = {
-    accent: req.query.accent,
-    success: req.query.success,
-    purple: req.query.purple,
-  };
 
   let svg;
   switch (type) {
@@ -65,6 +82,14 @@ export const generateWidget = asyncHandler(async (req, res) => {
       break;
     case "score":
       svg = await generateScoreWidget(username, theme, customColors);
+      break;
+    case "repo":
+      // For repo widget, get repo from query parameter
+      const repo = req.query.repo;
+      if (!repo) {
+        return res.status(400).send("Missing repo parameter. Use: ?type=repo&repo=owner/repo");
+      }
+      svg = await generateRepoWidget(repo, theme, customColors);
       break;
     default:
       svg = generateCardWidget(userData, theme, customColors);
@@ -156,7 +181,6 @@ function generateCardWidget(user, theme, customColors = {}) {
   `;
 }
 
-// Stats Widget (400x120)
 function generateStatsWidget(user, theme, customColors = {}) {
   const isDark = theme === "dark";
   const bg = isDark ? "#0d1117" : "#ffffff";
@@ -489,31 +513,15 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
   const subtext = isDark ? "#8b949e" : "#57606a";
   const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
 
-  // Try to get full insights from cache
-  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
-  console.log(`🔍 Querying WidgetCache for username: "${username}"`);
+  // Get or generate cache data
+  const insights = await getOrGenerateWidgetCache(username);
 
-  const cached = await WidgetCache.findOne({ username }).lean();
-  console.log(`Cache result:`, cached ? `Found (${Object.keys(cached).join(", ")})` : "Not found");
-
-  if (!cached) {
-    console.log(`❌ No cache found for ${username} in MongoDB`);
-    // Check if there's any data in the collection
-    const count = await WidgetCache.countDocuments();
-    console.log(`Total documents in WidgetCache collection: ${count}`);
+  if (!insights || !insights.languages) {
+    console.log(`❌ No languages data available for ${username}`);
     return generateNotFoundSvg(username, theme);
   }
 
-  if (!cached.insights?.languages) {
-    console.log(`❌ No languages data in cache for ${username}`);
-    console.log(
-      `Available insights keys:`,
-      cached.insights ? Object.keys(cached.insights) : "No insights"
-    );
-    return generateNotFoundSvg(username, theme);
-  }
-
-  const languagesData = cached.insights.languages;
+  const languagesData = insights.languages;
   const languages =
     languagesData.top3 ||
     languagesData.percentages?.slice(0, 3).map(([lang, pct]) => [lang, pct]) ||
@@ -627,21 +635,16 @@ async function generateYearlyContributionWidget(username, theme, customColors = 
   const subtext = isDark ? "#8b949e" : "#57606a";
   const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
 
-  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
-  const cached = await WidgetCache.findOne({ username }).lean();
+  // Get or generate cache data
+  const insights = await getOrGenerateWidgetCache(username);
 
-  if (!cached) {
-    console.log(`❌ No cache found for ${username} (yearly activity widget)`);
-    return generateNotFoundSvg(username, theme);
-  }
-
-  if (!cached.insights?.weekly) {
-    console.log(`❌ No weekly data in cache for ${username}`);
+  if (!insights || !insights.weekly) {
+    console.log(`❌ No weekly data available for ${username}`);
     return generateNotFoundSvg(username, theme);
   }
 
   // Weekly data format: [["2025-W44", 100], ["2025-W43", 50], ...]
-  const weeklyRaw = cached.insights.weekly || [];
+  const weeklyRaw = insights.weekly || [];
 
   // Take up to 12 weeks of actual data, reverse to show oldest to newest (left to right)
   const weeks = weeklyRaw.slice(0, 12).reverse();
@@ -792,27 +795,15 @@ async function generateCommitTimesWidget(username, theme, customColors = {}) {
   const subtext = isDark ? "#8b949e" : "#57606a";
   const accent = customColors.accent || (isDark ? "#a855f7" : "#9333ea");
 
-  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
-  const cached = await WidgetCache.findOne({ username }).lean();
+  // Get or generate cache data
+  const insights = await getOrGenerateWidgetCache(username);
 
-  if (!cached) {
-    console.log(`❌ No cache found for ${username} (commits widget)`);
+  if (!insights || !insights.commitTimes) {
+    console.log(`❌ No commitTimes data available for ${username}`);
     return generateNotFoundSvg(username, theme);
   }
 
-  console.log(`\n📊 COMMITS WIDGET DEBUG for ${username}:`);
-  console.log(`Cache exists:`, !!cached);
-  console.log(`Cache.insights exists:`, !!cached.insights);
-  console.log(`Cache.insights keys:`, cached.insights ? Object.keys(cached.insights) : "N/A");
-  console.log(`Cache.insights.commitTimes:`, JSON.stringify(cached.insights?.commitTimes, null, 2));
-  console.log(`Type of commitTimes:`, typeof cached.insights?.commitTimes);
-
-  if (!cached.insights?.commitTimes) {
-    console.log(`❌ No commitTimes data in cache for ${username}`);
-    return generateNotFoundSvg(username, theme);
-  }
-
-  const commitTimes = cached.insights.commitTimes || {};
+  const commitTimes = insights.commitTimes || {};
   const profile = commitTimes.profile || "balanced";
 
   // Convert hourly data to array (0-23 hours)
@@ -918,14 +909,14 @@ async function generateSkillsWidget(username, theme, customColors = {}) {
   const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
   const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
 
-  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
-  const cached = await WidgetCache.findOne({ username }).lean();
+  // Get or generate cache data
+  const insights = await getOrGenerateWidgetCache(username);
 
-  if (!cached || !cached.insights?.domain) {
+  if (!insights || !insights.domain) {
     return generateNotFoundSvg(username, theme);
   }
 
-  const domainData = cached.insights.domain;
+  const domainData = insights.domain;
   const primaryDomain = domainData.domain;
   const scores = domainData.scores;
 
@@ -1056,14 +1047,14 @@ async function generateScoreWidget(username, theme, customColors = {}) {
   const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
   const purple = customColors.purple || (isDark ? "#a855f7" : "#9333ea");
 
-  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
-  const cached = await WidgetCache.findOne({ username }).lean();
+  // Get or generate cache data
+  const insights = await getOrGenerateWidgetCache(username);
 
-  if (!cached || !cached.insights?.profileScore) {
+  if (!insights || !insights.profileScore) {
     return generateNotFoundSvg(username, theme);
   }
 
-  const scoreData = cached.insights.profileScore;
+  const scoreData = insights.profileScore;
   const totalScore = scoreData.score || 0;
   const grade = scoreData.grade || "N/A";
 
@@ -1163,4 +1154,266 @@ async function generateScoreWidget(username, theme, customColors = {}) {
       </text>
     </svg>
   `;
+}
+
+// Repository Health Score Widget (600×420)
+async function generateRepoWidget(repoPath, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+  const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
+  const purple = customColors.purple || (isDark ? "#a855f7" : "#9333ea");
+
+  // Parse owner/repo from path
+  const [owner, repo] = repoPath.split("/");
+
+  if (!owner || !repo) {
+    return `
+      <svg width="700" height="550" xmlns="http://www.w3.org/2000/svg">
+        <rect width="700" height="550" fill="${bg}" rx="12"/>
+        <text x="350" y="275" fill="${text}" font-size="14" font-family="system-ui" text-anchor="middle">
+          Invalid format. Use: owner/repo
+        </text>
+      </svg>
+    `;
+  }
+
+  try {
+    // Fetch repository data from GitHub API
+    const axios = (await import("axios")).default;
+    const token = process.env.GITHUB_TOKEN;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    // Fetch all required data in parallel
+    const [repoRes, issuesRes, prsRes, commitsRes] = await Promise.all([
+      axios.get(`https://api.github.com/repos/${owner}/${repo}`, { headers }),
+      axios
+        .get(`https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=100`, {
+          headers,
+        })
+        .catch(() => ({ data: [] })),
+      axios
+        .get(`https://api.github.com/repos/${owner}/${repo}/pulls?state=all&per_page=100`, {
+          headers,
+        })
+        .catch(() => ({ data: [] })),
+      axios
+        .get(`https://api.github.com/repos/${owner}/${repo}/commits?per_page=100`, { headers })
+        .catch(() => ({ data: [] })),
+    ]);
+
+    const repository = repoRes.data;
+    const issues = issuesRes.data;
+    const prs = prsRes.data;
+    const commits = commitsRes.data;
+
+    // EXACT same calculation as repository.controller.js
+    let totalScore = 0;
+    const breakdown = [];
+
+    // Has description (10 points)
+    if (repository.description) {
+      totalScore += 10;
+      breakdown.push({ label: "Has description", value: 100, points: "+10", color: accent });
+    }
+
+    // Has license (10 points)
+    if (repository.license) {
+      totalScore += 10;
+      breakdown.push({ label: "Has license", value: 100, points: "+10", color: success });
+    }
+
+    // Recent activity (20 points)
+    const daysSinceUpdate = (Date.now() - new Date(repository.pushed_at)) / (1000 * 60 * 60 * 24);
+    if (daysSinceUpdate < 7) {
+      totalScore += 20;
+      breakdown.push({ label: "Updated in last week", value: 100, points: "+20", color: purple });
+    } else if (daysSinceUpdate < 30) {
+      totalScore += 15;
+      breakdown.push({ label: "Updated in last month", value: 75, points: "+15", color: purple });
+    } else if (daysSinceUpdate < 90) {
+      totalScore += 10;
+      breakdown.push({
+        label: "Updated in last 3 months",
+        value: 50,
+        points: "+10",
+        color: purple,
+      });
+    }
+
+    // Has topics (10 points)
+    if (repository.topics && repository.topics.length > 0) {
+      totalScore += 10;
+      breakdown.push({
+        label: `Has ${repository.topics.length} topics`,
+        value: 100,
+        points: "+10",
+        color: "#d29922",
+      });
+    }
+
+    // Issue management (20 points)
+    const actualIssues = issues.filter((i) => !i.pull_request);
+    if (actualIssues.length > 0) {
+      const closedIssues = actualIssues.filter((i) => i.state === "closed");
+      const closeRate = closedIssues.length / actualIssues.length;
+      const issuePoints = Math.round(closeRate * 20);
+      totalScore += issuePoints;
+      breakdown.push({
+        label: `${(closeRate * 100).toFixed(0)}% issue close rate`,
+        value: closeRate * 100,
+        points: `+${issuePoints}`,
+        color: accent,
+      });
+    }
+
+    // PR management (20 points)
+    if (prs.length > 0) {
+      const mergedPRs = prs.filter((pr) => pr.merged_at);
+      const mergeRate = mergedPRs.length / prs.length;
+      const prPoints = Math.round(mergeRate * 20);
+      totalScore += prPoints;
+      breakdown.push({
+        label: `${(mergeRate * 100).toFixed(0)}% PR merge rate`,
+        value: mergeRate * 100,
+        points: `+${prPoints}`,
+        color: success,
+      });
+    }
+
+    // Commit regularity (10 points)
+    if (commits.length >= 50) {
+      totalScore += 10;
+      breakdown.push({
+        label: "Regular commit activity (50+)",
+        value: 100,
+        points: "+10",
+        color: purple,
+      });
+    } else if (commits.length >= 20) {
+      totalScore += 5;
+      breakdown.push({
+        label: "Moderate commit activity (20+)",
+        value: 50,
+        points: "+5",
+        color: purple,
+      });
+    }
+
+    const grade =
+      totalScore >= 80
+        ? "A"
+        : totalScore >= 60
+          ? "B"
+          : totalScore >= 40
+            ? "C"
+            : totalScore >= 20
+              ? "D"
+              : "F";
+
+    const barHeight = 18;
+    const barSpacing = 50;
+    const startY = 200;
+    const barWidth = 580;
+    const startX = 60;
+
+    return `
+      <svg width="700" height="550" viewBox="-10 -10 720 570" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="repoScoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:${accent}" />
+            <stop offset="100%" style="stop-color:${purple}" />
+          </linearGradient>
+          <filter id="repoBarGlow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        <rect width="700" height="550" fill="${bg}" rx="12"/>
+        <rect width="700" height="550" fill="${bgSecondary}" fill-opacity="0.3" rx="12"/>
+        
+        <!-- Header -->
+        <text x="50" y="40" fill="${text}" font-size="20" font-weight="700" font-family="system-ui">
+          Repository Health
+        </text>
+        <text x="50" y="60" fill="${subtext}" font-size="12" font-family="system-ui">
+          ${escapeXml(repository.name)}
+        </text>
+        
+        <!-- Large Score Display -->
+        <text x="640" y="75" fill="url(#repoScoreGrad)" font-size="52" font-weight="700" font-family="system-ui" text-anchor="end">
+          ${totalScore}
+        </text>
+        <text x="640" y="95" fill="${subtext}" font-size="14" font-family="system-ui" text-anchor="end">
+          out of 100
+        </text>
+        
+        <!-- Grade Badge -->
+        <g transform="translate(50, 80)">
+          <rect width="120" height="40" fill="${purple}" fill-opacity="0.2" rx="8" stroke="${purple}" stroke-width="2"/>
+          <text x="60" y="27" fill="${purple}" font-size="18" font-weight="700" font-family="system-ui" text-anchor="middle">
+            Grade ${escapeXml(grade)}
+          </text>
+        </g>
+        
+        <!-- Score Breakdown Title -->
+        <text x="50" y="145" fill="${text}" font-size="14" font-weight="600" font-family="system-ui">
+          Score Breakdown
+        </text>
+        
+        <!-- Breakdown Bars -->
+        ${breakdown
+          .map((item, idx) => {
+            const y = startY + idx * barSpacing;
+            const fillWidth = (item.value / 100) * barWidth;
+
+            return `
+            <g>
+              <!-- Background bar -->
+              <rect x="${startX}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${border}" opacity="0.3" rx="10"/>
+              
+              <!-- Filled bar -->
+              <rect x="${startX}" y="${y}" width="${fillWidth}" height="${barHeight}" fill="${item.color}" opacity="0.8" rx="10" filter="url(#repoBarGlow)"/>
+              
+              <!-- Label -->
+              <text x="${startX}" y="${y - 5}" fill="${text}" font-size="11" font-weight="500" font-family="system-ui">
+                ${escapeXml(item.label)}
+              </text>
+              
+              <!-- Points -->
+              <text x="${startX + barWidth + 10}" y="${y + 15}" fill="${item.color}" font-size="12" font-weight="700" font-family="system-ui">
+                ${item.points || ""}
+              </text>
+            </g>
+          `;
+          })
+          .join("")}
+        
+        <text x="350" y="540" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
+          powered by en-git
+        </text>
+      </svg>
+    `;
+  } catch (error) {
+    console.error(`Error fetching repo ${repoPath}:`, error.message);
+    return `
+      <svg width="700" height="550" xmlns="http://www.w3.org/2000/svg">
+        <rect width="700" height="550" fill="${bg}" rx="12"/>
+        <text x="350" y="275" fill="${text}" font-size="16" font-weight="600" font-family="system-ui" text-anchor="middle">
+          Repository not found
+        </text>
+        <text x="350" y="300" fill="${subtext}" font-size="12" font-family="system-ui" text-anchor="middle">
+          ${escapeXml(repoPath)}
+        </text>
+      </svg>
+    `;
+  }
 }

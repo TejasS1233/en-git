@@ -23,8 +23,8 @@ const widgetCacheSchema = new mongoose.Schema(
   }
 );
 
-// Auto-expire after 24 hours (86400 seconds)
-widgetCacheSchema.index({ lastUpdated: 1 }, { expireAfterSeconds: 86400 });
+// Auto-expire after 30 days (2592000 seconds) - much longer to prevent data loss
+widgetCacheSchema.index({ lastUpdated: 1 }, { expireAfterSeconds: 2592000 });
 
 const WidgetCache = mongoose.model("WidgetCache", widgetCacheSchema);
 
