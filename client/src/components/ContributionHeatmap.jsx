@@ -158,7 +158,7 @@ export function ContributionHeatmap({ insights }) {
         </div>
 
         {currentStreak >= 4 && (
-          <div className="p-3 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
+          <div className="p-3 rounded-lg bg-linear-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
             <p className="text-sm flex items-center gap-2">
               <span className="text-xl">🔥</span>
               <span>Amazing {currentStreak}-week streak! Keep the momentum going!</span>

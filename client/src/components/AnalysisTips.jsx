@@ -41,7 +41,7 @@ export function ProfileAnalysisTips() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-black mb-3 bg-gradient-to-r from-cyan-600 via-purple-600 to-orange-600 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-black mb-3 bg-linear-to-r from-cyan-600 via-purple-600 to-orange-600 bg-clip-text text-transparent">
           Level Up Your Profile
         </h2>
         <p className="text-lg text-muted-foreground">Quick wins to boost your GitHub score</p>
@@ -58,19 +58,19 @@ export function ProfileAnalysisTips() {
             >
               {/* Gradient background on hover */}
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${tip.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
+                className={`absolute inset-0 bg-linear-to-br ${tip.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
               />
 
               <CardContent className="p-6 relative">
                 {/* Icon with gradient background */}
                 <div
-                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tip.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                  className={`w-16 h-16 rounded-2xl bg-linear-to-br ${tip.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                 >
                   <Icon className="h-8 w-8 text-white" />
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-cyan-600 group-hover:to-purple-600 transition-all duration-300">
+                <h3 className="text-xl font-bold mb-4 group-hover:text-transparent group-hover:bg-linear-to-r group-hover:bg-clip-text group-hover:from-cyan-600 group-hover:to-purple-600 transition-all duration-300">
                   {tip.title}
                 </h3>
 
@@ -82,7 +82,7 @@ export function ProfileAnalysisTips() {
                       className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors"
                     >
                       <div
-                        className={`h-1.5 w-1.5 rounded-full bg-gradient-to-r ${tip.gradient}`}
+                        className={`h-1.5 w-1.5 rounded-full bg-linear-to-r ${tip.gradient}`}
                       />
                       <span>{item}</span>
                     </li>
@@ -128,7 +128,7 @@ export function RepositoryAnalysisTips() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-black mb-3 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-black mb-3 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
           Boost Your Repository
         </h2>
         <p className="text-lg text-muted-foreground">Essential practices for a healthy repo</p>
@@ -145,19 +145,19 @@ export function RepositoryAnalysisTips() {
             >
               {/* Gradient background on hover */}
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${tip.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
+                className={`absolute inset-0 bg-linear-to-br ${tip.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
               />
 
               <CardContent className="p-6 relative">
                 {/* Icon with gradient background */}
                 <div
-                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tip.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                  className={`w-16 h-16 rounded-2xl bg-linear-to-br ${tip.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                 >
                   <Icon className="h-8 w-8 text-white" />
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
+                <h3 className="text-xl font-bold mb-4 group-hover:text-transparent group-hover:bg-linear-to-r group-hover:bg-clip-text group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
                   {tip.title}
                 </h3>
 
@@ -169,7 +169,7 @@ export function RepositoryAnalysisTips() {
                       className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors"
                     >
                       <div
-                        className={`h-1.5 w-1.5 rounded-full bg-gradient-to-r ${tip.gradient}`}
+                        className={`h-1.5 w-1.5 rounded-full bg-linear-to-r ${tip.gradient}`}
                       />
                       <span>{item}</span>
                     </li>

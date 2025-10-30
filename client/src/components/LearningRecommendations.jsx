@@ -172,9 +172,8 @@ export function LearningRecommendations({ insights }) {
               <AccordionItem
                 key={actualIndex}
                 value={`item-${actualIndex}`}
-                className={`transition-all duration-300 ${
-                  isFading ? "opacity-0 scale-95" : "opacity-100 scale-100"
-                }`}
+                className={`transition-all duration-300 ${isFading ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                  }`}
               >
                 <AccordionTrigger className="hover:no-underline py-4">
                   <div className="flex items-center gap-3 text-left w-full">
@@ -211,9 +210,8 @@ export function LearningRecommendations({ insights }) {
                       return (
                         <div
                           key={actualCourseIndex}
-                          className={`flex items-center gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-all duration-300 ${
-                            isCourseFading ? "opacity-0 scale-95" : "opacity-100 scale-100"
-                          }`}
+                          className={`flex items-center gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-all duration-300 ${isCourseFading ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                            }`}
                         >
                           <Checkbox
                             checked={hiddenCourses.has(`${actualIndex}-${actualCourseIndex}`)}
@@ -270,7 +268,7 @@ export function LearningRecommendations({ insights }) {
           })}
         </Accordion>
 
-        <Card className="mt-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
+        <Card className="mt-4 bg-linear-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-start gap-3">
               <TrendingUp className="h-4 w-4 text-purple-600 mt-0.5 shrink-0" />

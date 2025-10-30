@@ -55,7 +55,7 @@ export function AIRepoDescription({ owner, repo, repoData }) {
               onClick={generateDescription}
               disabled={loading}
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all text-base px-8 py-6 shrink-0"
+              className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all text-base px-8 py-6 shrink-0"
             >
               <Sparkles className="h-5 w-5 mr-2" />
               Generate Description

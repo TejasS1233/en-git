@@ -37,7 +37,7 @@ export const NavigationSheet = () => {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="left" className="flex w-[280px] flex-col justify-between p-6 z-[2000]">
+      <SheetContent side="left" className="flex w-[280px] flex-col justify-between p-6 z-2000">
         <VisuallyHidden>
           <SheetTitle>Navigation Menu</SheetTitle>
           <SheetDescription>Navigate to different sections of the website</SheetDescription>
@@ -46,7 +46,7 @@ export const NavigationSheet = () => {
         <div className="space-y-8">
           <div className="flex items-center gap-2">
             <Github className="w-7 h-7 text-primary" />
-            <span className="font-bold text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <span className="font-bold text-2xl bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               en-git
             </span>
           </div>

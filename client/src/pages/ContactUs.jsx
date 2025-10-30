@@ -94,7 +94,7 @@ const ContactPage = () => {
           ))}
         </div>
 
-        <Card className="mt-12 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+        <Card className="mt-12 border-primary/20 bg-linear-to-br from-primary/5 to-accent/5">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Open Source Project</CardTitle>
             <CardDescription className="text-base">

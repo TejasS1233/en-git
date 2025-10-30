@@ -9,7 +9,7 @@ export function CustomLoader() {
         <div className="absolute inset-2 w-20 h-20 rounded-full border-4 border-transparent border-t-purple-500 border-r-pink-500 animate-spin-slow" />
 
         {/* Inner pulsing circle */}
-        <div className="absolute inset-6 w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 animate-pulse" />
+        <div className="absolute inset-6 w-12 h-12 rounded-full bg-linear-to-br from-cyan-500 to-purple-500 animate-pulse" />
 
         {/* Center icon */}
         <div className="absolute inset-0 flex items-center justify-center">
@@ -31,7 +31,7 @@ export function CustomLoader() {
 
       {/* Loading text */}
       <div className="absolute mt-32 text-center">
-        <p className="text-lg font-semibold bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
+        <p className="text-lg font-semibold bg-linear-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
           Analyzing Profile...
         </p>
       </div>

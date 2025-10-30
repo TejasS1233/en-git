@@ -71,13 +71,13 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-muted/10">
       {/* Boxed login card */}
-      <div className="w-full max-w-sm rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors">
+      <div className="w-full max-w-xl rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors">
         <Logo className="h-9 w-9" />
         <p className="mt-4 text-xl font-bold tracking-tight text-center">Log in</p>
 
         {/* Social buttons */}
         <Button
-          className="mt-8 w-full gap-3"
+          className="mt-8 w-full gap-3 cursor-pointer"
           onClick={() =>
             (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/users/auth/google`)
           }
@@ -87,7 +87,7 @@ export default function Login() {
         </Button>
 
         <Button
-          className="mt-3 w-full gap-3 bg-[#24292e] text-white hover:bg-[#333]"
+          className="mt-3 w-full gap-3 bg-[#24292e] text-white hover:bg-[#333] cursor-pointer"
           onClick={() =>
             (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/users/auth/github`)
           }
@@ -105,7 +105,7 @@ export default function Login() {
 
         {/* Login form */}
         <Form {...form}>
-          <form className="w-full space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+          <form className="w-full space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
               name="email"
@@ -149,7 +149,7 @@ export default function Login() {
               )}
             />
 
-            <Button type="submit" className="mt-4 w-full">
+            <Button type="submit" className="mt-4 w-full cursor-pointer">
               Continue with Email
             </Button>
           </form>
@@ -176,7 +176,7 @@ function GoogleLogo() {
       viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="inline-block shrink-0 align-sub text-[inherit]"
+      className="inline-block shrink-0 align-sub text-inherit"
     >
       <g clipPath="url(#clip0)">
         <path

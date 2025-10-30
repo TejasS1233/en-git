@@ -40,7 +40,7 @@ export function ShareCard({ insights, username }) {
   return (
     <div className="space-y-6">
       {/* Widget Embed Section */}
-      <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 to-blue-500/5">
+      <Card className="border-cyan-500/20 bg-linear-to-br from-cyan-500/5 to-blue-500/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5 text-cyan-500" />
@@ -82,7 +82,7 @@ export function ShareCard({ insights, username }) {
       </Card>
 
       {/* Share Card Generator */}
-      <Card className="border-pink-500/20 bg-gradient-to-br from-pink-500/5 to-purple-500/5">
+      <Card className="border-pink-500/20 bg-linear-to-br from-pink-500/5 to-purple-500/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5 text-pink-500" />

@@ -8,5 +8,3 @@ router.post("/mint", verifyJWT, mintBadge);
 router.get("/verify", verifyJWT, verifyBadge);
 
 export default router;
-
-

@@ -76,6 +76,13 @@ export default function CompareUsers() {
       return;
     }
 
+    // 🚫 Prevent self-comparison via direct URL
+    if (username1.toLowerCase() === username2.toLowerCase()) {
+      setError("You cannot compare the same GitHub user.");
+      toast.error("You cannot compare the same GitHub user.");
+      return;
+    }
+
     setLoading(true);
     setError(null); // Clear previous errors
     setUser1LastUpdated("");
@@ -120,6 +127,13 @@ export default function CompareUsers() {
       toast.error(msg);
       return;
     }
+
+    // 🚫 Prevent comparing the same username
+    if (v1.value.toLowerCase() === v2.value.toLowerCase()) {
+      toast.error("You cannot compare the same GitHub user.");
+      return;
+    }
+
     setUser1Error("");
     setUser2Error("");
     navigate(`/compare/${v1.value}/${v2.value}`);
@@ -253,7 +267,7 @@ export default function CompareUsers() {
                 <Users className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
                 Compare GitHub Users
               </CardTitle>
-              <CardDescription className="text-sm sm:text-base">
+              <CardDescription className="text-sm sm:text-base mt-2.5">
                 Enter two GitHub usernames to see a detailed side-by-side comparison
               </CardDescription>
             </CardHeader>
@@ -265,6 +279,7 @@ export default function CompareUsers() {
                     <Input
                       placeholder="octocat"
                       value={user1Input}
+                      className="mt-2"
                       onChange={(e) => {
                         const val = e.target.value;
                         setUser1Input(val);
@@ -284,6 +299,7 @@ export default function CompareUsers() {
                     <Input
                       placeholder="torvalds"
                       value={user2Input}
+                      className="mt-2"
                       onChange={(e) => {
                         const val = e.target.value;
                         setUser2Input(val);
@@ -301,7 +317,7 @@ export default function CompareUsers() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full cursor-pointer mt-2.5"
                   disabled={
                     loading ||
                     !!user1Error ||
@@ -356,7 +372,7 @@ export default function CompareUsers() {
 
       {/* Winner Banner */}
       {winner && winner.user1 !== winner.user2 && (
-        <Card className="mb-6 border-2 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-orange-500/10">
+        <Card className="mb-6 border-2 border-yellow-500 bg-linear-to-r from-yellow-500/10 to-orange-500/10">
           <CardContent className="py-6">
             <div className="flex items-center justify-center gap-4">
               <Trophy className="h-12 w-12 text-yellow-500" />

@@ -11,7 +11,7 @@ export const GITHUB_REPO_REGEX = /^(?!\.)(?!.*\.$)(?!.*\.\.)[A-Za-z0-9._-]{1,100
 
 function isLikelyUrl(value) {
   const v = String(value || "").trim();
-  
+
   return (
     /^(https?:\/\/)/i.test(v) || // explicit http/https
     /^www\./i.test(v) || // www.
@@ -113,7 +113,7 @@ export function parseGithubRepoUrl(input) {
   }
 
   // Fallback: maybe user typed owner/repo with nothing else
-    if (/^[^\s\/]+\/[^\s\/]+$/.test(value)) {
+  if (/^[^\s\/]+\/[^\s\/]+$/.test(value)) {
     const parts = value.split(/\//);
     const owner = parts[0];
     const repo = parts[1];

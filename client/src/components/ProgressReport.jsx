@@ -214,13 +214,12 @@ export function ProgressReport({ report }) {
               {achievements.map((achievement, i) => (
                 <div
                   key={i}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                    achievement.type === "major"
-                      ? "bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border border-yellow-200 dark:border-yellow-800"
-                      : achievement.type === "medium"
-                        ? "bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 border border-blue-200 dark:border-blue-800"
-                        : "bg-muted/50"
-                  }`}
+                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${achievement.type === "major"
+                    ? "bg-linear-to-r from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border border-yellow-200 dark:border-yellow-800"
+                    : achievement.type === "medium"
+                      ? "bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 border border-blue-200 dark:border-blue-800"
+                      : "bg-muted/50"
+                    }`}
                 >
                   <span className="text-2xl">{achievement.icon}</span>
                   <span

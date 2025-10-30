@@ -168,13 +168,12 @@ function generateCardWidget(user, theme, customColors = {}) {
       </text>
       
       <!-- Top Language -->
-      ${
-        user.topLanguage
-          ? `<text x="20" y="168" fill="${accent}" font-size="10" font-family="system-ui, -apple-system, sans-serif">
+      ${user.topLanguage
+      ? `<text x="20" y="168" fill="${accent}" font-size="10" font-family="system-ui, -apple-system, sans-serif">
         ⚡ ${escapeXml(user.topLanguage)}
       </text>`
-          : ""
-      }
+      : ""
+    }
       
       <!-- Powered by -->
       <text x="250" y="172" fill="${subtext}" font-size="8" font-family="system-ui, -apple-system, sans-serif">
@@ -429,16 +428,15 @@ function generateFullWidget(user, theme, customColors = {}) {
       </g>
       
       <!-- Top Language Badge -->
-      ${
-        user.topLanguage
-          ? `<g transform="translate(20, 170)">
+      ${user.topLanguage
+      ? `<g transform="translate(20, 170)">
         <rect width="120" height="20" fill="${accent}" fill-opacity="0.1" rx="10"/>
         <text x="60" y="14" fill="${accent}" font-size="11" font-weight="600" font-family="system-ui" text-anchor="middle">
           ${escapeXml(user.topLanguage)}
         </text>
       </g>`
-          : ""
-      }
+      : ""
+    }
       
       <!-- Branding -->
       <text x="470" y="185" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="end">
@@ -490,13 +488,12 @@ function generateCompactWidget(user, theme) {
         <text x="0" y="22" fill="${subtext}" font-size="11" font-family="system-ui">
           ${user.publicRepos} repos • ${user.totalStars} stars • Rank #${user.rank || "N/A"}
         </text>
-        ${
-          user.topLanguage
-            ? `<text x="0" y="40" fill="${accent}" font-size="10" font-family="system-ui">
+        ${user.topLanguage
+      ? `<text x="0" y="40" fill="${accent}" font-size="10" font-family="system-ui">
           ${escapeXml(user.topLanguage)}
         </text>`
-            : ""
-        }
+      : ""
+    }
       </g>
       
       <text x="330" y="92" fill="${subtext}" font-size="8" font-family="system-ui" text-anchor="end">
@@ -586,12 +583,12 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
       <!-- Pie Chart with shadow -->
       <g filter="url(#shadow)">
         ${pieSlices
-          .map(
-            (slice) => `
+      .map(
+        (slice) => `
           <path d="${slice.path}" fill="${slice.color}" opacity="0.95"/>
         `
-          )
-          .join("")}
+      )
+      .join("")}
         <circle cx="${centerX}" cy="${centerY}" r="55" fill="${bg}"/>
       </g>
       
@@ -605,8 +602,8 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
       
       <!-- Legend with bars -->
       ${pieSlices
-        .map(
-          (slice, idx) => `
+      .map(
+        (slice, idx) => `
         <g transform="translate(330, ${70 + idx * 40})">
           <rect width="24" height="24" fill="${slice.color}" rx="6" opacity="0.9"/>
           <text x="34" y="17" fill="${text}" font-size="15" font-weight="500" font-family="system-ui">
@@ -618,8 +615,8 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
           </text>
         </g>
       `
-        )
-        .join("")}
+      )
+      .join("")}
       
       <text x="250" y="308" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle" opacity="0.7">
         powered by en-git
@@ -737,11 +734,11 @@ async function generateYearlyContributionWidget(username, theme, customColors = 
       
       <!-- Grid lines -->
       ${[0, 1, 2, 3, 4]
-        .map((i) => {
-          const y = startY + (i * chartHeight) / 4;
-          return `<line x1="${startX}" y1="${y}" x2="${startX + chartWidth}" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.2" stroke-dasharray="5,5"/>`;
-        })
-        .join("")}
+      .map((i) => {
+        const y = startY + (i * chartHeight) / 4;
+        return `<line x1="${startX}" y1="${y}" x2="${startX + chartWidth}" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.2" stroke-dasharray="5,5"/>`;
+      })
+      .join("")}
       
       <!-- Area fill -->
       <path d="${areaPath}" fill="url(#areaGrad)"/>
@@ -751,24 +748,24 @@ async function generateYearlyContributionWidget(username, theme, customColors = 
       
       <!-- Data points -->
       ${points
-        .map(
-          (point, idx) => `
+      .map(
+        (point, idx) => `
         <circle cx="${point.x}" cy="${point.y}" r="5" fill="${bg}" stroke="url(#lineGrad)" stroke-width="3" filter="url(#glow)">
           <title>Week ${idx + 1}: ${point.value} contributions</title>
         </circle>
       `
-        )
-        .join("")}
+      )
+      .join("")}
       
       <!-- Week labels -->
       ${points
-        .map((point, idx) => {
-          if (idx % 2 === 0 || weeks.length <= 6) {
-            return `<text x="${point.x}" y="${startY + chartHeight + 20}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">W${idx + 1}</text>`;
-          }
-          return "";
-        })
-        .join("")}
+      .map((point, idx) => {
+        if (idx % 2 === 0 || weeks.length <= 6) {
+          return `<text x="${point.x}" y="${startY + chartHeight + 20}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">W${idx + 1}</text>`;
+        }
+        return "";
+      })
+      .join("")}
       
       <!-- Y-axis labels -->
       <text x="${startX - 10}" y="${startY + 5}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
@@ -852,36 +849,35 @@ async function generateCommitTimesWidget(username, theme, customColors = {}) {
       
       <!-- Grid lines -->
       ${[0, 1, 2, 3, 4]
-        .map((i) => {
-          const y = 80 + i * 40;
-          return `<line x1="40" y1="${y}" x2="660" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.3" stroke-dasharray="5,5"/>`;
-        })
-        .join("")}
+      .map((i) => {
+        const y = 80 + i * 40;
+        return `<line x1="40" y1="${y}" x2="660" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.3" stroke-dasharray="5,5"/>`;
+      })
+      .join("")}
       
       <!-- Bars -->
       ${hourlyData
-        .map((data, idx) => {
-          const height = Math.max((data.commits / maxCommits) * 140, 2);
-          const x = 45 + idx * 26;
-          const y = 240 - height;
-          const barWidth = 22;
+      .map((data, idx) => {
+        const height = Math.max((data.commits / maxCommits) * 140, 2);
+        const x = 45 + idx * 26;
+        const y = 240 - height;
+        const barWidth = 22;
 
-          return `
+        return `
           <g filter="url(#barGlow)">
             <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" fill="url(#commitGrad)" rx="3" opacity="0.85"/>
           </g>
-          ${
-            idx % 3 === 0
-              ? `
+          ${idx % 3 === 0
+            ? `
             <text x="${x + barWidth / 2}" y="260" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">
               ${data.hour}:00
             </text>
           `
-              : ""
+            : ""
           }
         `;
-        })
-        .join("")}
+      })
+      .join("")}
       
       <!-- Y-axis labels -->
       <text x="30" y="85" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
@@ -1019,14 +1015,14 @@ async function generateSkillsWidget(username, theme, customColors = {}) {
       
       <!-- Data points -->
       ${radarPoints
-        .map(
-          (p) => `
+      .map(
+        (p) => `
         <circle cx="${p.x}" cy="${p.y}" r="6" fill="${bg}" stroke="${accent}" stroke-width="3" filter="url(#skillGlow)">
           <title>${p.domain}: ${p.score.toFixed(1)}</title>
         </circle>
       `
-        )
-        .join("")}
+      )
+      .join("")}
       
       <!-- Labels -->
       ${labels}
@@ -1126,11 +1122,11 @@ async function generateScoreWidget(username, theme, customColors = {}) {
       
       <!-- Breakdown Bars -->
       ${breakdown
-        .map((item, idx) => {
-          const y = startY + idx * barSpacing;
-          const fillWidth = (item.value / 100) * barWidth;
+      .map((item, idx) => {
+        const y = startY + idx * barSpacing;
+        const fillWidth = (item.value / 100) * barWidth;
 
-          return `
+        return `
           <g>
             <!-- Background bar -->
             <rect x="${startX}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${border}" opacity="0.3" rx="10"/>
@@ -1149,8 +1145,8 @@ async function generateScoreWidget(username, theme, customColors = {}) {
             </text>
           </g>
         `;
-        })
-        .join("")}
+      })
+      .join("")}
       
       <text x="300" y="410" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
         powered by en-git
@@ -1374,11 +1370,11 @@ async function generateRepoWidget(repoPath, theme, customColors = {}) {
         
         <!-- Breakdown Bars -->
         ${breakdown
-          .map((item, idx) => {
-            const y = startY + idx * barSpacing;
-            const fillWidth = (item.value / 100) * barWidth;
+        .map((item, idx) => {
+          const y = startY + idx * barSpacing;
+          const fillWidth = (item.value / 100) * barWidth;
 
-            return `
+          return `
             <g>
               <!-- Background bar -->
               <rect x="${startX}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${border}" opacity="0.3" rx="10"/>
@@ -1397,8 +1393,8 @@ async function generateRepoWidget(repoPath, theme, customColors = {}) {
               </text>
             </g>
           `;
-          })
-          .join("")}
+        })
+        .join("")}
         
         <text x="350" y="540" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
           powered by en-git
