@@ -22,13 +22,16 @@ export const generateWidget = asyncHandler(async (req, res) => {
     purple: req.query.purple,
   };
 
-  // Skip leaderboard check for repo widget
-  if (type === "repo") {
+  // Skip leaderboard check for repo widgets
+  if (type === "repo" || type === "contributors") {
     const repo = req.query.repo;
     if (!repo) {
       return res.status(400).send("Missing repo parameter. Use: ?type=repo&repo=owner/repo");
     }
-    const svg = await generateRepoWidget(repo, theme, customColors);
+    const svg =
+      type === "repo"
+        ? await generateRepoWidget(repo, theme, customColors)
+        : await generateContributorsWidget(repo, theme, customColors);
     res.setHeader("Content-Type", "image/svg+xml");
     res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=86400");
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -1411,6 +1414,205 @@ async function generateRepoWidget(repoPath, theme, customColors = {}) {
           Repository not found
         </text>
         <text x="350" y="300" fill="${subtext}" font-size="12" font-family="system-ui" text-anchor="middle">
+          ${escapeXml(repoPath)}
+        </text>
+      </svg>
+    `;
+  }
+}
+
+// Repository Contributors Widget (600×400) - Shows commit percentage breakdown
+async function generateContributorsWidget(repoPath, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+  const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
+  const purple = customColors.purple || (isDark ? "#a855f7" : "#9333ea");
+
+  const [owner, repo] = repoPath.split("/");
+
+  if (!owner || !repo) {
+    return `
+      <svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="400" fill="${bg}" rx="12"/>
+        <text x="300" y="200" fill="${text}" font-size="14" font-family="system-ui" text-anchor="middle">
+          Invalid format. Use: owner/repo
+        </text>
+      </svg>
+    `;
+  }
+
+  try {
+    const axios = (await import("axios")).default;
+    const token = process.env.GITHUB_TOKEN;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    // Fetch repository info and contributors (fetch up to 100 to get accurate count)
+    const [repoRes, contributorsRes] = await Promise.all([
+      axios.get(`https://api.github.com/repos/${owner}/${repo}`, { headers }),
+      axios.get(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=100`, {
+        headers,
+      }),
+    ]);
+
+    const repository = repoRes.data;
+    const contributors = contributorsRes.data;
+
+    // Calculate total contributions
+    const totalContributions = contributors.reduce((sum, c) => sum + c.contributions, 0);
+
+    // Get top 5 contributors
+    const top5 = contributors.slice(0, 5);
+    const others = contributors.slice(5);
+
+    // Calculate "Others" contribution
+    const othersContributions = others.reduce((sum, c) => sum + c.contributions, 0);
+
+    // Build contributors list with top 5 + Others
+    const topContributors = [
+      ...top5.map((c, idx) => ({
+        username: c.login,
+        contributions: c.contributions,
+        percentage: ((c.contributions / totalContributions) * 100).toFixed(1),
+        color: [accent, success, purple, "#d29922", "#ec4899"][idx],
+      })),
+      ...(othersContributions > 0
+        ? [
+            {
+              username: "Others",
+              contributions: othersContributions,
+              percentage: ((othersContributions / totalContributions) * 100).toFixed(1),
+              color: "#6b7280",
+            },
+          ]
+        : []),
+    ];
+
+    // Pie chart setup
+    const centerX = 200;
+    const centerY = 280;
+    const radius = 120;
+
+    // Calculate pie slices
+    let currentAngle = 0;
+    const pieSlices = topContributors.map((contributor) => {
+      const percentage = parseFloat(contributor.percentage);
+      const angle = (percentage / 100) * 360;
+      const startAngle = currentAngle;
+      const endAngle = currentAngle + angle;
+      currentAngle = endAngle;
+
+      const startRad = ((startAngle - 90) * Math.PI) / 180;
+      const endRad = ((endAngle - 90) * Math.PI) / 180;
+
+      const x1 = centerX + radius * Math.cos(startRad);
+      const y1 = centerY + radius * Math.sin(startRad);
+      const x2 = centerX + radius * Math.cos(endRad);
+      const y2 = centerY + radius * Math.sin(endRad);
+
+      const largeArc = angle > 180 ? 1 : 0;
+
+      return {
+        ...contributor,
+        path: `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`,
+      };
+    });
+
+    return `
+      <svg width="650" height="550" viewBox="-10 -10 670 570" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="contribGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:${accent}" />
+            <stop offset="100%" style="stop-color:${purple}" />
+          </linearGradient>
+          <filter id="pieGlow">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        
+        <rect width="650" height="550" fill="${bg}" rx="12"/>
+        <rect width="650" height="550" fill="${bgSecondary}" fill-opacity="0.2" rx="12"/>
+        
+        <!-- Header -->
+        <text x="325" y="40" fill="url(#contribGrad)" font-size="22" font-weight="700" font-family="system-ui" text-anchor="middle">
+          Top Contributors
+        </text>
+        <text x="325" y="65" fill="${text}" font-size="14" font-weight="600" font-family="system-ui" text-anchor="middle">
+          ${escapeXml(repository.name)}
+        </text>
+        <text x="325" y="88" fill="${subtext}" font-size="12" font-family="system-ui" text-anchor="middle">
+          ${totalContributions.toLocaleString()} total commits
+        </text>
+        
+        <!-- Pie Chart -->
+        <g filter="url(#pieGlow)">
+          ${pieSlices
+            .map(
+              (slice) => `
+            <path d="${slice.path}" fill="${slice.color}" opacity="0.9" stroke="${bg}" stroke-width="2">
+              <title>${slice.username}: ${slice.contributions} commits (${slice.percentage}%)</title>
+            </path>
+          `
+            )
+            .join("")}
+        </g>
+        
+        <!-- Center circle -->
+        <circle cx="${centerX}" cy="${centerY}" r="50" fill="${bg}" stroke="${border}" stroke-width="2"/>
+        <text x="${centerX}" y="${centerY - 8}" fill="${text}" font-size="16" font-weight="700" font-family="system-ui" text-anchor="middle">
+          ${contributors.length}
+        </text>
+        <text x="${centerX}" y="${centerY + 10}" fill="${subtext}" font-size="11" font-family="system-ui" text-anchor="middle">
+          Contributors
+        </text>
+        
+        <!-- Legend -->
+        ${topContributors
+          .map((contributor, idx) => {
+            const legendY = 140 + idx * 45;
+            // Truncate username if longer than 12 characters
+            const displayName =
+              contributor.username.length > 12
+                ? contributor.username.substring(0, 12) + "..."
+                : contributor.username;
+            return `
+            <g>
+              <!-- Color box -->
+              <rect x="430" y="${legendY}" width="20" height="20" fill="${contributor.color}" rx="4" opacity="0.9"/>
+              
+              <!-- Username -->
+              <text x="460" y="${legendY + 14}" fill="${text}" font-size="13" font-weight="500" font-family="system-ui">
+                ${escapeXml(displayName)}
+              </text>
+              
+              <!-- Stats -->
+              <text x="600" y="${legendY + 14}" fill="${contributor.color}" font-size="12" font-weight="700" font-family="system-ui" text-anchor="end">
+                ${contributor.percentage}%
+              </text>
+            </g>
+          `;
+          })
+          .join("")}
+        
+        
+        <text x="325" y="535" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
+          powered by en-git
+        </text>
+      </svg>
+    `;
+  } catch (error) {
+    console.error(`Error fetching contributors for ${repoPath}:`, error.message);
+    return `
+      <svg width="650" height="550" xmlns="http://www.w3.org/2000/svg">
+        <rect width="650" height="550" fill="${bg}" rx="12"/>
+        <text x="325" y="275" fill="${text}" font-size="16" font-weight="600" font-family="system-ui" text-anchor="middle">
+          Repository not found
+        </text>
+        <text x="325" y="300" fill="${subtext}" font-size="12" font-family="system-ui" text-anchor="middle">
           ${escapeXml(repoPath)}
         </text>
       </svg>
