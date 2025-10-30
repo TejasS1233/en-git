@@ -15,9 +15,13 @@ export default function WidgetGenerator() {
   const [widgetType, setWidgetType] = useState("card");
   const [theme, setTheme] = useState("dark");
   const [copied, setCopied] = useState(false);
+  const [accentColor, setAccentColor] = useState("#58a6ff");
+  const [successColor, setSuccessColor] = useState("#3fb950");
+  const [purpleColor, setPurpleColor] = useState("#a855f7");
 
   const baseUrl = "https://en-git.onrender.com"; // Backend URL
-  const widgetUrl = `${baseUrl}/widget/${username}?type=${widgetType}&theme=${theme}`;
+  const colorParams = `&accent=${encodeURIComponent(accentColor)}&success=${encodeURIComponent(successColor)}&purple=${encodeURIComponent(purpleColor)}`;
+  const widgetUrl = `${baseUrl}/widget/${username}?type=${widgetType}&theme=${theme}${colorParams}`;
   const profileUrl = "https://en-git.vercel.app/stats/" + username; // Frontend URL
 
   const markdownCode = `[![en-git stats](${widgetUrl})](${profileUrl})`;
@@ -34,10 +38,12 @@ export default function WidgetGenerator() {
   const widgetSizes = {
     card: { width: 300, height: 180 },
     full: { width: 495, height: 195 },
+    score: { width: 600, height: 420 },
+    skills: { width: 600, height: 400 },
+    languages: { width: 500, height: 320 },
+    activity: { width: 800, height: 240 },
+    commits: { width: 700, height: 280 },
     stats: { width: 400, height: 120 },
-    compact: { width: 350, height: 100 },
-    badge: { width: 200, height: 80 },
-    rank: { width: 250, height: 100 },
   };
 
   return (
@@ -74,19 +80,40 @@ export default function WidgetGenerator() {
 
               {/* Widget Type */}
               <div className="space-y-2">
-                <Label>Widget Type</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {["card", "full", "stats", "compact", "badge", "rank"].map((type) => (
+                <Label>Widget Type (8 Available)</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    "card",
+                    "full",
+                    "score",
+                    "skills",
+                    "languages",
+                    "activity",
+                    "commits",
+                    "stats",
+                  ].map((type) => (
                     <Button
                       key={type}
                       variant={widgetType === type ? "default" : "outline"}
                       onClick={() => setWidgetType(type)}
-                      className="capitalize"
+                      className="capitalize text-xs"
                     >
                       {type}
                     </Button>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  💡 Want custom widgets? Check out our{" "}
+                  <a
+                    href="https://github.com/TejasS1233/en-git/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    Custom Widget Builder
+                  </a>{" "}
+                  feature request!
+                </p>
               </div>
 
               {/* Theme */}
@@ -105,6 +132,49 @@ export default function WidgetGenerator() {
                   >
                     Light
                   </Button>
+                </div>
+              </div>
+
+              {/* Custom Colors */}
+              <div className="space-y-2">
+                <Label>Custom Colors (Optional)</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Label htmlFor="accent" className="text-xs">
+                      Accent
+                    </Label>
+                    <Input
+                      id="accent"
+                      type="color"
+                      value={accentColor}
+                      onChange={(e) => setAccentColor(e.target.value)}
+                      className="h-10 cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="success" className="text-xs">
+                      Success
+                    </Label>
+                    <Input
+                      id="success"
+                      type="color"
+                      value={successColor}
+                      onChange={(e) => setSuccessColor(e.target.value)}
+                      className="h-10 cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="purple" className="text-xs">
+                      Purple
+                    </Label>
+                    <Input
+                      id="purple"
+                      type="color"
+                      value={purpleColor}
+                      onChange={(e) => setPurpleColor(e.target.value)}
+                      className="h-10 cursor-pointer"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -193,48 +263,34 @@ export default function WidgetGenerator() {
         {/* Preview */}
         <div className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Live Preview</CardTitle>
-              <CardDescription>See how your widget looks</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Live Preview</CardTitle>
+                <CardDescription>See how your widget looks</CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const img = document.querySelector("#widget-preview");
+                  if (img) {
+                    img.src = widgetUrl + "&t=" + Date.now();
+                    toast.success("Widget reloaded!");
+                  }
+                }}
+              >
+                Reload
+              </Button>
             </CardHeader>
             <CardContent className="flex items-center justify-center min-h-[300px]">
               <a href={profileUrl} target="_blank" rel="noopener noreferrer">
                 <img
+                  id="widget-preview"
                   src={widgetUrl}
                   alt="en-git widget preview"
                   className="border rounded-lg shadow-lg hover:shadow-xl transition-shadow"
                 />
               </a>
-            </CardContent>
-          </Card>
-
-          {/* Examples */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Widget Types</CardTitle>
-              <CardDescription>Choose the style that fits your needs</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm font-medium mb-2">Card (300x180)</p>
-                <p className="text-xs text-muted-foreground">
-                  Full profile card with avatar, score, and stats
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium mb-2">Stats (400x120)</p>
-                <p className="text-xs text-muted-foreground">
-                  Horizontal stats bar with key metrics
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium mb-2">Badge (200x80)</p>
-                <p className="text-xs text-muted-foreground">Compact score badge</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium mb-2">Rank (250x100)</p>
-                <p className="text-xs text-muted-foreground">Leaderboard rank with trophy</p>
-              </div>
             </CardContent>
           </Card>
 
@@ -245,9 +301,9 @@ export default function WidgetGenerator() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p>• Widgets update automatically every 30 minutes</p>
+              <p>• Customize colors to match your brand or style</p>
               <p>• Works on GitHub, GitLab, Bitbucket, and any website</p>
               <p>• Click the widget to visit your full profile</p>
-              <p>• Analyze your profile first to appear on the leaderboard</p>
             </CardContent>
           </Card>
         </div>

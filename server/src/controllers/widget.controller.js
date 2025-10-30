@@ -7,6 +7,8 @@ export const generateWidget = asyncHandler(async (req, res) => {
   const { username } = req.params;
   const { type = "card", theme = "dark" } = req.query;
 
+  console.log(`\n🎨 Widget Request: ${username}, type: ${type}, theme: ${theme}`);
+
   // Fetch user data from leaderboard
   const userData = await Leaderboard.findOne({ username }).lean();
 
@@ -14,7 +16,7 @@ export const generateWidget = asyncHandler(async (req, res) => {
     // Return a "not found" SVG instead of error
     const notFoundSvg = generateNotFoundSvg(username, theme);
     res.setHeader("Content-Type", "image/svg+xml");
-    res.setHeader("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600"); // Cache for 5 min, serve stale for 1h
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
@@ -25,52 +27,66 @@ export const generateWidget = asyncHandler(async (req, res) => {
   const rank = (await Leaderboard.countDocuments({ score: { $gt: userData.score } })) + 1;
   userData.rank = rank;
 
+  // Get custom colors from query params
+  const customColors = {
+    accent: req.query.accent,
+    success: req.query.success,
+    purple: req.query.purple,
+  };
+
   let svg;
   switch (type) {
     case "card":
-      svg = generateCardWidget(userData, theme);
+      svg = generateCardWidget(userData, theme, customColors);
       break;
     case "stats":
-      svg = generateStatsWidget(userData, theme);
-      break;
-    case "badge":
-      svg = generateBadgeWidget(userData, theme);
-      break;
-    case "rank":
-      svg = generateRankWidget(userData, theme);
+      svg = generateStatsWidget(userData, theme, customColors);
       break;
     case "full":
-      svg = generateFullWidget(userData, theme);
+      svg = generateFullWidget(userData, theme, customColors);
       break;
-    case "compact":
-      svg = generateCompactWidget(userData, theme);
+    case "languages":
+      svg = await generateLanguageChartWidget(username, theme, customColors);
+      break;
+    case "activity":
+      svg = await generateYearlyContributionWidget(username, theme, customColors);
+      break;
+    case "commits":
+      svg = await generateCommitTimesWidget(username, theme, customColors);
+      break;
+    case "skills":
+      svg = await generateSkillsWidget(username, theme, customColors);
+      break;
+    case "score":
+      svg = await generateScoreWidget(username, theme, customColors);
       break;
     default:
-      svg = generateCardWidget(userData, theme);
+      svg = generateCardWidget(userData, theme, customColors);
   }
 
   res.setHeader("Content-Type", "image/svg+xml");
-  res.setHeader("Cache-Control", "public, max-age=1800"); // Cache for 30 minutes
+  res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=86400"); // Cache for 30 min, serve stale for 24h
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins for widgets
   res.setHeader("Access-Control-Allow-Methods", "GET");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  res.setHeader("CDN-Cache-Control", "public, max-age=3600"); // CDN cache for 1 hour
   res.send(svg);
 });
 
 // Card Widget (300x180)
-function generateCardWidget(user, theme) {
+function generateCardWidget(user, theme, customColors = {}) {
   const isDark = theme === "dark";
   const bg = isDark ? "#0d1117" : "#ffffff";
   const border = isDark ? "#30363d" : "#d0d7de";
   const text = isDark ? "#c9d1d9" : "#24292f";
   const subtext = isDark ? "#8b949e" : "#57606a";
-  const accent = isDark ? "#58a6ff" : "#0969da";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
 
   // Use a placeholder circle with initials instead of avatar to avoid CORS
   const initial = (user.name || user.username).charAt(0).toUpperCase();
 
   return `
-    <svg width="300" height="180" xmlns="http://www.w3.org/2000/svg">
+    <svg width="300" height="180" viewBox="-10 -10 320 200" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:${accent};stop-opacity:0.1" />
@@ -135,16 +151,16 @@ function generateCardWidget(user, theme) {
 }
 
 // Stats Widget (400x120)
-function generateStatsWidget(user, theme) {
+function generateStatsWidget(user, theme, customColors = {}) {
   const isDark = theme === "dark";
   const bg = isDark ? "#0d1117" : "#ffffff";
   const border = isDark ? "#30363d" : "#d0d7de";
   const text = isDark ? "#c9d1d9" : "#24292f";
   const subtext = isDark ? "#8b949e" : "#57606a";
-  const accent = isDark ? "#58a6ff" : "#0969da";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
 
   return `
-    <svg width="400" height="120" xmlns="http://www.w3.org/2000/svg">
+    <svg width="400" height="120" viewBox="-10 -10 420 140" xmlns="http://www.w3.org/2000/svg">
       <rect width="400" height="120" fill="${bg}" stroke="${border}" stroke-width="1" rx="6"/>
       
       <!-- Stats Grid -->
@@ -194,7 +210,7 @@ function generateBadgeWidget(user, theme) {
   const accent = isDark ? "#58a6ff" : "#0969da";
 
   return `
-    <svg width="200" height="80" xmlns="http://www.w3.org/2000/svg">
+    <svg width="200" height="80" viewBox="-10 -10 220 100" xmlns="http://www.w3.org/2000/svg">
       <rect width="200" height="80" fill="${bg}" stroke="${border}" stroke-width="1" rx="6"/>
       
       <text x="100" y="30" fill="${text}" font-size="12" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
@@ -224,7 +240,7 @@ function generateRankWidget(user, theme) {
   const trophy = user.rank === 1 ? "🏆" : user.rank === 2 ? "🥈" : user.rank === 3 ? "🥉" : "🎯";
 
   return `
-    <svg width="250" height="100" xmlns="http://www.w3.org/2000/svg">
+    <svg width="250" height="100" viewBox="-10 -10 270 120" xmlns="http://www.w3.org/2000/svg">
       <rect width="250" height="100" fill="${bg}" stroke="${border}" stroke-width="1" rx="6"/>
       
       <text x="125" y="35" fill="${text}" font-size="28" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
@@ -281,20 +297,20 @@ function escapeXml(unsafe) {
 }
 
 // Full Widget with visual elements (495x195)
-function generateFullWidget(user, theme) {
+function generateFullWidget(user, theme, customColors = {}) {
   const isDark = theme === "dark";
   const bg = isDark ? "#0d1117" : "#ffffff";
   const border = isDark ? "#30363d" : "#d0d7de";
   const text = isDark ? "#c9d1d9" : "#24292f";
   const subtext = isDark ? "#8b949e" : "#57606a";
-  const accent = isDark ? "#58a6ff" : "#0969da";
-  const success = isDark ? "#3fb950" : "#1a7f37";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+  const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
   const warning = isDark ? "#d29922" : "#9a6700";
 
   const initial = (user.name || user.username).charAt(0).toUpperCase();
 
   return `
-    <svg width="495" height="195" xmlns="http://www.w3.org/2000/svg">
+    <svg width="495" height="195" viewBox="-10 -10 515 215" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:${accent};stop-opacity:0.05" />
@@ -340,7 +356,7 @@ function generateFullWidget(user, theme) {
         <!-- Rank Badge -->
         <rect x="0" y="45" width="100" height="24" fill="${accent}" fill-opacity="0.1" rx="12"/>
         <text x="50" y="61" fill="${accent}" font-size="12" font-weight="600" font-family="system-ui" text-anchor="middle">
-          🏆 Rank #${user.rank || "N/A"}
+          Rank #${user.rank || "N/A"}
         </text>
       </g>
       
@@ -380,7 +396,7 @@ function generateFullWidget(user, theme) {
           ? `<g transform="translate(20, 170)">
         <rect width="120" height="20" fill="${accent}" fill-opacity="0.1" rx="10"/>
         <text x="60" y="14" fill="${accent}" font-size="11" font-weight="600" font-family="system-ui" text-anchor="middle">
-          ⚡ ${escapeXml(user.topLanguage)}
+          ${escapeXml(user.topLanguage)}
         </text>
       </g>`
           : ""
@@ -404,7 +420,7 @@ function generateCompactWidget(user, theme) {
   const accent = isDark ? "#58a6ff" : "#0969da";
 
   return `
-    <svg width="350" height="100" xmlns="http://www.w3.org/2000/svg">
+    <svg width="350" height="100" viewBox="-10 -10 370 120" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="compactGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:${accent}" />
@@ -439,7 +455,7 @@ function generateCompactWidget(user, theme) {
         ${
           user.topLanguage
             ? `<text x="0" y="40" fill="${accent}" font-size="10" font-family="system-ui">
-          ⚡ ${escapeXml(user.topLanguage)}
+          ${escapeXml(user.topLanguage)}
         </text>`
             : ""
         }
@@ -447,6 +463,682 @@ function generateCompactWidget(user, theme) {
       
       <text x="330" y="92" fill="${subtext}" font-size="8" font-family="system-ui" text-anchor="end">
         en-git
+      </text>
+    </svg>
+  `;
+}
+
+// Language Chart Widget (500x320) - Enhanced
+async function generateLanguageChartWidget(username, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+
+  // Try to get full insights from cache
+  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
+  const cached = await WidgetCache.findOne({ username }).lean();
+
+  if (!cached) {
+    console.log(`❌ No cache found for ${username}`);
+    return generateNotFoundSvg(username, theme);
+  }
+
+  if (!cached.insights?.languages) {
+    console.log(`❌ No languages data in cache for ${username}`);
+    return generateNotFoundSvg(username, theme);
+  }
+
+  const languagesData = cached.insights.languages;
+  const languages =
+    languagesData.top3 ||
+    languagesData.percentages?.slice(0, 3).map(([lang, pct]) => [lang, pct]) ||
+    [];
+  const colors = ["#3178c6", "#f1e05a", "#e34c26", "#563d7c", "#89e051", "#00ADD8"];
+
+  // Calculate pie chart
+  const total = languages.reduce((sum, [, pct]) => sum + pct, 0);
+  let currentAngle = 0;
+  const radius = 85;
+  const centerX = 160;
+  const centerY = 160;
+
+  const pieSlices = languages.map(([lang, pct], idx) => {
+    const angle = (pct / total) * 360;
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + angle;
+    currentAngle = endAngle;
+
+    const startRad = ((startAngle - 90) * Math.PI) / 180;
+    const endRad = ((endAngle - 90) * Math.PI) / 180;
+
+    const x1 = centerX + radius * Math.cos(startRad);
+    const y1 = centerY + radius * Math.sin(startRad);
+    const x2 = centerX + radius * Math.cos(endRad);
+    const y2 = centerY + radius * Math.sin(endRad);
+
+    const largeArc = angle > 180 ? 1 : 0;
+
+    return {
+      lang,
+      pct,
+      color: colors[idx % colors.length],
+      path: `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`,
+    };
+  });
+
+  return `
+    <svg width="500" height="320" viewBox="-10 -10 520 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${accent};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+        </linearGradient>
+        <filter id="shadow">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+        </filter>
+      </defs>
+      
+      <rect width="500" height="320" fill="${bg}" rx="12"/>
+      <rect width="500" height="320" fill="${bgSecondary}" fill-opacity="0.3" rx="12"/>
+      
+      <!-- Header -->
+      <rect width="500" height="50" fill="${bgSecondary}" rx="12"/>
+      <text x="250" y="32" fill="url(#titleGrad)" font-size="20" font-weight="700" font-family="system-ui" text-anchor="middle">
+        Top Languages
+      </text>
+      
+      <!-- Pie Chart with shadow -->
+      <g filter="url(#shadow)">
+        ${pieSlices
+          .map(
+            (slice) => `
+          <path d="${slice.path}" fill="${slice.color}" opacity="0.95"/>
+        `
+          )
+          .join("")}
+        <circle cx="${centerX}" cy="${centerY}" r="55" fill="${bg}"/>
+      </g>
+      
+      <!-- Center Text -->
+      <text x="${centerX}" y="${centerY - 5}" fill="${text}" font-size="14" font-weight="600" font-family="system-ui" text-anchor="middle">
+        ${languages.length}
+      </text>
+      <text x="${centerX}" y="${centerY + 12}" fill="${subtext}" font-size="11" font-family="system-ui" text-anchor="middle">
+        Languages
+      </text>
+      
+      <!-- Legend with bars -->
+      ${pieSlices
+        .map(
+          (slice, idx) => `
+        <g transform="translate(330, ${70 + idx * 40})">
+          <rect width="24" height="24" fill="${slice.color}" rx="6" opacity="0.9"/>
+          <text x="34" y="17" fill="${text}" font-size="15" font-weight="500" font-family="system-ui">
+            ${escapeXml(slice.lang)}
+          </text>
+          <rect x="34" y="22" width="${slice.pct * 1.2}" height="4" fill="${slice.color}" opacity="0.6" rx="2"/>
+          <text x="155" y="17" fill="${accent}" font-size="14" font-weight="600" font-family="system-ui" text-anchor="end">
+            ${slice.pct.toFixed(1)}%
+          </text>
+        </g>
+      `
+        )
+        .join("")}
+      
+      <text x="250" y="308" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle" opacity="0.7">
+        powered by en-git
+      </text>
+    </svg>
+  `;
+}
+
+// Contribution Activity Widget (600x250) - NEW
+async function generateYearlyContributionWidget(username, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+
+  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
+  const cached = await WidgetCache.findOne({ username }).lean();
+
+  if (!cached) {
+    console.log(`❌ No cache found for ${username} (yearly activity widget)`);
+    return generateNotFoundSvg(username, theme);
+  }
+
+  if (!cached.insights?.weekly) {
+    console.log(`❌ No weekly data in cache for ${username}`);
+    return generateNotFoundSvg(username, theme);
+  }
+
+  // Weekly data format: [["2025-W44", 100], ["2025-W43", 50], ...]
+  const weeklyRaw = cached.insights.weekly || [];
+
+  // Take up to 12 weeks of actual data, reverse to show oldest to newest (left to right)
+  const weeks = weeklyRaw.slice(0, 12).reverse();
+
+  // If less than 2 weeks, show message
+  if (weeks.length < 2) {
+    return `
+      <svg width="800" height="240" viewBox="-10 -10 820 260" xmlns="http://www.w3.org/2000/svg">
+        <rect width="800" height="240" fill="${bg}" rx="12"/>
+        <text x="400" y="120" fill="${text}" font-size="16" font-family="system-ui" text-anchor="middle">
+          Not enough activity data yet
+        </text>
+        <text x="400" y="145" fill="${subtext}" font-size="12" font-family="system-ui" text-anchor="middle">
+          Keep contributing to see your activity trend!
+        </text>
+      </svg>
+    `;
+  }
+  const totalContributions = weeks.reduce(
+    (sum, week) => sum + (Array.isArray(week) ? week[1] : 0),
+    0
+  );
+  const maxContributions = Math.max(...weeks.map((week) => (Array.isArray(week) ? week[1] : 0)), 1);
+  const avgContributions = Math.round(totalContributions / weeks.length);
+  const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
+  const purple = customColors.purple || (isDark ? "#a855f7" : "#9333ea");
+
+  // Create smooth line chart
+  const chartWidth = 680;
+  const chartHeight = 140;
+  const startX = 60;
+  const startY = 70;
+  const pointSpacing = chartWidth / (weeks.length - 1 || 1);
+
+  // Generate points for the line
+  const points = weeks.map((week, idx) => {
+    const value = Array.isArray(week) ? week[1] : 0;
+    const x = startX + idx * pointSpacing;
+    const y = startY + chartHeight - (value / maxContributions) * chartHeight;
+    return { x, y, value };
+  });
+
+  // Create smooth curve path using quadratic bezier curves
+  let pathData = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const current = points[i];
+    const next = points[i + 1];
+    const midX = (current.x + next.x) / 2;
+    pathData += ` Q ${current.x} ${current.y}, ${midX} ${(current.y + next.y) / 2}`;
+    pathData += ` Q ${next.x} ${next.y}, ${next.x} ${next.y}`;
+  }
+
+  // Create area fill path
+  const areaPath = `${pathData} L ${points[points.length - 1].x} ${startY + chartHeight} L ${startX} ${startY + chartHeight} Z`;
+
+  return `
+    <svg width="800" height="240" viewBox="-10 -10 820 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${accent}" />
+          <stop offset="50%" style="stop-color:${purple}" />
+          <stop offset="100%" style="stop-color:${success}" />
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:${accent};stop-opacity:0.3" />
+          <stop offset="100%" style="stop-color:${accent};stop-opacity:0.05" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      <rect width="800" height="240" fill="${bg}" rx="12"/>
+      <rect width="800" height="240" fill="${bgSecondary}" fill-opacity="0.2" rx="12"/>
+      
+      <!-- Header -->
+      <text x="400" y="30" fill="url(#lineGrad)" font-size="20" font-weight="700" font-family="system-ui" text-anchor="middle">
+        Activity Trend
+      </text>
+      <text x="400" y="50" fill="${subtext}" font-size="12" font-family="system-ui" text-anchor="middle">
+        ${totalContributions} contributions • ${avgContributions} avg/week
+      </text>
+      
+      <!-- Grid lines -->
+      ${[0, 1, 2, 3, 4]
+        .map((i) => {
+          const y = startY + (i * chartHeight) / 4;
+          return `<line x1="${startX}" y1="${y}" x2="${startX + chartWidth}" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.2" stroke-dasharray="5,5"/>`;
+        })
+        .join("")}
+      
+      <!-- Area fill -->
+      <path d="${areaPath}" fill="url(#areaGrad)"/>
+      
+      <!-- Line -->
+      <path d="${pathData}" fill="none" stroke="url(#lineGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+      
+      <!-- Data points -->
+      ${points
+        .map(
+          (point, idx) => `
+        <circle cx="${point.x}" cy="${point.y}" r="5" fill="${bg}" stroke="url(#lineGrad)" stroke-width="3" filter="url(#glow)">
+          <title>Week ${idx + 1}: ${point.value} contributions</title>
+        </circle>
+      `
+        )
+        .join("")}
+      
+      <!-- Week labels -->
+      ${points
+        .map((point, idx) => {
+          if (idx % 2 === 0 || weeks.length <= 6) {
+            return `<text x="${point.x}" y="${startY + chartHeight + 20}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">W${idx + 1}</text>`;
+          }
+          return "";
+        })
+        .join("")}
+      
+      <!-- Y-axis labels -->
+      <text x="${startX - 10}" y="${startY + 5}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
+        ${maxContributions}
+      </text>
+      <text x="${startX - 10}" y="${startY + chartHeight / 2 + 5}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
+        ${Math.round(maxContributions / 2)}
+      </text>
+      <text x="${startX - 10}" y="${startY + chartHeight + 5}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
+        0
+      </text>
+      
+      <text x="400" y="235" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
+        powered by en-git
+      </text>
+    </svg>
+  `;
+}
+
+// Commit Activity by Hour Widget (700x280) - NEW
+async function generateCommitTimesWidget(username, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#a855f7" : "#9333ea");
+
+  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
+  const cached = await WidgetCache.findOne({ username }).lean();
+
+  if (!cached) {
+    console.log(`❌ No cache found for ${username} (commits widget)`);
+    return generateNotFoundSvg(username, theme);
+  }
+
+  console.log(`\n📊 COMMITS WIDGET DEBUG for ${username}:`);
+  console.log(`Cache exists:`, !!cached);
+  console.log(`Cache.insights exists:`, !!cached.insights);
+  console.log(`Cache.insights keys:`, cached.insights ? Object.keys(cached.insights) : "N/A");
+  console.log(`Cache.insights.commitTimes:`, JSON.stringify(cached.insights?.commitTimes, null, 2));
+  console.log(`Type of commitTimes:`, typeof cached.insights?.commitTimes);
+
+  if (!cached.insights?.commitTimes) {
+    console.log(`❌ No commitTimes data in cache for ${username}`);
+    return generateNotFoundSvg(username, theme);
+  }
+
+  const commitTimes = cached.insights.commitTimes || {};
+  const profile = commitTimes.profile || "balanced";
+
+  // Convert hourly data to array (0-23 hours)
+  const hourlyData = [];
+  const hoursArray = commitTimes.hours || [];
+  for (let i = 0; i < 24; i++) {
+    hourlyData.push({
+      hour: i,
+      commits: hoursArray[i] || 0,
+    });
+  }
+
+  const maxCommits = Math.max(...hourlyData.map((d) => d.commits), 1);
+
+  return `
+    <svg width="700" height="280" viewBox="-10 -10 720 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="commitGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${accent};stop-opacity:0.8" />
+          <stop offset="50%" style="stop-color:#ec4899;stop-opacity:0.9" />
+          <stop offset="100%" style="stop-color:${accent};stop-opacity:0.8" />
+        </linearGradient>
+        <filter id="barGlow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      <rect width="700" height="280" fill="${bg}" rx="12"/>
+      <rect width="700" height="280" fill="${bgSecondary}" fill-opacity="0.3" rx="12"/>
+      
+      <!-- Header -->
+      <rect width="700" height="60" fill="${bgSecondary}" rx="12"/>
+      <text x="350" y="28" fill="url(#commitGrad)" font-size="20" font-weight="700" font-family="system-ui" text-anchor="middle">
+        Commit Activity by Hour (UTC)
+      </text>
+      <text x="350" y="48" fill="${subtext}" font-size="13" font-family="system-ui" text-anchor="middle">
+        You're a <tspan fill="${accent}" font-weight="600">${profile}</tspan> coder
+      </text>
+      
+      <!-- Grid lines -->
+      ${[0, 1, 2, 3, 4]
+        .map((i) => {
+          const y = 80 + i * 40;
+          return `<line x1="40" y1="${y}" x2="660" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.3" stroke-dasharray="5,5"/>`;
+        })
+        .join("")}
+      
+      <!-- Bars -->
+      ${hourlyData
+        .map((data, idx) => {
+          const height = Math.max((data.commits / maxCommits) * 140, 2);
+          const x = 45 + idx * 26;
+          const y = 240 - height;
+          const barWidth = 22;
+
+          return `
+          <g filter="url(#barGlow)">
+            <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" fill="url(#commitGrad)" rx="3" opacity="0.85"/>
+          </g>
+          ${
+            idx % 3 === 0
+              ? `
+            <text x="${x + barWidth / 2}" y="260" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">
+              ${data.hour}:00
+            </text>
+          `
+              : ""
+          }
+        `;
+        })
+        .join("")}
+      
+      <!-- Y-axis labels -->
+      <text x="30" y="85" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
+        ${maxCommits}
+      </text>
+      <text x="30" y="165" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
+        ${Math.round(maxCommits / 2)}
+      </text>
+      <text x="30" y="245" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
+        0
+      </text>
+      
+      <text x="350" y="275" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle" opacity="0.7">
+        powered by en-git
+      </text>
+    </svg>
+  `;
+}
+
+// Skills/Domain Widget (600x400) - Radar Chart
+async function generateSkillsWidget(username, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+  const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
+
+  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
+  const cached = await WidgetCache.findOne({ username }).lean();
+
+  if (!cached || !cached.insights?.domain) {
+    return generateNotFoundSvg(username, theme);
+  }
+
+  const domainData = cached.insights.domain;
+  const primaryDomain = domainData.domain;
+  const scores = domainData.scores;
+
+  // Top 6 domains for radar chart
+  const topDomains = Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+
+  // Radar chart setup
+  const centerX = 300;
+  const centerY = 260; // Moved down significantly for more top padding
+  const maxRadius = 120; // Reduced to fit better with more top space
+  const levels = 5;
+
+  // Calculate points for radar
+  const angleStep = (Math.PI * 2) / topDomains.length;
+  const maxScore = Math.max(...topDomains.map(([, score]) => score), 10);
+
+  const radarPoints = topDomains.map(([domain, score], idx) => {
+    const angle = idx * angleStep - Math.PI / 2;
+    const radius = (score / maxScore) * maxRadius;
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    return { x, y, domain, score, angle };
+  });
+
+  // Create polygon path
+  const polygonPath =
+    radarPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z";
+
+  // Grid circles
+  const gridCircles = Array.from({ length: levels }, (_, i) => {
+    const r = ((i + 1) / levels) * maxRadius;
+    return `<circle cx="${centerX}" cy="${centerY}" r="${r}" fill="none" stroke="${border}" stroke-width="1" opacity="0.3"/>`;
+  }).join("");
+
+  // Grid lines
+  const gridLines = radarPoints
+    .map((p) => {
+      const endX = centerX + maxRadius * Math.cos(p.angle);
+      const endY = centerY + maxRadius * Math.sin(p.angle);
+      return `<line x1="${centerX}" y1="${centerY}" x2="${endX}" y2="${endY}" stroke="${border}" stroke-width="1" opacity="0.3"/>`;
+    })
+    .join("");
+
+  // Labels
+  const labels = radarPoints
+    .map((p) => {
+      const labelRadius = maxRadius + 40;
+      const labelX = centerX + labelRadius * Math.cos(p.angle);
+      const labelY = centerY + labelRadius * Math.sin(p.angle);
+      const shortName = p.domain.split("/")[0].split(" ")[0];
+      return `
+      <text x="${labelX}" y="${labelY}" fill="${text}" font-size="12" font-weight="500" font-family="system-ui" text-anchor="middle">
+        ${escapeXml(shortName)}
+      </text>
+      <text x="${labelX}" y="${labelY + 15}" fill="${accent}" font-size="14" font-weight="700" font-family="system-ui" text-anchor="middle">
+        ${p.score.toFixed(1)}
+      </text>
+    `;
+    })
+    .join("");
+
+  return `
+    <svg width="600" height="400" viewBox="-10 -10 620 420" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${accent};stop-opacity:0.6" />
+          <stop offset="100%" style="stop-color:${success};stop-opacity:0.4" />
+        </linearGradient>
+        <filter id="skillGlow">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      <rect width="600" height="400" fill="${bg}" rx="12"/>
+      <rect width="600" height="400" fill="${bgSecondary}" fill-opacity="0.2" rx="12"/>
+      
+      <!-- Header -->
+      <text x="300" y="35" fill="${text}" font-size="22" font-weight="700" font-family="system-ui" text-anchor="middle">
+        Skill Profile
+      </text>
+      <text x="300" y="60" fill="${accent}" font-size="16" font-weight="600" font-family="system-ui" text-anchor="middle">
+        Primary: ${escapeXml(primaryDomain)}
+      </text>
+      
+      <!-- Radar Chart -->
+      ${gridCircles}
+      ${gridLines}
+      
+      <!-- Data polygon -->
+      <path d="${polygonPath}" fill="url(#skillGrad)" stroke="${accent}" stroke-width="2" filter="url(#skillGlow)"/>
+      
+      <!-- Data points -->
+      ${radarPoints
+        .map(
+          (p) => `
+        <circle cx="${p.x}" cy="${p.y}" r="6" fill="${bg}" stroke="${accent}" stroke-width="3" filter="url(#skillGlow)">
+          <title>${p.domain}: ${p.score.toFixed(1)}</title>
+        </circle>
+      `
+        )
+        .join("")}
+      
+      <!-- Labels -->
+      ${labels}
+      
+      <text x="300" y="390" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
+        powered by en-git
+      </text>
+    </svg>
+  `;
+}
+
+// Profile Score Widget (500x280) - Score Breakdown
+async function generateScoreWidget(username, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+  const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
+  const purple = customColors.purple || (isDark ? "#a855f7" : "#9333ea");
+
+  const WidgetCache = (await import("../models/widgetCache.model.js")).default;
+  const cached = await WidgetCache.findOne({ username }).lean();
+
+  if (!cached || !cached.insights?.profileScore) {
+    return generateNotFoundSvg(username, theme);
+  }
+
+  const scoreData = cached.insights.profileScore;
+  const totalScore = scoreData.score || 0;
+  const grade = scoreData.grade || "N/A";
+
+  // Score breakdown (mock data - you can calculate these from actual metrics)
+  const breakdown = [
+    { label: "Profile Completeness", value: Math.min(100, totalScore * 0.5), color: accent },
+    { label: "Repository Quality", value: Math.min(100, totalScore * 0.63), color: success },
+    { label: "Skills & Diversity", value: Math.min(100, totalScore * 1.0), color: purple },
+    { label: "Community Engagement", value: Math.min(100, totalScore * 0.1), color: "#d29922" },
+    { label: "Activity & Consistency", value: Math.min(100, totalScore * 1.0), color: accent },
+  ];
+
+  const barHeight = 22;
+  const barSpacing = 48;
+  const startY = 190; // More top padding with larger widget
+  const barWidth = 480; // Wider bars for larger widget
+  const startX = 60; // More left padding
+
+  return `
+    <svg width="600" height="420" viewBox="-10 -10 620 440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${accent}" />
+          <stop offset="100%" style="stop-color:${purple}" />
+        </linearGradient>
+        <filter id="barGlow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      <rect width="600" height="420" fill="${bg}" rx="12"/>
+      <rect width="600" height="420" fill="${bgSecondary}" fill-opacity="0.3" rx="12"/>
+      
+      <!-- Header -->
+      <text x="50" y="40" fill="${text}" font-size="20" font-weight="700" font-family="system-ui">
+        Profile Score
+      </text>
+      <text x="50" y="60" fill="${subtext}" font-size="12" font-family="system-ui">
+        Your GitHub profile strength
+      </text>
+      
+      <!-- Large Score Display -->
+      <text x="540" y="75" fill="url(#scoreGrad)" font-size="52" font-weight="700" font-family="system-ui" text-anchor="end">
+        ${totalScore}
+      </text>
+      <text x="540" y="95" fill="${subtext}" font-size="14" font-family="system-ui" text-anchor="end">
+        out of 100
+      </text>
+      
+      <!-- Grade Badge -->
+      <g transform="translate(50, 80)">
+        <rect width="120" height="40" fill="${purple}" fill-opacity="0.2" rx="8" stroke="${purple}" stroke-width="2"/>
+        <text x="60" y="27" fill="${purple}" font-size="18" font-weight="700" font-family="system-ui" text-anchor="middle">
+          Grade ${escapeXml(grade)}
+        </text>
+      </g>
+      
+      <!-- Score Breakdown Title -->
+      <text x="50" y="145" fill="${text}" font-size="14" font-weight="600" font-family="system-ui">
+        Score Breakdown
+      </text>
+      
+      <!-- Breakdown Bars -->
+      ${breakdown
+        .map((item, idx) => {
+          const y = startY + idx * barSpacing;
+          const fillWidth = (item.value / 100) * barWidth;
+
+          return `
+          <g>
+            <!-- Background bar -->
+            <rect x="${startX}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${border}" opacity="0.3" rx="10"/>
+            
+            <!-- Filled bar -->
+            <rect x="${startX}" y="${y}" width="${fillWidth}" height="${barHeight}" fill="${item.color}" opacity="0.8" rx="10" filter="url(#barGlow)"/>
+            
+            <!-- Label -->
+            <text x="${startX}" y="${y - 5}" fill="${text}" font-size="11" font-weight="500" font-family="system-ui">
+              ${escapeXml(item.label)}
+            </text>
+            
+            <!-- Percentage -->
+            <text x="${startX + barWidth + 10}" y="${y + 15}" fill="${item.color}" font-size="12" font-weight="700" font-family="system-ui">
+              ${Math.round(item.value)}%
+            </text>
+          </g>
+        `;
+        })
+        .join("")}
+      
+      <text x="300" y="410" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
+        powered by en-git
       </text>
     </svg>
   `;

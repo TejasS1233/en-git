@@ -62,9 +62,11 @@ export function commitTimeDistribution(events) {
   return { hours, profile };
 }
 
-export function weeklyActivity(events) {
+export function weeklyActivity(events, commits = []) {
   // group by ISO week (naive: YYYY-WW)
   const map = new Map();
+
+  // Process events
   for (const e of events || []) {
     const d = new Date(e.created_at);
     const y = d.getUTCFullYear();
@@ -73,5 +75,18 @@ export function weeklyActivity(events) {
     const key = `${y}-W${String(week).padStart(2, "0")}`;
     map.set(key, (map.get(key) || 0) + 1);
   }
-  return Array.from(map.entries()).sort();
+
+  // Process commits (more reliable for historical data)
+  for (const c of commits || []) {
+    const d = new Date(c.commit?.author?.date || c.commit?.committer?.date);
+    if (!d || isNaN(d.getTime())) continue;
+    const y = d.getUTCFullYear();
+    const onejan = new Date(Date.UTC(y, 0, 1));
+    const week = Math.ceil(((d - onejan) / 86400000 + onejan.getUTCDay() + 1) / 7);
+    const key = `${y}-W${String(week).padStart(2, "0")}`;
+    map.set(key, (map.get(key) || 0) + 1);
+  }
+
+  // Return only actual data, sorted by week (newest first)
+  return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
 }

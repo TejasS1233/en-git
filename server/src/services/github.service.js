@@ -143,6 +143,55 @@ export async function fetchUserEvents(username, refresh = false) {
   });
 }
 
+// Fetch commits from user's repositories for better activity tracking
+export async function fetchUserCommits(username, repos, refresh = false) {
+  const key = `commits:${username}`;
+  const ttl = 60 * 30; // 30 minutes
+
+  if (!refresh) {
+    const hit = cache.get(key);
+    if (hit) {
+      console.log(`Cache HIT for ${key}`);
+      return hit;
+    }
+  }
+
+  try {
+    const limit = pLimit(3); // Limit concurrent requests
+    const since = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(); // Last year
+
+    // Fetch commits from top 10 most recently updated repos
+    const recentRepos = repos
+      .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
+      .slice(0, 10);
+
+    const commitPromises = recentRepos.map((repo) =>
+      limit(async () => {
+        try {
+          const { data } = await gh.get(`/repos/${repo.full_name}/commits`, {
+            params: { author: username, since, per_page: 100 },
+            headers: authHeader(),
+          });
+          return data || [];
+        } catch (err) {
+          console.error(`Failed to fetch commits for ${repo.full_name}:`, err.message);
+          return [];
+        }
+      })
+    );
+
+    const results = await Promise.all(commitPromises);
+    const allCommits = results.flat();
+
+    console.log(`Fetched ${allCommits.length} commits for ${username}`);
+    cache.set(key, allCommits, ttl);
+    return allCommits;
+  } catch (error) {
+    console.error(`Failed to fetch commits for ${username}:`, error.message);
+    return [];
+  }
+}
+
 export async function fetchTrending(language = "", since = "daily", refresh = false) {
   const key = `trending:${language}:${since}`;
   if (!refresh) {

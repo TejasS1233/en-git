@@ -6,6 +6,7 @@ import {
   fetchUserRepos,
   fetchRepoLanguages,
   fetchUserEvents,
+  fetchUserCommits,
   fetchTrending,
 } from "../services/github.service.js";
 import {
@@ -22,6 +23,7 @@ import { generateCareerInsights, generateLearningPath } from "../services/ai.ser
 import { getGithubInsights as getInsightsService } from "../services/ai.service.js";
 import { updateLeaderboardEntry } from "./leaderboard.controller.js";
 import { calculateProfileScore } from "../utils/profileScore.js";
+import WidgetCache from "../models/widgetCache.model.js";
 
 export const getUserInsights = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -51,6 +53,12 @@ export const getUserInsights = asyncHandler(async (req, res) => {
       return [[], new Date().toISOString()];
     });
 
+    // Fetch commits for better activity tracking
+    const commitsData = await fetchUserCommits(username, repos).catch((err) => {
+      console.error("fetchUserCommits error:", err.message);
+      return [];
+    });
+
     console.log(`Events data for ${username}:`, {
       isArray: Array.isArray(eventsData),
       length: eventsData?.length,
@@ -60,7 +68,7 @@ export const getUserInsights = asyncHandler(async (req, res) => {
     const languagesAgg = aggregateLanguages(repos, repoLanguages);
     const topics = topicsFrequency(repos);
     const commitTimes = commitTimeDistribution(eventsData || []);
-    const weekly = weeklyActivity(eventsData || []);
+    const weekly = weeklyActivity(eventsData || [], commitsData || []);
     const topStarred = mostStarred(repos, 3);
     const topActive = mostActive(repos, 3);
 
@@ -90,6 +98,15 @@ export const getUserInsights = asyncHandler(async (req, res) => {
     updateLeaderboardEntry(username, insightsData).catch((err) =>
       console.error("Leaderboard update failed:", err)
     );
+
+    // Cache insights for widgets (async, don't wait)
+    WidgetCache.findOneAndUpdate(
+      { username },
+      { username, insights: insightsData, lastUpdated: new Date() },
+      { upsert: true, new: true }
+    )
+      .then(() => console.log(`✅ Widget cache updated for ${username}`))
+      .catch((err) => console.error("❌ Widget cache update failed:", err));
 
     return res.status(200).json(
       new ApiResponse(200, "Insights fetched successfully", {

@@ -83,24 +83,25 @@ export function inferDomain(languagePercents, topTopics) {
   for (const [domain, { languages, topics, weight }] of Object.entries(DOMAIN_MAP)) {
     let score = 0;
 
-    // Language matching with percentage weighting
+    // Language matching with percentage weighting (INCREASED)
     for (const lang of languages) {
       if (langMap.has(lang)) {
         const percentage = langMap.get(lang);
         // More weight for primary languages (higher percentage)
-        score += (percentage / 10) * weight;
+        // Increased from /10 to /5 for stronger language influence
+        score += (percentage / 5) * weight;
       }
     }
 
-    // Topic matching
+    // Topic matching (REDUCED)
     let topicMatches = 0;
     for (const topic of topics) {
       if (topicSet.has(topic)) {
         topicMatches++;
       }
     }
-    // More weight if multiple topics match
-    score += topicMatches * weight;
+    // Reduced topic weight to 30% of domain weight
+    score += topicMatches * (weight * 0.3);
 
     scores[domain] = score;
   }
