@@ -60,8 +60,14 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.emails?.[0]?.value?.toLowerCase();
-        if (!email) throw new Error("Email not found in GitHub profile");
+        // GitHub may not provide email if it's private, use a fallback
+        let email = profile.emails?.[0]?.value?.toLowerCase();
+
+        // If no email, use GitHub ID as fallback
+        if (!email) {
+          email = `${profile.username}@github-user.local`;
+          console.log(`⚠️ No email from GitHub, using fallback: ${email}`);
+        }
 
         let user = await User.findOne({ email });
 
