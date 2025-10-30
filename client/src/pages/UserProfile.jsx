@@ -74,6 +74,28 @@ export default function UserProfile() {
     }
   };
 
+  const handleEmailPreferenceChange = async (preference, value) => {
+    const newPreferences = {
+      ...formData.emailPreferences,
+      [preference]: value,
+    };
+
+    setFormData({
+      ...formData,
+      emailPreferences: newPreferences,
+    });
+
+    // Auto-save email preferences
+    try {
+      await axiosInstance.patch("/users/me", {
+        emailPreferences: newPreferences,
+      });
+      toast.success("Email preference updated");
+    } catch (error) {
+      toast.error("Failed to update preference");
+    }
+  };
+
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -203,6 +225,19 @@ export default function UserProfile() {
             <Input value={user.email} disabled />
           </div>
           <div>
+            <Label>GitHub Username</Label>
+            <Input
+              name="githubUsername"
+              value={formData.githubUsername || ""}
+              onChange={handleChange}
+              disabled={!editMode || !!user.githubId}
+              placeholder={user.githubId ? "Auto-filled from GitHub" : "Enter your GitHub username"}
+            />
+            {user.githubId && (
+              <p className="text-xs text-muted-foreground mt-1">✓ Verified via GitHub OAuth</p>
+            )}
+          </div>
+          <div>
             <Label>Phone</Label>
             <Input
               name="phoneNumber"
@@ -257,10 +292,14 @@ export default function UserProfile() {
       </div>
       {/* Email Notifications Section */}
       <div className="border rounded-lg p-6 bg-background shadow-sm">
-        <h3 className="text-lg font-medium mb-4">Email Notifications</h3>
-        <p className="text-sm text-muted-foreground mb-6">
-          Choose which emails you'd like to receive from en-git
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-medium">Email Notifications</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Choose which emails you'd like to receive from en-git
+            </p>
+          </div>
+        </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -273,16 +312,7 @@ export default function UserProfile() {
               <input
                 type="checkbox"
                 checked={formData.emailPreferences?.weeklyReport ?? true}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    emailPreferences: {
-                      ...formData.emailPreferences,
-                      weeklyReport: e.target.checked,
-                    },
-                  })
-                }
-                disabled={!editMode}
+                onChange={(e) => handleEmailPreferenceChange("weeklyReport", e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -300,16 +330,7 @@ export default function UserProfile() {
               <input
                 type="checkbox"
                 checked={formData.emailPreferences?.scoreAlerts ?? true}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    emailPreferences: {
-                      ...formData.emailPreferences,
-                      scoreAlerts: e.target.checked,
-                    },
-                  })
-                }
-                disabled={!editMode}
+                onChange={(e) => handleEmailPreferenceChange("scoreAlerts", e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -327,16 +348,7 @@ export default function UserProfile() {
               <input
                 type="checkbox"
                 checked={formData.emailPreferences?.achievements ?? true}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    emailPreferences: {
-                      ...formData.emailPreferences,
-                      achievements: e.target.checked,
-                    },
-                  })
-                }
-                disabled={!editMode}
+                onChange={(e) => handleEmailPreferenceChange("achievements", e.target.checked)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -355,15 +367,8 @@ export default function UserProfile() {
                 type="checkbox"
                 checked={formData.emailPreferences?.leaderboardUpdates ?? false}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    emailPreferences: {
-                      ...formData.emailPreferences,
-                      leaderboardUpdates: e.target.checked,
-                    },
-                  })
+                  handleEmailPreferenceChange("leaderboardUpdates", e.target.checked)
                 }
-                disabled={!editMode}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>

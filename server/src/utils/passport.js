@@ -72,9 +72,10 @@ passport.use(
         let user = await User.findOne({ email });
 
         if (user) {
-          // Link GitHub ID if not already linked
+          // Link GitHub ID and username if not already linked
           if (!user.githubId) {
             user.githubId = profile.id;
+            user.githubUsername = profile.username;
             await user.save({ validateBeforeSave: false });
           }
         } else {
@@ -83,6 +84,7 @@ passport.use(
             fullname: profile.displayName || profile.username,
             email,
             githubId: profile.id,
+            githubUsername: profile.username,
             avatar: profile.photos?.[0]?.value || "",
             address: "",
             phoneNumber: "",
