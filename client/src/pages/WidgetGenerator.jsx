@@ -11,7 +11,9 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export default function WidgetGenerator() {
   usePageTitle("Widget Generator - Embed Your GitHub Stats");
 
+  const [widgetCategory, setWidgetCategory] = useState("profile"); // profile or repo
   const [username, setUsername] = useState("TejasS1233");
+  const [repoPath, setRepoPath] = useState("TejasS1233/en-git");
   const [widgetType, setWidgetType] = useState("card");
   const [theme, setTheme] = useState("dark");
   const [copied, setCopied] = useState(false);
@@ -21,9 +23,14 @@ export default function WidgetGenerator() {
 
   const baseUrl = "https://en-git.onrender.com"; // Backend URL
   const colorParams = `&accent=${encodeURIComponent(accentColor)}&success=${encodeURIComponent(successColor)}&purple=${encodeURIComponent(purpleColor)}`;
-  const repoParam = widgetType === "repo" ? `&repo=${encodeURIComponent(username)}` : "";
-  const widgetUrl = `${baseUrl}/widget/${widgetType === "repo" ? "repo" : username}?type=${widgetType}&theme=${theme}${colorParams}${repoParam}`;
-  const profileUrl = "https://en-git.vercel.app/stats/" + username; // Frontend URL
+
+  // Determine URL based on widget category
+  const isRepoWidget = widgetCategory === "repo";
+  const repoParam = isRepoWidget ? `&repo=${encodeURIComponent(repoPath)}` : "";
+  const widgetUrl = `${baseUrl}/widget/${isRepoWidget ? "repo" : username}?type=${widgetType}&theme=${theme}${colorParams}${repoParam}`;
+  const profileUrl = isRepoWidget
+    ? `https://github.com/${repoPath}`
+    : "https://en-git.vercel.app/stats/" + username; // Frontend URL
 
   const markdownCode = `[![en-git stats](${widgetUrl})](${profileUrl})`;
   const htmlCode = `<a href="${profileUrl}"><img src="${widgetUrl}" alt="en-git stats" /></a>`;
@@ -36,11 +43,24 @@ export default function WidgetGenerator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const profileWidgets = [
+    "card",
+    "full",
+    "score",
+    "skills",
+    "languages",
+    "activity",
+    "commits",
+    "stats",
+  ];
+  const repoWidgets = ["repo", "contributors"];
+
   const widgetSizes = {
     card: { width: 300, height: 180 },
     full: { width: 495, height: 195 },
     score: { width: 600, height: 420 },
-    repo: { width: 600, height: 550 },
+    repo: { width: 700, height: 550 },
+    contributors: { width: 650, height: 550 },
     skills: { width: 600, height: 400 },
     languages: { width: 500, height: 320 },
     activity: { width: 800, height: 240 },
@@ -69,37 +89,57 @@ export default function WidgetGenerator() {
               <CardDescription>Configure your widget appearance</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Username */}
+              {/* Widget Category Tabs */}
               <div className="space-y-2">
-                <Label htmlFor="username">
-                  {widgetType === "repo" ? "Repository (owner/repo)" : "GitHub Username"}
+                <Label>Widget Category</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={widgetCategory === "profile" ? "default" : "outline"}
+                    onClick={() => {
+                      setWidgetCategory("profile");
+                      setWidgetType("card");
+                    }}
+                  >
+                    👤 Profile Widgets
+                  </Button>
+                  <Button
+                    variant={widgetCategory === "repo" ? "default" : "outline"}
+                    onClick={() => {
+                      setWidgetCategory("repo");
+                      setWidgetType("repo");
+                    }}
+                  >
+                    📦 Repository Widgets
+                  </Button>
+                </div>
+              </div>
+
+              {/* Username or Repo Path */}
+              <div className="space-y-2">
+                <Label htmlFor="input">
+                  {widgetCategory === "repo" ? "Repository (owner/repo)" : "GitHub Username"}
                 </Label>
                 <Input
-                  id="username"
-                  className="mt-3"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="input"
+                  value={widgetCategory === "repo" ? repoPath : username}
+                  onChange={(e) =>
+                    widgetCategory === "repo"
+                      ? setRepoPath(e.target.value)
+                      : setUsername(e.target.value)
+                  }
                   placeholder={
-                    widgetType === "repo" ? "e.g., TejasS1233/en-git" : "Enter GitHub username"
+                    widgetCategory === "repo" ? "e.g., facebook/react" : "e.g., TejasS1233"
                   }
                 />
               </div>
 
               {/* Widget Type */}
               <div className="space-y-2">
-                <Label>Widget Type (9 Available)</Label>
-                <div className="grid grid-cols-3 gap-2 mt-4">
-                  {[
-                    "card",
-                    "full",
-                    "score",
-                    "repo",
-                    "skills",
-                    "languages",
-                    "activity",
-                    "commits",
-                    "stats",
-                  ].map((type) => (
+                <Label>
+                  {widgetCategory === "profile" ? "Profile Widget Type" : "Repository Widget Type"}
+                </Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(widgetCategory === "profile" ? profileWidgets : repoWidgets).map((type) => (
                     <Button
                       key={type}
                       variant={widgetType === type ? "default" : "outline"}
@@ -110,17 +150,10 @@ export default function WidgetGenerator() {
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-3">
-                  💡 Want custom widgets? Check out our{" "}
-                  <a
-                    href="https://github.com/TejasS1233/en-git/issues"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    Custom Widget Builder
-                  </a>{" "}
-                  feature request!
+                <p className="text-xs text-muted-foreground mt-2">
+                  {widgetCategory === "profile"
+                    ? "8 profile widgets available"
+                    : "2 repository widgets available"}
                 </p>
               </div>
 
