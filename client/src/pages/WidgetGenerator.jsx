@@ -76,6 +76,7 @@ export default function WidgetGenerator() {
                 </Label>
                 <Input
                   id="username"
+                  className="mt-3"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder={
@@ -87,7 +88,7 @@ export default function WidgetGenerator() {
               {/* Widget Type */}
               <div className="space-y-2">
                 <Label>Widget Type (9 Available)</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2 mt-4">
                   {[
                     "card",
                     "full",
@@ -103,13 +104,13 @@ export default function WidgetGenerator() {
                       key={type}
                       variant={widgetType === type ? "default" : "outline"}
                       onClick={() => setWidgetType(type)}
-                      className="capitalize text-xs"
+                      className="capitalize text-xs cursor-pointer"
                     >
                       {type}
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground mt-3">
                   💡 Want custom widgets? Check out our{" "}
                   <a
                     href="https://github.com/TejasS1233/en-git/issues"
@@ -126,14 +127,16 @@ export default function WidgetGenerator() {
               {/* Theme */}
               <div className="space-y-2">
                 <Label>Theme</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 mt-3">
                   <Button
+                    className="cursor-pointer"
                     variant={theme === "dark" ? "default" : "outline"}
                     onClick={() => setTheme("dark")}
                   >
                     Dark
                   </Button>
                   <Button
+                    className="cursor-pointer"
                     variant={theme === "light" ? "default" : "outline"}
                     onClick={() => setTheme("light")}
                   >
@@ -145,7 +148,7 @@ export default function WidgetGenerator() {
               {/* Custom Colors */}
               <div className="space-y-2">
                 <Label>Custom Colors (Optional)</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2 mt-5">
                   <div>
                     <Label htmlFor="accent" className="text-xs">
                       Accent
@@ -155,7 +158,7 @@ export default function WidgetGenerator() {
                       type="color"
                       value={accentColor}
                       onChange={(e) => setAccentColor(e.target.value)}
-                      className="h-10 cursor-pointer"
+                      className="h-10 cursor-pointer mt-2"
                     />
                   </div>
                   <div>
@@ -167,7 +170,7 @@ export default function WidgetGenerator() {
                       type="color"
                       value={successColor}
                       onChange={(e) => setSuccessColor(e.target.value)}
-                      className="h-10 cursor-pointer"
+                      className="h-10 cursor-pointer mt-2"
                     />
                   </div>
                   <div>
@@ -179,7 +182,7 @@ export default function WidgetGenerator() {
                       type="color"
                       value={purpleColor}
                       onChange={(e) => setPurpleColor(e.target.value)}
-                      className="h-10 cursor-pointer"
+                      className="h-10 cursor-pointer mt-2"
                     />
                   </div>
                 </div>
@@ -206,7 +209,7 @@ export default function WidgetGenerator() {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="markdown">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-3 mb-5">
                   <TabsTrigger value="markdown">Markdown</TabsTrigger>
                   <TabsTrigger value="html">HTML</TabsTrigger>
                   <TabsTrigger value="url">Direct URL</TabsTrigger>
@@ -215,13 +218,13 @@ export default function WidgetGenerator() {
                 <TabsContent value="markdown" className="space-y-2">
                   <Label>For GitHub README</Label>
                   <div className="relative">
-                    <pre className="p-4 rounded-lg bg-muted text-sm overflow-x-auto">
+                    <pre className="p-4 rounded-lg bg-muted text-sm overflow-x-auto mt-3">
                       {markdownCode}
                     </pre>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 cursor-pointer bg-[#656769]"
                       onClick={() => copyToClipboard(markdownCode, "Markdown code")}
                     >
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -232,13 +235,13 @@ export default function WidgetGenerator() {
                 <TabsContent value="html" className="space-y-2">
                   <Label>For Websites</Label>
                   <div className="relative">
-                    <pre className="p-4 rounded-lg bg-muted text-sm overflow-x-auto">
+                    <pre className="p-4 rounded-lg bg-muted text-sm overflow-x-auto mt-3">
                       {htmlCode}
                     </pre>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 cursor-pointer bg-[#656769]"
                       onClick={() => copyToClipboard(htmlCode, "HTML code")}
                     >
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -249,13 +252,13 @@ export default function WidgetGenerator() {
                 <TabsContent value="url" className="space-y-2">
                   <Label>Direct Image URL</Label>
                   <div className="relative">
-                    <pre className="p-4 rounded-lg bg-muted text-sm overflow-x-auto break-all">
+                    <pre className="p-4 rounded-lg bg-muted text-sm overflow-x-auto break-all mt-3">
                       {directUrl}
                     </pre>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 cursor-pointer bg-[#656769]"
                       onClick={() => copyToClipboard(directUrl, "URL")}
                     >
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -273,11 +276,12 @@ export default function WidgetGenerator() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Live Preview</CardTitle>
-                <CardDescription>See how your widget looks</CardDescription>
+                <CardDescription className="mt-1.5">See how your widget looks</CardDescription>
               </div>
               <Button
                 variant="outline"
                 size="sm"
+                className="cursor-pointer"
                 onClick={() => {
                   const img = document.querySelector("#widget-preview");
                   if (img) {
@@ -306,11 +310,11 @@ export default function WidgetGenerator() {
             <CardHeader>
               <CardTitle className="text-blue-600">💡 Pro Tips</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>• Widgets update automatically every 30 minutes</p>
-              <p>• Customize colors to match your brand or style</p>
-              <p>• Works on GitHub, GitLab, Bitbucket, and any website</p>
-              <p>• Click the widget to visit your full profile</p>
+            <CardContent className="space-y-2 text-sm list-inside">
+              <li>Widgets update automatically every 30 minutes</li>
+              <li>Customize colors to match your brand or style</li>
+              <li>Works on GitHub, GitLab, Bitbucket, and any website</li>
+              <li>Click the widget to visit your full profile</li>
             </CardContent>
           </Card>
         </div>

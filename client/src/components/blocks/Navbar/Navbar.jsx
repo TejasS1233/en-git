@@ -126,14 +126,14 @@ export default function Navbar() {
               <>
                 <Button
                   variant="outline"
-                  className="hidden sm:inline-flex text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+                  className="hidden sm:inline-flex text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4 cursor-pointer"
                   onClick={() => navigate("/login")}
                 >
                   Sign In
                 </Button>
                 <Button
                   onClick={() => navigate("/signup")}
-                  className="text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+                  className="text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4 cursor-pointer"
                 >
                   Get Started
                 </Button>

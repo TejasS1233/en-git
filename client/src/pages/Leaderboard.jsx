@@ -229,7 +229,7 @@ export default function Leaderboard() {
               onKeyPress={(e) => e.key === "Enter" && fetchUserRank(searchUsername)}
               className="flex-1 px-4 py-2 rounded-lg border bg-background"
             />
-            <Button onClick={() => fetchUserRank(searchUsername)}>Search</Button>
+            <Button className="cursor-pointer" onClick={() => fetchUserRank(searchUsername)}>Search</Button>
           </div>
 
           {currentUser && currentUser.notFound && (

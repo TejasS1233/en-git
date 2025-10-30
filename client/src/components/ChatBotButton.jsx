@@ -191,7 +191,7 @@ const ChatBotButton = () => {
     <div className="fixed bottom-6 right-6 z-50 hidden sm:block">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button className="rounded-full h-14 w-14 p-0 shadow-lg">
+          <Button className="rounded-full h-14 w-14 p-0 shadow-lg cursor-pointer">
             <MessageCircle className="w-6 h-6" />
           </Button>
         </PopoverTrigger>
@@ -200,27 +200,27 @@ const ChatBotButton = () => {
           side="top"
           align="end"
           sideOffset={16}
-          className="w-[90vw] max-w-[400px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-xl z-9999"
+          className="w-[90vw] max-w-[450px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-xl z-9999"
         >
-          <div className="border-b px-4 py-2 text-sm font-semibold flex justify-between items-center">
+          <div className="border-b px-5 py-2.5 text-sm font-semibold flex justify-between items-center">
             Nexus Assistant
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6"
+              className="h-6 w-6 text-[18px] cursor-pointer"
               onClick={() => setIsOpen(false)}
             >
               &times;
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 text-sm">
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`px-3 py-2 rounded-lg max-w-[85%] whitespace-pre-wrap ${msg.from === "user"
-                    ? "ml-auto bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
+                className={`px-4 py-2.5 rounded-lg max-w-[85%] whitespace-pre-wrap ${msg.from === "user"
+                  ? "ml-auto bg-primary text-primary-foreground"
+                  : "bg-muted text-foreground"
                   }`}
               >
                 {msg.text}
@@ -245,7 +245,7 @@ const ChatBotButton = () => {
                     key={i}
                     variant="outline"
                     size="sm"
-                    className="text-xs h-auto py-1.5 text-wrap text-left"
+                    className="text-xs h-auto py-1.5 text-wrap text-left cursor-pointer"
                     onClick={() => handleSend(prompt)}
                   >
                     {prompt}
@@ -255,7 +255,7 @@ const ChatBotButton = () => {
             </div>
           )}
 
-          <div className="border-t p-2">
+          <div className="border-t p-3">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -271,7 +271,7 @@ const ChatBotButton = () => {
                 onChange={(e) => setInput(e.target.value)}
                 disabled={isLoading}
               />
-              <Button type="submit" size="sm" disabled={isLoading}>
+              <Button type="submit" size="sm" disabled={isLoading} className="cursor-pointer">
                 <Send className="w-4 h-4" />
               </Button>
             </form>

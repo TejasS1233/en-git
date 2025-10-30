@@ -163,7 +163,7 @@ export default function RepositoryDeepDive() {
                 <Code className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
                 Repository Deep Dive
               </CardTitle>
-              <CardDescription className="text-sm sm:text-base">
+              <CardDescription className="text-sm sm:text-base mt-2.5">
                 Analyze any GitHub repository with detailed insights and health metrics
               </CardDescription>
             </CardHeader>
@@ -174,6 +174,7 @@ export default function RepositoryDeepDive() {
                   <Input
                     placeholder="https://github.com/facebook/react"
                     value={urlInput}
+                    className="mt-2"
                     onChange={(e) => {
                       const val = e.target.value;
                       setUrlInput(val);
@@ -206,6 +207,7 @@ export default function RepositoryDeepDive() {
                     <Input
                       placeholder="facebook"
                       value={ownerInput}
+                      className="mt-2"
                       onChange={(e) => {
                         const val = e.target.value;
                         setOwnerInput(val);
@@ -225,6 +227,7 @@ export default function RepositoryDeepDive() {
                     <Input
                       placeholder="react"
                       value={repoInput}
+                      className="mt-2"
                       onChange={(e) => {
                         const val = e.target.value;
                         setRepoInput(val);
@@ -242,7 +245,7 @@ export default function RepositoryDeepDive() {
                 </div>
                 <Button
                   onClick={fetchRepository}
-                  className="w-full"
+                  className="w-full mt-2.5 cursor-pointer"
                   disabled={
                     loading ||
                     !!ownerError ||
@@ -277,7 +280,7 @@ export default function RepositoryDeepDive() {
 
         {/* Show tips when no repository has been searched yet */}
         {!loading && !error && (
-          <div className="mt-6">
+          <div className="mt-20">
             <RepositoryAnalysisTips />
           </div>
         )}

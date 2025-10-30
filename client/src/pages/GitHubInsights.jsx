@@ -350,7 +350,7 @@ export default function GitHubInsightsPage() {
                   type="submit"
                   disabled={loading || !!usernameError || username.trim() === ""}
                   aria-disabled={loading || !!usernameError || username.trim() === ""}
-                  className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold shadow-lg bg-linear-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 w-full sm:w-auto"
+                  className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold shadow-lg bg-linear-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 w-full sm:w-auto cursor-pointer"
                   size="lg"
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />}
