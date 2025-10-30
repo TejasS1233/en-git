@@ -20,6 +20,7 @@ import AuthCallback from "@/pages/AuthCallback";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import ContactUs from "@/pages/ContactUs";
 import Leaderboard from "@/pages/Leaderboard";
+import WidgetGenerator from "@/pages/WidgetGenerator";
 
 const hiddenLayoutRoutes = ["/login", "/signup", "/dashboard", "/auth/callback"];
 
@@ -53,6 +54,7 @@ function App() {
           <Route path="/repo" element={<RepositoryDeepDive />} />
           <Route path="/repo/:owner/:repo" element={<RepositoryDeepDive />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/widgets" element={<WidgetGenerator />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
