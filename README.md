@@ -27,6 +27,8 @@
 
 - **Global Leaderboard**: Compete with developers worldwide! See your ranking based on profile score, compare yourself with top developers, and track your position on the global leaderboard.
 
+- **Embeddable Widgets**: Showcase your GitHub stats anywhere with 8 customizable SVG widgets. Perfect for READMEs, portfolios, blogs, and documentation sites. Features include dynamic data generation, custom color themes, smart caching for zero downtime, and support for light/dark modes. Widgets display real commit data, skill profiles, activity trends, and more—all embeddable with a simple image tag.
+
 - **Utility Features**: Bookmark favorite profiles, export reports to PDF, share stats on social media, and switch between dark/light modes.
 
 ### **Chrome extension**
