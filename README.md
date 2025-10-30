@@ -4,8 +4,11 @@
 <p align="center">
     <img src="https://skillicons.dev/icons?i=react,vite,tailwind,nodejs,express,mongodb,git,github,vercel,postman&perline=10" />
 </p>
- 
-  
+<div align="center">
+    
+ [![en-git stats](https://en-git.onrender.com/widget/repo?type=repo&theme=dark&accent=%2358a6ff&success=%233fb950&purple=%23a855f7&repo=TejasS1233%2Fen-git)](https://en-git.vercel.app/stats/TejasS1233/en-git)
+  </div>
+
 ## Website Demo
 **Live Link**: [en-git.vercel.app](https://en-git.vercel.app/)
 
