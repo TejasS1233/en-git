@@ -22,7 +22,7 @@ export const generateWidget = asyncHandler(async (req, res) => {
     // Return a "not found" SVG instead of error
     const notFoundSvg = generateNotFoundSvg(username, theme);
     res.setHeader("Content-Type", "image/svg+xml");
-    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600"); // Cache for 5 min, serve stale for 1h
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=86400"); // Cache for 5 min, serve stale for 24h
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
