@@ -23,6 +23,8 @@ import { Badge } from "./components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 import { Separator } from "./components/ui/separator";
 import { calculateProfileScore } from "./lib/extensionProfileScore";
+import { updateLocalStreak, getLocalStreakStatus } from "./lib/activityStreak";
+import { Flame } from "lucide-react";
 import engitIcon from "/engit-icon.png";
 
 function ExtensionApp() {
@@ -314,9 +316,25 @@ function ExtensionApp() {
                   <AvatarFallback>{stats.user.login[0].toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-base truncate">
-                    {stats.user.name || stats.user.login}
-                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base truncate">
+                      {stats.user.name || stats.user.login}
+                    </CardTitle>
+                    {(() => {
+                      const streak = getLocalStreakStatus();
+                      if (streak.currentStreak > 0) {
+                        return (
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800">
+                            <Flame className="h-3 w-3 text-orange-500" />
+                            <span className="text-[10px] font-semibold text-orange-700 dark:text-orange-300">
+                              {streak.currentStreak}
+                            </span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                   <CardDescription className="text-xs">@{stats.user.login}</CardDescription>
                 </div>
               </div>

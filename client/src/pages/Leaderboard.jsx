@@ -311,6 +311,11 @@ export default function Leaderboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Streak Leaderboard Section */}
+      <div className="mt-8">
+        <StreakLeaderboard limit={20} />
+      </div>
     </div>
   );
 }

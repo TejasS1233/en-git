@@ -80,6 +80,7 @@ import {
   getStatsTrends,
   getProgressReport,
 } from "@/lib/statsHistory";
+import { updateLocalStreak, recordActivity } from "@/lib/activityStreak";
 import {
   Select,
   SelectContent,
@@ -88,6 +89,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { validateGithubUsername } from "@/lib/utils";
+import { ActivityStreakBadge, StreakIndicator } from "@/components/ActivityStreak";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 
@@ -545,6 +547,9 @@ export default function GitHubInsightsPage() {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6 mt-6">
+                {/* Activity Streak */}
+                <ActivityStreakBadge username={`guest_${user}`} />
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <LanguagesChart languages={insights.languages} />
                   <TopRepos topStarred={insights.topStarred} topActive={insights.topActive} />
@@ -700,12 +705,15 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
         )}
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-        <Avatar className="h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0">
+        <Avatar className="h-20 w-20 sm:h-24 sm:w-24 shrink-0">
           <AvatarImage src={user.avatar_url} alt={user.login} />
           <AvatarFallback>{user.login?.[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1 space-y-2 min-w-0 w-full">
-          <h2 className="text-xl sm:text-2xl font-bold truncate">{user.name || user.login}</h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-xl sm:text-2xl font-bold truncate">{user.name || user.login}</h2>
+            <StreakIndicator username={`guest_${user.login}`} />
+          </div>
           <p className="text-muted-foreground text-sm line-clamp-2">{user.bio || "No bio"}</p>
           <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
             <span className="whitespace-nowrap">
