@@ -1,6 +1,9 @@
+// client/src/pages/SignUp.jsx
+
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { IoEye, IoEyeOff } from "react-icons/io5";
+// 1. IMPORT IoArrowBack ICON
+import { IoEye, IoEyeOff, IoArrowBack } from "react-icons/io5";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Form,
@@ -91,7 +94,17 @@ const SignUp = () => {
   }, [avatarPreview]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background transition-colors px-4 py-20">
+    // 2. ADD 'relative' TO THE MAIN CONTAINER
+    <div className="relative min-h-screen flex items-center justify-center bg-background transition-colors px-4 py-20">
+      {/* 3. ADD BACK TO HOME BUTTON */}
+      <Button asChild variant="link" className="absolute top-6 left-6 text-muted-foreground hover:no-underline">
+        <Link to="/">
+          <IoArrowBack className="mr-2 h-5 w-5" />
+          Back to Home
+        </Link>
+      </Button>
+      {/* END OF ADDED SECTION */}
+
       <div className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-md p-8 transition-colors">
         <div className="flex flex-col items-center">
           <Logo className="h-9 w-9" />
