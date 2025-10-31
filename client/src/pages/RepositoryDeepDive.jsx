@@ -169,78 +169,92 @@ export default function RepositoryDeepDive() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">GitHub URL</label>
-                  <Input
-                    placeholder="https://github.com/facebook/react"
-                    value={urlInput}
-                    className="mt-2"
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setUrlInput(val);
-                      if (!val.trim()) {
-                        setUrlError("");
-                        return;
-                      }
-                      const res = parseGithubRepoUrl(val);
-                      if (res.valid) {
-                        setOwnerInput(res.owner);
-                        setRepoInput(res.repo);
-                        setOwnerError("");
-                        setRepoError("");
-                        setUrlError("");
-                      } else {
-                        setUrlError(res.message || "Invalid GitHub URL");
-                      }
-                    }}
-                    disabled={loading}
-                  />
-                  {urlError && (
-                    <p className="text-sm text-red-500" role="alert">
-                      {urlError}
-                    </p>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 border-2 border-purple-500/30 rounded-lg bg-purple-500/5 space-y-4">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Enter either a full GitHub URL <span className="font-semibold">or</span> the
+                    owner/repository separately
+                  </p>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Owner</label>
+                    <label className="text-sm font-medium">GitHub URL</label>
                     <Input
-                      placeholder="facebook"
-                      value={ownerInput}
+                      placeholder="https://github.com/facebook/react"
+                      value={urlInput}
                       className="mt-2"
                       onChange={(e) => {
                         const val = e.target.value;
-                        setOwnerInput(val);
-                        const res = validateRepoOwner(val);
-                        setOwnerError(res.valid || val.trim() === "" ? "" : res.message);
+                        setUrlInput(val);
+                        if (!val.trim()) {
+                          setUrlError("");
+                          return;
+                        }
+                        const res = parseGithubRepoUrl(val);
+                        if (res.valid) {
+                          setOwnerInput(res.owner);
+                          setRepoInput(res.repo);
+                          setOwnerError("");
+                          setRepoError("");
+                          setUrlError("");
+                        } else {
+                          setUrlError(res.message || "Invalid GitHub URL");
+                        }
                       }}
                       disabled={loading}
                     />
-                    {ownerError && (
+                    {urlError && (
                       <p className="text-sm text-red-500" role="alert">
-                        {ownerError}
+                        {urlError}
                       </p>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Repository</label>
-                    <Input
-                      placeholder="react"
-                      value={repoInput}
-                      className="mt-2"
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setRepoInput(val);
-                        const res = validateRepoName(val);
-                        setRepoError(res.valid || val.trim() === "" ? "" : res.message);
-                      }}
-                      disabled={loading}
-                    />
-                    {repoError && (
-                      <p className="text-sm text-red-500" role="alert">
-                        {repoError}
-                      </p>
-                    )}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">or</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Owner</label>
+                      <Input
+                        placeholder="facebook"
+                        value={ownerInput}
+                        className="mt-2"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setOwnerInput(val);
+                          const res = validateRepoOwner(val);
+                          setOwnerError(res.valid || val.trim() === "" ? "" : res.message);
+                        }}
+                        disabled={loading}
+                      />
+                      {ownerError && (
+                        <p className="text-sm text-red-500" role="alert">
+                          {ownerError}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Repository</label>
+                      <Input
+                        placeholder="react"
+                        value={repoInput}
+                        className="mt-2"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setRepoInput(val);
+                          const res = validateRepoName(val);
+                          setRepoError(res.valid || val.trim() === "" ? "" : res.message);
+                        }}
+                        disabled={loading}
+                      />
+                      {repoError && (
+                        <p className="text-sm text-red-500" role="alert">
+                          {repoError}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <Button

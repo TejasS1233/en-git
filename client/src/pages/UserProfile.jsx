@@ -76,7 +76,7 @@ export default function UserProfile() {
 
   const handleEmailPreferenceChange = async (preference, value) => {
     const newPreferences = {
-      ...formData.emailPreferences,
+      ...(formData.emailPreferences || {}),
       [preference]: value,
     };
 
@@ -92,6 +92,7 @@ export default function UserProfile() {
       });
       toast.success("Email preference updated");
     } catch (error) {
+      console.error("Failed to update email preference:", error);
       toast.error("Failed to update preference");
     }
   };
@@ -311,7 +312,7 @@ export default function UserProfile() {
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.emailPreferences?.weeklyReport ?? true}
+                checked={formData.emailPreferences?.weeklyReport ?? false}
                 onChange={(e) => handleEmailPreferenceChange("weeklyReport", e.target.checked)}
                 className="sr-only peer"
               />
@@ -329,7 +330,7 @@ export default function UserProfile() {
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.emailPreferences?.scoreAlerts ?? true}
+                checked={formData.emailPreferences?.scoreAlerts ?? false}
                 onChange={(e) => handleEmailPreferenceChange("scoreAlerts", e.target.checked)}
                 className="sr-only peer"
               />
@@ -347,7 +348,7 @@ export default function UserProfile() {
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.emailPreferences?.achievements ?? true}
+                checked={formData.emailPreferences?.achievements ?? false}
                 onChange={(e) => handleEmailPreferenceChange("achievements", e.target.checked)}
                 className="sr-only peer"
               />

@@ -81,9 +81,7 @@ export function ProfileAnalysisTips() {
                       key={idx}
                       className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors"
                     >
-                      <div
-                        className={`h-1.5 w-1.5 rounded-full bg-linear-to-r ${tip.gradient}`}
-                      />
+                      <div className={`h-1.5 w-1.5 rounded-full bg-linear-to-r ${tip.gradient}`} />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -125,61 +123,5 @@ export function RepositoryAnalysisTips() {
     },
   ];
 
-  return (
-    <div className="max-w-7xl mx-auto">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl font-black mb-3 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Boost Your Repository
-        </h2>
-        <p className="text-lg text-muted-foreground">Essential practices for a healthy repo</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {tips.map((tip, index) => {
-          const Icon = tip.icon;
-          return (
-            <Card
-              key={tip.title}
-              className="group relative overflow-hidden border-2 hover:border-transparent transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              {/* Gradient background on hover */}
-              <div
-                className={`absolute inset-0 bg-linear-to-br ${tip.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
-              />
-
-              <CardContent className="p-6 relative">
-                {/* Icon with gradient background */}
-                <div
-                  className={`w-16 h-16 rounded-2xl bg-linear-to-br ${tip.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-                >
-                  <Icon className="h-8 w-8 text-white" />
-                </div>
-
-                {/* Title */}
-                <h3 className="text-xl font-bold mb-4 group-hover:text-transparent group-hover:bg-linear-to-r group-hover:bg-clip-text group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
-                  {tip.title}
-                </h3>
-
-                {/* Items */}
-                <ul className="space-y-2">
-                  {tip.items.map((item, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors"
-                    >
-                      <div
-                        className={`h-1.5 w-1.5 rounded-full bg-linear-to-r ${tip.gradient}`}
-                      />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
-  );
+  return <div className="max-w-7xl mx-auto"></div>;
 }

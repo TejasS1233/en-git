@@ -96,9 +96,9 @@ const userSchema = new Schema(
       },
     ],
     emailPreferences: {
-      weeklyReport: { type: Boolean, default: true },
-      scoreAlerts: { type: Boolean, default: true },
-      achievements: { type: Boolean, default: true },
+      weeklyReport: { type: Boolean, default: false },
+      scoreAlerts: { type: Boolean, default: false },
+      achievements: { type: Boolean, default: false },
       leaderboardUpdates: { type: Boolean, default: false },
     },
   },

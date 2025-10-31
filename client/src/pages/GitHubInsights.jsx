@@ -448,11 +448,11 @@ export default function GitHubInsightsPage() {
         </div>
 
         {/* Tips section - always visible below the search, requires scroll */}
-        {!insights && !loading && !error && (
+        {/* {!insights && !loading && !error && (
           <div className="mt-32 mb-12 animate-in fade-in duration-500 delay-300">
             <ProfileAnalysisTips />
           </div>
-        )}
+        )} */}
 
         {/* Action Buttons */}
         {insights && (

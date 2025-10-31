@@ -21,7 +21,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { email, fullname, password, countryCode, phoneNumber, address } = req.body;
 
-  if ([email, fullname, password, countryCode, phoneNumber, address].some(f => !f?.trim())) {
+  if ([email, fullname, password, countryCode, phoneNumber, address].some((f) => !f?.trim())) {
     throw new ApiError("Please fill all the fields", 400);
   }
 
@@ -66,7 +66,13 @@ const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, { httpOnly: true, secure: true })
     .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true })
-    .json(new ApiResponse(200, "User logged in successfully", { user: loggedInUser, accessToken, refreshToken }));
+    .json(
+      new ApiResponse(200, "User logged in successfully", {
+        user: loggedInUser,
+        accessToken,
+        refreshToken,
+      })
+    );
 });
 
 // ---------------- LOGOUT ----------------
@@ -96,7 +102,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, { httpOnly: true, secure: true })
     .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true })
-    .json(new ApiResponse(200, "Access token refreshed successfully", { accessToken, refreshToken }));
+    .json(
+      new ApiResponse(200, "Access token refreshed successfully", { accessToken, refreshToken })
+    );
 });
 
 // ---------------- CHANGE PASSWORD ----------------
@@ -122,14 +130,32 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 // ---------------- UPDATE USER ----------------
 const updateCurrentUser = asyncHandler(async (req, res) => {
-  const { fullname, email, countryCode, phoneNumber, address } = req.body;
-  if (!fullname || !email || !countryCode || !phoneNumber || !address) throw new ApiError("All fields required", 400);
+  const {
+    fullname,
+    email,
+    countryCode,
+    phoneNumber,
+    address,
+    githubUsername,
+    walletAddress,
+    emailPreferences,
+  } = req.body;
 
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    { fullname, email, countryCode, phoneNumber, address },
-    { new: true }
-  ).select("-password -refreshToken");
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (fullname !== undefined) updateFields.fullname = fullname;
+  if (email !== undefined) updateFields.email = email;
+  if (countryCode !== undefined) updateFields.countryCode = countryCode;
+  if (phoneNumber !== undefined) updateFields.phoneNumber = phoneNumber;
+  if (address !== undefined) updateFields.address = address;
+  if (githubUsername !== undefined) updateFields.githubUsername = githubUsername;
+  if (walletAddress !== undefined) updateFields.walletAddress = walletAddress;
+  if (emailPreferences !== undefined) updateFields.emailPreferences = emailPreferences;
+
+  const updatedUser = await User.findByIdAndUpdate(req.user._id, updateFields, {
+    new: true,
+    runValidators: true,
+  }).select("-password -refreshToken");
 
   return res.status(200).json(new ApiResponse(200, "User updated successfully", updatedUser));
 });
@@ -142,7 +168,11 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   if (!avatar.url) throw new ApiError("Avatar upload failed", 400);
 
-  const user = await User.findByIdAndUpdate(req.user._id, { avatar: avatar.url }, { new: true }).select("-password");
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { avatar: avatar.url },
+    { new: true }
+  ).select("-password");
   return res.status(200).json(new ApiResponse(200, "Avatar updated successfully", user));
 });
 

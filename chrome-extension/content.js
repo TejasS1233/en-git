@@ -947,8 +947,8 @@ function calculateProfileScore(stats) {
   // Activity & Consistency (15 points)
   const accountAge = user.created_at
     ? Math.floor(
-      (Date.now() - new Date(user.created_at)) / (1000 * 60 * 60 * 24 * 365)
-    )
+        (Date.now() - new Date(user.created_at)) / (1000 * 60 * 60 * 24 * 365)
+      )
     : 0;
   score += Math.min(5, Math.floor((accountAge / 2) * 5));
 
@@ -1271,7 +1271,9 @@ function addRepoDiveButton() {
     path.includes("/oauth") ||
     path.includes("/settings") ||
     path.includes("/sessions") ||
-    path.includes("/authorize")
+    path.includes("/authorize") ||
+    path.includes("/apps") ||
+    path.includes("/marketplace")
   ) {
     console.log("en-git: Skipping button injection on special page:", path);
     return;
@@ -1456,7 +1458,9 @@ function init() {
     path.includes("/oauth") ||
     path.includes("/settings") ||
     path.includes("/sessions") ||
-    path.includes("/authorize")
+    path.includes("/authorize") ||
+    path.includes("/apps") ||
+    path.includes("/marketplace")
   ) {
     console.log("en-git: Skipping initialization on special page:", path);
     return;
