@@ -3,6 +3,12 @@ import { ApiError } from "../utils/apiError.js";
 import Leaderboard from "../models/leaderboard.model.js";
 import { getOrGenerateWidgetCache } from "../utils/widgetCacheHelper.js";
 
+const MOCK_TROPHIES = [
+    { name: 'Gold Contributor', emoji: '🥇' },
+    { name: 'Hacktoberfest 2025', emoji: '🎃' },
+    { name: 'Top Reviewer', emoji: '👀' },
+];
+
 // Generate Trophy Widget
 function generateTrophyWidget(userData, theme, customColors = {}) {
     const isDark = theme === 'dark';
@@ -11,19 +17,14 @@ function generateTrophyWidget(userData, theme, customColors = {}) {
     const textColor = isDark ? '#fff' : '#000';
 
     // --- MOCK DATA FRAMEWORK ---
-    const mockTrophies = [
-        { name: 'Gold Contributor', emoji: '🥇' },
-        { name: 'Hacktoberfest 2025', emoji: '🎃' },
-        { name: 'Top Reviewer', emoji: '👀' },
-    ];
-    let trophiesHtml = mockTrophies.map((trophy, index) => {
+    let trophiesHtml = MOCK_TROPHIES.map((trophy, index) => {
         const xPos = 50 + (index * 100); 
         return `
             <text x='${xPos}' y='80' fill='${accentColor}' text-anchor='middle' font-size='30'>
                 ${trophy.emoji}
             </text>
             <text x='${xPos}' y='110' fill='${textColor}' text-anchor='middle' font-size='10'>
-                ${trophy.name}
+                ${escapeXml(trophy.name)}
             </text>
         `;
     }).join('');
