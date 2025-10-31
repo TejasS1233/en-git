@@ -24,6 +24,7 @@ import { getGithubInsights as getInsightsService } from "../services/ai.service.
 import { updateLeaderboardEntry } from "./leaderboard.controller.js";
 import { calculateProfileScore } from "../utils/profileScore.js";
 import WidgetCache from "../models/widgetCache.model.js";
+import { ActivityStreak } from "../models/activityStreak.model.js";
 
 export const getUserInsights = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -107,6 +108,39 @@ export const getUserInsights = asyncHandler(async (req, res) => {
     )
       .then(() => console.log(`✅ Widget cache updated for ${username}`))
       .catch((err) => console.error("❌ Widget cache update failed:", err));
+
+    // Record activity for streak tracking (async, don't wait)
+    // We'll use a temporary guest user ID if no user is authenticated
+    const guestUserId = "guest_" + username;
+    ActivityStreak.findOne({ username: guestUserId })
+      .then((streak) => {
+        if (!streak) {
+          streak = new ActivityStreak({
+            userId: guestUserId,
+            username: guestUserId,
+            currentStreak: 0,
+            longestStreak: 0,
+            activityDates: [],
+            analyzedProfiles: [],
+          });
+        }
+        
+        // Update streak
+        streak.updateStreak();
+        
+        // Add analyzed profile
+        if (streak.analyzedProfiles.length >= 100) {
+          streak.analyzedProfiles.shift();
+        }
+        streak.analyzedProfiles.push({
+          githubUsername: username,
+          analyzedAt: new Date(),
+        });
+        
+        return streak.save();
+      })
+      .then(() => console.log(`✅ Activity streak updated for analysis of ${username}`))
+      .catch((err) => console.error("❌ Activity streak update failed:", err));
 
     return res.status(200).json(
       new ApiResponse(200, "Insights fetched successfully", {
