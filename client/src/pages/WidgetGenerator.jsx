@@ -52,6 +52,7 @@ export default function WidgetGenerator() {
     "activity",
     "commits",
     "stats",
+    "trophy",
   ];
   const repoWidgets = ["repo", "contributors"];
 
@@ -66,6 +67,7 @@ export default function WidgetGenerator() {
     activity: { width: 800, height: 240 },
     commits: { width: 700, height: 280 },
     stats: { width: 400, height: 120 },
+    trophy: { width: 350, height: 150 },
   };
 
   return (
