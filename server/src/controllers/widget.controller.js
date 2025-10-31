@@ -3,6 +3,48 @@ import { ApiError } from "../utils/apiError.js";
 import Leaderboard from "../models/leaderboard.model.js";
 import { getOrGenerateWidgetCache } from "../utils/widgetCacheHelper.js";
 
+// Generate Trophy Widget
+async function generateTrophyWidget(username, theme, customColors = {}) {
+    const isDark = theme === 'dark';
+    const accentColor = customColors.accent || (isDark ? '#58a6ff' : '#0969da');
+    const backgroundColor = isDark ? '#1a1a1a' : '#fff';
+    const textColor = isDark ? '#fff' : '#000';
+
+    // --- MOCK DATA FRAMEWORK ---
+    const mockTrophies = [
+        { name: 'Gold Contributor', emoji: '🥇' },
+        { name: 'Hacktoberfest 2025', emoji: '🎃' },
+        { name: 'Top Reviewer', emoji: '👀' },
+    ];
+    let trophiesHtml = mockTrophies.map((trophy, index) => {
+        const xPos = 50 + (index * 100); 
+        return `
+            <text x='${xPos}' y='80' fill='${accentColor}' text-anchor='middle' font-size='30'>
+                ${trophy.emoji}
+            </text>
+            <text x='${xPos}' y='110' fill='${textColor}' text-anchor='middle' font-size='10'>
+                ${trophy.name}
+            </text>
+        `;
+    }).join('');
+    return `
+<svg width='350' height='150' viewBox='0 0 350 150' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <rect width='350' height='150' fill='${backgroundColor}' rx='6' />
+
+    <text x='175' y='30' fill='${textColor}' text-anchor='middle' font-weight='bold' font-size='16'>
+        ${username}'s Achievements
+    </text>
+
+    <g transform="translate(0, 30)">
+        ${trophiesHtml}
+    </g>
+
+    <text x='175' y='140' fill='${accentColor}' text-anchor='middle' font-size='10'>
+        Framework Implemented - Ready for Data Hookup
+    </text>
+</svg>`;
+}
+
 // Generate SVG widget
 export const generateWidget = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -85,6 +127,9 @@ export const generateWidget = asyncHandler(async (req, res) => {
       break;
     case "score":
       svg = await generateScoreWidget(username, theme, customColors);
+      break;
+    case "trophy":
+      svg = generateTrophyWidget(userData, theme, customColors);
       break;
     case "repo":
       // For repo widget, get repo from query parameter
