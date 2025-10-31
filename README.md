@@ -14,6 +14,10 @@
 
 ![ezgif-805876d1d2e3e5](https://github.com/user-attachments/assets/0a50521a-2b1b-49ca-bf6e-b21660d80bcb)
 
+Found en-git useful?
+
+Please consider giving it a ⭐️ star on GitHub to support the project and help it reach more developers!
+
 ## Features
 
 ### **Website**
