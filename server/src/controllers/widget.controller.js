@@ -4,7 +4,7 @@ import Leaderboard from "../models/leaderboard.model.js";
 import { getOrGenerateWidgetCache } from "../utils/widgetCacheHelper.js";
 
 // Generate Trophy Widget
-async function generateTrophyWidget(username, theme, customColors = {}) {
+function generateTrophyWidget(userData, theme, customColors = {}) {
     const isDark = theme === 'dark';
     const accentColor = customColors.accent || (isDark ? '#58a6ff' : '#0969da');
     const backgroundColor = isDark ? '#1a1a1a' : '#fff';
@@ -32,7 +32,7 @@ async function generateTrophyWidget(username, theme, customColors = {}) {
     <rect width='350' height='150' fill='${backgroundColor}' rx='6' />
 
     <text x='175' y='30' fill='${textColor}' text-anchor='middle' font-weight='bold' font-size='16'>
-        ${username}'s Achievements
+        ${escapeXml(userData.username)}'s Achievements
     </text>
 
     <g transform="translate(0, 30)">
