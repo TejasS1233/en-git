@@ -45,6 +45,7 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 - **Instant Profile Insights**: See a user's profile score, developer rating (Beginner → Elite), top 5 languages, and quick stats just by visiting their GitHub profile page.
 - **Customizable & Productive**: Personalize your themes and set custom keyboard shortcuts to analyze profiles, repos, and files in seconds, boosting your workflow.
 - **Seamless Web App Integration**: One click to send the current profile or repo to the full web app for a deep-dive analysis, developer comparison, or to view historical tracking.
+See the [Chrome Extension Installation Guide](.github/chrome_ext_installation.md) to get started.
 
 ## 🤝 Contributing & Documentation
 
