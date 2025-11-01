@@ -2,12 +2,11 @@
 
 ## 👋 Introduction
 
-Welcome to our project!  
-We’re thrilled that you’re interested in contributing during **Hacktoberfest** 🎉  
+We’re thrilled that you’re interested in contributing! 🎉
 
-Our goal is to build a friendly, safe, and inclusive environment where everyone — regardless of background, experience, or identity — feels welcome to participate and learn.
+Our goal is to build a friendly, safe, and inclusive community where everyone — regardless of background, experience, or identity — feels welcome to participate, collaborate, and learn.
 
-This Code of Conduct outlines our expectations for participants and the steps we take to foster a positive community.
+This Code of Conduct outlines our expectations for all contributors and explains the steps we take to ensure a positive and respectful environment for everyone.
 
 ---
 
@@ -102,12 +101,4 @@ This Code of Conduct applies both **within project spaces** and **in public spac
 
 This Code of Conduct is adapted from the [Contributor Covenant v2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html), a widely adopted standard for open-source communities.
 
----
 
-## 💚 Hacktoberfest Note
-
-We encourage **first-time contributors**!  
-If you’re new to open source or GitHub, don’t worry — we’re here to help.  
-Ask questions, be kind, and have fun contributing during Hacktoberfest!
-
-Happy coding and welcome aboard! 🚀
