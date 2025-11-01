@@ -25,28 +25,20 @@ Thank you for your interest in contributing to en-git! We welcome contributions 
 - A GitHub account
 
 ### Client Setup
-
 ```bash
 cd client
 npm install
 npm run dev
 ```
-
 The client will be available at `http://localhost:3000`
 
-### Chrome Extension Setup
-
+### Server Setup
 ```bash
-cd chrome-extension
+cd client
 npm install
+npm run dev
 ```
-
-To load the extension in Chrome:
-
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode"
-3. Click "Load unpacked"
-4. Select the `chrome-extension` directory
+The server will be available at `http://localhost:8000`
 
 ### Environment Variables
 
@@ -56,24 +48,44 @@ Create a `.env` file in the `client` directory:
 VITE_API_BASE_URL=your_api_url
 VITE_GITHUB_TOKEN=your_github_token (optional)
 ```
+Create a `.env` file in the `server` directory:
+
+| **Category**               | **Key Variables**                                                                                                                                                       | **Example / Description**                 |
+| :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------- |
+| **Server**                 | `PORT=8000`<br>`SERVER_URL=http://localhost:8000`<br>`CLIENT_URL=http://localhost:3000`<br>`CORS_ORIGIN=http://localhost:3000`                                          | Basic server and client setup             |
+| **GitHub (optional)**      | `GITHUB_TOKEN=`<br>`GITHUB_CLIENT_ID=`<br>`GITHUB_CLIENT_SECRET=`                                                                                                       | Used to increase API rate limits          |
+| **Google / Generative AI** | `GOOGLE_API_KEY=`<br>`GOOGLE_CLIENT_ID=`<br>`GOOGLE_CLIENT_SECRET=`                                                                                                     | For Google OAuth or generative API access |
+| **Auth / JWT**             | `ACCESS_TOKEN_SECRET=change_this_to_a_random_secret`<br>`REFRESH_TOKEN_SECRET=change_this_to_a_random_secret`<br>`ACCESS_TOKEN_EXPIRY=15m`<br>`REFRESH_TOKEN_EXPIRY=1d` | Token-based authentication                |
+| **Cloudinary (Uploads)**   | `CLOUDINARY_CLOUD_NAME=`<br>`CLOUDINARY_API_KEY=`<br>`CLOUDINARY_API_SECRET=`                                                                                           | For avatar/media uploads                  |
+| **Email (optional)**       | `SMTP_HOST=`<br>`SMTP_PORT=587`<br>`SMTP_SECURE=false`<br>`SMTP_USER=`<br>`SMTP_PASS=`<br>`SMTP_FROM_EMAIL="noreply@example.com"`                                       | Nodemailer configuration                  |
+| **Payments (Razorpay)**    | `RAZORPAY_KEY_ID=`<br>`RAZORPAY_KEY_SECRET=`                                                                                                                            | Payment integration keys                  |
+| **Twilio (optional)**      | `TWILIO_ACCOUNT_SID=`<br>`TWILIO_AUTH_TOKEN=`                                                                                                                           | For SMS / phone verification              |
 
 ## Project Structure
 
 ```
 en-git/
-├── client/                 # React web application
+├── client/              # React web application
 │   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/         # Page components
-│   │   ├── lib/           # Utility functions
-│   │   ├── config/        # Configuration files
-│   │   └── context/       # React context providers
-│   └── public/            # Static assets
-├── chrome-extension/      # Chrome extension
-│   ├── src/              # Extension source files
-│   ├── icons/            # Extension icons
-│   └── manifest.json     # Extension manifest
-└── docs/                 # Documentation
+│   │   ├── components/  # Reusable UI components
+│   │   ├── pages/       # Page components
+│   │   ├── lib/         # Utility functions
+│   │   ├── config/      # Configuration files
+│   │   └── context/     # React context providers
+│   └── public/          # Static assets
+├── server/              # Node.js/Express backend
+│   ├── src/
+│   │   ├── controllers/ # Request handlers
+│   │   ├── models/      # Mongoose data models
+│   │   ├── routes/      # API routes
+│   │   ├── services/    # Business logic
+│   │   ├── utils/       # Utility functions
+│   │   └── app.js       # Express app setup
+├── chrome-extension/    # Chrome extension
+│   ├── src/             # Extension source files
+│   ├── icons/           # Extension icons
+│   └── manifest.json    # Extension manifest
+└── docs/                # Github Pages
 ```
 
 ## How to Contribute
@@ -99,111 +111,61 @@ We welcome various types of contributions:
 
 ## Coding Guidelines
 
-### JavaScript/React
-
-- Use **functional components** with hooks
-- Follow **ES6+ syntax**
-- Use **meaningful variable and function names**
-- Keep components **small and focused**
-- Use **TypeScript** where possible (future goal)
-
-### Code Style
-
-- Use **2 spaces** for indentation
-- Use **semicolons**
-- Use **single quotes** for strings
-- Use **camelCase** for variables and functions
-- Use **PascalCase** for components
-- Add **comments** for complex logic
-
-### CSS/Styling
-
-- Use **Tailwind CSS** utility classes
-- Follow **mobile-first** approach
-- Use **semantic class names** when custom CSS is needed
-- Maintain **dark mode** compatibility
+| Code Style                                  | React                                                       | CSS/Styling                               | Node/Express                                             |
+| :------------------------------------------ | :---------------------------------------------------------- | :---------------------------------------- | :------------------------------------------------------- |
+| • Use **ES6+ syntax**                       | • Use **functional components** with hooks                  | • Use **Tailwind CSS** utility classes    | • Use **Express.js** for routing and middleware          |
+| • Use **2 spaces** for indentation          | • Keep components **small and focused**                     | • Follow **mobile-first** approach        | • Follow **RESTful API** design                          |
+| • Use **semicolons**                        | • Use **meaningful** component and prop names               | • Use **semantic class names**            | • Use **async/await** for asynchronous code              |
+| • Use **single quotes** for strings         | • Manage state with **React Hooks / Context API**           | • Maintain **dark mode** compatibility    | • Handle errors using **middleware**                     |
+| • Use **camelCase** for variables/functions | • Avoid **prop drilling** (use context or state management) | • Keep styles **consistent and reusable** | • Separate **routes, controllers, and services** clearly |
 
 ## Commit Guidelines
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
 ### Commit Message Format
-
 ```
 <type>(<scope>): <subject>
-
 <body>
-
 <footer>
 ```
-
 ### Types
-
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, missing semicolons, etc.)
-- `refactor`: Code refactoring
-- `perf`: Performance improvements
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-- `ci`: CI/CD changes
+| Type | Description |
+| --- | --- |
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation changes |
+| `style` | Code style changes (formatting, missing semicolons, etc.) |
+| `refactor` | Code refactoring |
+| `perf` | Performance improvements |
+| `test` | Adding or updating tests |
+| `chore` | Maintenance tasks |
+| `ci` | CI/CD changes |
 
 ## Pull Request Process
 
 1. **Create a new branch** from `main`:
-
    ```bash
    git checkout -b feature/your-feature-name
    ```
-
 2. **Make your changes** and commit them following the commit guidelines
-
 3. **Keep your branch updated**:
-
    ```bash
    git fetch upstream
    git rebase upstream/main
    ```
-
 4. **Push to your fork**:
-
    ```bash
    git push origin feature/your-feature-name
    ```
-
 5. **Create a Pull Request** on GitHub:
-
    - Provide a clear title and description
    - Reference any related issues (e.g., "Fixes #123")
    - Add screenshots for UI changes
    - Ensure all checks pass
-
 6. **Respond to feedback**:
    - Address review comments promptly
    - Make requested changes
    - Push updates to the same branch
 
-### PR Checklist
-
-Before submitting your PR, ensure:
-
-- [ ] Code follows the project's coding guidelines
-- [ ] Commits follow the commit message format
-- [ ] No console errors or warnings
-- [ ] UI changes are responsive and work in dark mode
-- [ ] Documentation is updated if needed
-- [ ] Self-review of code completed
-- [ ] PR description clearly explains the changes
-
-### Recognition
-
-Contributors will be:
-
-- Listed in the project's README
-- Mentioned in release notes
-- Credited in the project documentation
-
----
-
-Thank you for contributing to en-git! Your efforts help make this project better for everyone. 
+When you create your Pull Request, you will be presented with a template. Please fill out the checklist in the template to help reviewers understand your changes and ensure your submission meets our guidelines.
