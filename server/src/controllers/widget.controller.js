@@ -3,45 +3,166 @@ import { ApiError } from "../utils/apiError.js";
 import Leaderboard from "../models/leaderboard.model.js";
 import { getOrGenerateWidgetCache } from "../utils/widgetCacheHelper.js";
 
-const MOCK_TROPHIES = [
-    { name: 'Gold Contributor', emoji: '🥇' },
-    { name: 'Hacktoberfest 2025', emoji: '🎃' },
-    { name: 'Top Reviewer', emoji: '👀' },
-];
+// Generate Trophy Widget with real achievements
+async function generateTrophyWidget(username, theme, customColors = {}) {
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0d1117" : "#ffffff";
+  const bgSecondary = isDark ? "#161b22" : "#f6f8fa";
+  const border = isDark ? "#30363d" : "#d0d7de";
+  const text = isDark ? "#c9d1d9" : "#24292f";
+  const subtext = isDark ? "#8b949e" : "#57606a";
+  const accent = customColors.accent || (isDark ? "#58a6ff" : "#0969da");
+  const success = customColors.success || (isDark ? "#3fb950" : "#1a7f37");
+  const purple = customColors.purple || (isDark ? "#a855f7" : "#9333ea");
 
-// Generate Trophy Widget
-function generateTrophyWidget(userData, theme, customColors = {}) {
-    const isDark = theme === 'dark';
-    const accentColor = customColors.accent || (isDark ? '#58a6ff' : '#0969da');
-    const backgroundColor = isDark ? '#1a1a1a' : '#fff';
-    const textColor = isDark ? '#fff' : '#000';
+  // Get user data from leaderboard
+  const userData = await Leaderboard.findOne({ username }).lean();
+  if (!userData) {
+    return generateNotFoundSvg(username, theme);
+  }
 
-    // --- MOCK DATA FRAMEWORK ---
-    let trophiesHtml = MOCK_TROPHIES.map((trophy, index) => {
-        const xPos = 50 + (index * 100); 
-        return `
-            <text x='${xPos}' y='80' fill='${accentColor}' text-anchor='middle' font-size='30'>
-                ${trophy.emoji}
-            </text>
-            <text x='${xPos}' y='110' fill='${textColor}' text-anchor='middle' font-size='10'>
-                ${escapeXml(trophy.name)}
-            </text>
+  // Get insights data for more detailed achievements
+  const insights = await getOrGenerateWidgetCache(username);
+
+  // Calculate trophies based on real achievements
+  const trophies = [];
+
+  // Score-based trophies
+  if (userData.score >= 90) {
+    trophies.push({ name: "Elite Developer", emoji: "🏆", color: "#FFD700" });
+  } else if (userData.score >= 80) {
+    trophies.push({ name: "Expert Coder", emoji: "🥇", color: accent });
+  } else if (userData.score >= 70) {
+    trophies.push({ name: "Advanced Dev", emoji: "🥈", color: "#C0C0C0" });
+  } else if (userData.score >= 60) {
+    trophies.push({ name: "Skilled Coder", emoji: "🥉", color: "#CD7F32" });
+  }
+
+  // Stars-based trophies
+  if (userData.totalStars >= 1000) {
+    trophies.push({ name: "Star Collector", emoji: "⭐", color: "#FFD700" });
+  } else if (userData.totalStars >= 500) {
+    trophies.push({ name: "Rising Star", emoji: "🌟", color: accent });
+  } else if (userData.totalStars >= 100) {
+    trophies.push({ name: "Star Gazer", emoji: "✨", color: purple });
+  }
+
+  // Repos-based trophies
+  if (userData.publicRepos >= 50) {
+    trophies.push({ name: "Prolific Creator", emoji: "🚀", color: success });
+  } else if (userData.publicRepos >= 20) {
+    trophies.push({ name: "Active Builder", emoji: "🔨", color: accent });
+  }
+
+  // Followers-based trophies
+  if (userData.followers >= 1000) {
+    trophies.push({ name: "Influencer", emoji: "👥", color: purple });
+  } else if (userData.followers >= 500) {
+    trophies.push({ name: "Community Leader", emoji: "🎯", color: accent });
+  } else if (userData.followers >= 100) {
+    trophies.push({ name: "Popular Dev", emoji: "👋", color: success });
+  }
+
+  // Language diversity trophy
+  if (insights && insights.languages && insights.languages.percentages) {
+    const langCount = insights.languages.percentages.length;
+    if (langCount >= 10) {
+      trophies.push({ name: "Polyglot", emoji: "🌐", color: purple });
+    } else if (langCount >= 5) {
+      trophies.push({ name: "Multi-Lingual", emoji: "💬", color: accent });
+    }
+  }
+
+  // Activity trophy
+  if (insights && insights.weekly && insights.weekly.length > 0) {
+    const recentWeeks = insights.weekly.slice(0, 4);
+    const avgActivity = recentWeeks.reduce((sum, [, count]) => sum + count, 0) / recentWeeks.length;
+    if (avgActivity >= 50) {
+      trophies.push({ name: "Super Active", emoji: "🔥", color: "#FF4500" });
+    } else if (avgActivity >= 20) {
+      trophies.push({ name: "Consistent", emoji: "📈", color: success });
+    }
+  }
+
+  // Grade-based trophy
+  if (userData.grade === "A") {
+    trophies.push({ name: "Grade A", emoji: "💎", color: "#00CED1" });
+  }
+
+  // Domain expertise trophy
+  if (insights && insights.domain && insights.domain.domain) {
+    const primaryDomain = insights.domain.domain;
+    const domainScore = insights.domain.scores[primaryDomain] || 0;
+    if (domainScore >= 80) {
+      trophies.push({ name: "Domain Expert", emoji: "🎓", color: purple });
+    }
+  }
+
+  // If no trophies earned yet, show encouragement
+  if (trophies.length === 0) {
+    trophies.push({ name: "Getting Started", emoji: "🌱", color: success });
+  }
+
+  // Limit to top 6 trophies
+  const displayTrophies = trophies.slice(0, 6);
+
+  // Calculate layout
+  const trophiesPerRow = Math.min(displayTrophies.length, 3);
+  const rows = Math.ceil(displayTrophies.length / trophiesPerRow);
+  const spacing = 100;
+  const startX = 175 - ((trophiesPerRow - 1) * spacing) / 2;
+  const startY = 70;
+
+  const trophiesHtml = displayTrophies
+    .map((trophy, index) => {
+      const row = Math.floor(index / trophiesPerRow);
+      const col = index % trophiesPerRow;
+      const xPos = startX + col * spacing;
+      const yPos = startY + row * 70;
+
+      return `
+            <g>
+                <circle cx='${xPos}' cy='${yPos}' r='25' fill='${trophy.color}' opacity='0.15'/>
+                <text x='${xPos}' y='${yPos + 10}' fill='${trophy.color}' text-anchor='middle' font-size='32'>
+                    ${trophy.emoji}
+                </text>
+                <text x='${xPos}' y='${yPos + 35}' fill='${text}' text-anchor='middle' font-size='10' font-weight='500' font-family='system-ui'>
+                    ${escapeXml(trophy.name)}
+                </text>
+            </g>
         `;
-    }).join('');
-    return `
-<svg width='350' height='150' viewBox='0 0 350 150' fill='none' xmlns='http://www.w3.org/2000/svg'>
-    <rect width='350' height='150' fill='${backgroundColor}' rx='6' />
+    })
+    .join("");
 
-    <text x='175' y='30' fill='${textColor}' text-anchor='middle' font-weight='bold' font-size='16'>
+  const height = 150 + (rows - 1) * 70;
+
+  return `
+<svg width='350' height='${height}' viewBox='0 0 350 ${height}' xmlns='http://www.w3.org/2000/svg'>
+    <defs>
+        <linearGradient id='trophyGrad' x1='0%' y1='0%' x2='100%' y2='100%'>
+            <stop offset='0%' style='stop-color:${accent};stop-opacity:0.1' />
+            <stop offset='100%' style='stop-color:${purple};stop-opacity:0.05' />
+        </linearGradient>
+    </defs>
+    
+    <rect width='350' height='${height}' fill='${bg}' rx='8'/>
+    <rect width='350' height='${height}' fill='url(#trophyGrad)' rx='8'/>
+    <rect width='350' height='${height}' fill='none' stroke='${border}' stroke-width='1' rx='8'/>
+
+    <text x='175' y='30' fill='${text}' text-anchor='middle' font-weight='700' font-size='16' font-family='system-ui'>
         ${escapeXml(userData.username)}'s Achievements
     </text>
 
-    <g transform="translate(0, 30)">
+    <text x='175' y='48' fill='${subtext}' text-anchor='middle' font-size='11' font-family='system-ui'>
+        ${displayTrophies.length} ${displayTrophies.length === 1 ? "trophy" : "trophies"} earned
+    </text>
+
+    <g transform='translate(0, 10)'>
         ${trophiesHtml}
     </g>
 
-    <text x='175' y='140' fill='${accentColor}' text-anchor='middle' font-size='10'>
-        Framework Implemented - Ready for Data Hookup
+    <text x='175' y='${height - 10}' fill='${subtext}' text-anchor='middle' font-size='8' font-family='system-ui' opacity='0.7'>
+        powered by en-git
     </text>
 </svg>`;
 }
@@ -130,7 +251,7 @@ export const generateWidget = asyncHandler(async (req, res) => {
       svg = await generateScoreWidget(username, theme, customColors);
       break;
     case "trophy":
-      svg = generateTrophyWidget(userData, theme, customColors);
+      svg = await generateTrophyWidget(username, theme, customColors);
       break;
     case "repo":
       // For repo widget, get repo from query parameter
@@ -214,12 +335,13 @@ function generateCardWidget(user, theme, customColors = {}) {
       </text>
       
       <!-- Top Language -->
-      ${user.topLanguage
-      ? `<text x="20" y="168" fill="${accent}" font-size="10" font-family="system-ui, -apple-system, sans-serif">
+      ${
+        user.topLanguage
+          ? `<text x="20" y="168" fill="${accent}" font-size="10" font-family="system-ui, -apple-system, sans-serif">
         ⚡ ${escapeXml(user.topLanguage)}
       </text>`
-      : ""
-    }
+          : ""
+      }
       
       <!-- Powered by -->
       <text x="250" y="172" fill="${subtext}" font-size="8" font-family="system-ui, -apple-system, sans-serif">
@@ -474,15 +596,16 @@ function generateFullWidget(user, theme, customColors = {}) {
       </g>
       
       <!-- Top Language Badge -->
-      ${user.topLanguage
-      ? `<g transform="translate(20, 170)">
+      ${
+        user.topLanguage
+          ? `<g transform="translate(20, 170)">
         <rect width="120" height="20" fill="${accent}" fill-opacity="0.1" rx="10"/>
         <text x="60" y="14" fill="${accent}" font-size="11" font-weight="600" font-family="system-ui" text-anchor="middle">
           ${escapeXml(user.topLanguage)}
         </text>
       </g>`
-      : ""
-    }
+          : ""
+      }
       
       <!-- Branding -->
       <text x="470" y="185" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="end">
@@ -534,12 +657,13 @@ function generateCompactWidget(user, theme) {
         <text x="0" y="22" fill="${subtext}" font-size="11" font-family="system-ui">
           ${user.publicRepos} repos • ${user.totalStars} stars • Rank #${user.rank || "N/A"}
         </text>
-        ${user.topLanguage
-      ? `<text x="0" y="40" fill="${accent}" font-size="10" font-family="system-ui">
+        ${
+          user.topLanguage
+            ? `<text x="0" y="40" fill="${accent}" font-size="10" font-family="system-ui">
           ${escapeXml(user.topLanguage)}
         </text>`
-      : ""
-    }
+            : ""
+        }
       </g>
       
       <text x="330" y="92" fill="${subtext}" font-size="8" font-family="system-ui" text-anchor="end">
@@ -629,12 +753,12 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
       <!-- Pie Chart with shadow -->
       <g filter="url(#shadow)">
         ${pieSlices
-      .map(
-        (slice) => `
+          .map(
+            (slice) => `
           <path d="${slice.path}" fill="${slice.color}" opacity="0.95"/>
         `
-      )
-      .join("")}
+          )
+          .join("")}
         <circle cx="${centerX}" cy="${centerY}" r="55" fill="${bg}"/>
       </g>
       
@@ -648,8 +772,8 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
       
       <!-- Legend with bars -->
       ${pieSlices
-      .map(
-        (slice, idx) => `
+        .map(
+          (slice, idx) => `
         <g transform="translate(330, ${70 + idx * 40})">
           <rect width="24" height="24" fill="${slice.color}" rx="6" opacity="0.9"/>
           <text x="34" y="17" fill="${text}" font-size="15" font-weight="500" font-family="system-ui">
@@ -661,8 +785,8 @@ async function generateLanguageChartWidget(username, theme, customColors = {}) {
           </text>
         </g>
       `
-      )
-      .join("")}
+        )
+        .join("")}
       
       <text x="250" y="308" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle" opacity="0.7">
         powered by en-git
@@ -780,11 +904,11 @@ async function generateYearlyContributionWidget(username, theme, customColors = 
       
       <!-- Grid lines -->
       ${[0, 1, 2, 3, 4]
-      .map((i) => {
-        const y = startY + (i * chartHeight) / 4;
-        return `<line x1="${startX}" y1="${y}" x2="${startX + chartWidth}" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.2" stroke-dasharray="5,5"/>`;
-      })
-      .join("")}
+        .map((i) => {
+          const y = startY + (i * chartHeight) / 4;
+          return `<line x1="${startX}" y1="${y}" x2="${startX + chartWidth}" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.2" stroke-dasharray="5,5"/>`;
+        })
+        .join("")}
       
       <!-- Area fill -->
       <path d="${areaPath}" fill="url(#areaGrad)"/>
@@ -794,24 +918,24 @@ async function generateYearlyContributionWidget(username, theme, customColors = 
       
       <!-- Data points -->
       ${points
-      .map(
-        (point, idx) => `
+        .map(
+          (point, idx) => `
         <circle cx="${point.x}" cy="${point.y}" r="5" fill="${bg}" stroke="url(#lineGrad)" stroke-width="3" filter="url(#glow)">
           <title>Week ${idx + 1}: ${point.value} contributions</title>
         </circle>
       `
-      )
-      .join("")}
+        )
+        .join("")}
       
       <!-- Week labels -->
       ${points
-      .map((point, idx) => {
-        if (idx % 2 === 0 || weeks.length <= 6) {
-          return `<text x="${point.x}" y="${startY + chartHeight + 20}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">W${idx + 1}</text>`;
-        }
-        return "";
-      })
-      .join("")}
+        .map((point, idx) => {
+          if (idx % 2 === 0 || weeks.length <= 6) {
+            return `<text x="${point.x}" y="${startY + chartHeight + 20}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">W${idx + 1}</text>`;
+          }
+          return "";
+        })
+        .join("")}
       
       <!-- Y-axis labels -->
       <text x="${startX - 10}" y="${startY + 5}" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
@@ -895,35 +1019,36 @@ async function generateCommitTimesWidget(username, theme, customColors = {}) {
       
       <!-- Grid lines -->
       ${[0, 1, 2, 3, 4]
-      .map((i) => {
-        const y = 80 + i * 40;
-        return `<line x1="40" y1="${y}" x2="660" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.3" stroke-dasharray="5,5"/>`;
-      })
-      .join("")}
+        .map((i) => {
+          const y = 80 + i * 40;
+          return `<line x1="40" y1="${y}" x2="660" y2="${y}" stroke="${border}" stroke-width="1" opacity="0.3" stroke-dasharray="5,5"/>`;
+        })
+        .join("")}
       
       <!-- Bars -->
       ${hourlyData
-      .map((data, idx) => {
-        const height = Math.max((data.commits / maxCommits) * 140, 2);
-        const x = 45 + idx * 26;
-        const y = 240 - height;
-        const barWidth = 22;
+        .map((data, idx) => {
+          const height = Math.max((data.commits / maxCommits) * 140, 2);
+          const x = 45 + idx * 26;
+          const y = 240 - height;
+          const barWidth = 22;
 
-        return `
+          return `
           <g filter="url(#barGlow)">
             <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" fill="url(#commitGrad)" rx="3" opacity="0.85"/>
           </g>
-          ${idx % 3 === 0
-            ? `
+          ${
+            idx % 3 === 0
+              ? `
             <text x="${x + barWidth / 2}" y="260" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="middle">
               ${data.hour}:00
             </text>
           `
-            : ""
+              : ""
           }
         `;
-      })
-      .join("")}
+        })
+        .join("")}
       
       <!-- Y-axis labels -->
       <text x="30" y="85" fill="${subtext}" font-size="10" font-family="system-ui" text-anchor="end">
@@ -1061,14 +1186,14 @@ async function generateSkillsWidget(username, theme, customColors = {}) {
       
       <!-- Data points -->
       ${radarPoints
-      .map(
-        (p) => `
+        .map(
+          (p) => `
         <circle cx="${p.x}" cy="${p.y}" r="6" fill="${bg}" stroke="${accent}" stroke-width="3" filter="url(#skillGlow)">
           <title>${p.domain}: ${p.score.toFixed(1)}</title>
         </circle>
       `
-      )
-      .join("")}
+        )
+        .join("")}
       
       <!-- Labels -->
       ${labels}
@@ -1168,11 +1293,11 @@ async function generateScoreWidget(username, theme, customColors = {}) {
       
       <!-- Breakdown Bars -->
       ${breakdown
-      .map((item, idx) => {
-        const y = startY + idx * barSpacing;
-        const fillWidth = (item.value / 100) * barWidth;
+        .map((item, idx) => {
+          const y = startY + idx * barSpacing;
+          const fillWidth = (item.value / 100) * barWidth;
 
-        return `
+          return `
           <g>
             <!-- Background bar -->
             <rect x="${startX}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${border}" opacity="0.3" rx="10"/>
@@ -1191,8 +1316,8 @@ async function generateScoreWidget(username, theme, customColors = {}) {
             </text>
           </g>
         `;
-      })
-      .join("")}
+        })
+        .join("")}
       
       <text x="300" y="410" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
         powered by en-git
@@ -1416,11 +1541,11 @@ async function generateRepoWidget(repoPath, theme, customColors = {}) {
         
         <!-- Breakdown Bars -->
         ${breakdown
-        .map((item, idx) => {
-          const y = startY + idx * barSpacing;
-          const fillWidth = (item.value / 100) * barWidth;
+          .map((item, idx) => {
+            const y = startY + idx * barSpacing;
+            const fillWidth = (item.value / 100) * barWidth;
 
-          return `
+            return `
             <g>
               <!-- Background bar -->
               <rect x="${startX}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${border}" opacity="0.3" rx="10"/>
@@ -1439,8 +1564,8 @@ async function generateRepoWidget(repoPath, theme, customColors = {}) {
               </text>
             </g>
           `;
-        })
-        .join("")}
+          })
+          .join("")}
         
         <text x="350" y="540" fill="${subtext}" font-size="9" font-family="system-ui" text-anchor="middle" opacity="0.7">
           powered by en-git
