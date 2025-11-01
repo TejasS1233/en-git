@@ -63,6 +63,7 @@ import { ContributionHeatmap } from "@/components/ContributionHeatmap";
 import ProfileScore from "@/components/ProfileScore";
 import { ProfileAnalysisTips } from "@/components/AnalysisTips";
 import UnlockedAchievements from "@/components/UnlockedAchievements";
+import { SignupPrompt } from "@/components/SignupPrompt";
 import {
   generateTweetText,
   copyToClipboard,
@@ -119,6 +120,10 @@ export default function GitHubInsightsPage() {
   const [comparison, setComparison] = useState(null);
   const [trends, setTrends] = useState(null);
   const [progressReport, setProgressReport] = useState(null);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+
+  // Check if user is logged in
+  const isLoggedIn = !!localStorage.getItem("token");
 
   useEffect(() => {
     setBookmarks(getBookmarks());
@@ -168,6 +173,11 @@ export default function GitHubInsightsPage() {
 
       // Load historical data
       loadHistoricalData(user);
+
+      // Show signup prompt after 3 seconds if not logged in
+      if (!isLoggedIn) {
+        setTimeout(() => setShowSignupPrompt(true), 3000);
+      }
 
       toast.success("Insights loaded!");
     } catch (err) {
@@ -663,6 +673,11 @@ export default function GitHubInsightsPage() {
           </>
         )}
       </div>
+
+      {/* Signup Prompt for non-logged-in users */}
+      {showSignupPrompt && !isLoggedIn && (
+        <SignupPrompt onClose={() => setShowSignupPrompt(false)} />
+      )}
     </div>
   );
 }

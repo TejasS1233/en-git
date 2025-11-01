@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { useChatbot } from "@/context/ChatbotContext";
 import { ModeToggle } from "@/components/ModeToggle";
 import { NAV_LINKS } from "@/config/nav";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Settings, LayoutDashboard, User } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, User, HelpCircle } from "lucide-react";
 import { NavigationSheet } from "./navigation-sheet";
 import { Logo } from "@/components/Logo";
 
@@ -22,6 +23,7 @@ export default function Navbar() {
   const [activePath, setActivePath] = useState(pathname);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { openChatbot } = useChatbot();
 
   useEffect(() => {
     setActivePath(pathname);
@@ -50,10 +52,7 @@ export default function Navbar() {
 
   return (
     <div className="flex justify-center w-full fixed top-0 left-0 right-0 z-999 bg-background border-b border-border px-3 sm:px-6">
-      <nav
-        id="main-nav"
-        className="z-1000 w-full max-w-6xl h-16"
-      >
+      <nav id="main-nav" className="z-1000 w-full max-w-6xl h-16">
         <div className="flex items-center justify-between p-3">
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Logo />
@@ -73,10 +72,11 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to={item.href}
-                    className={`transition-colors ${activePath === item.href
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                      }`}
+                    className={`transition-colors ${
+                      activePath === item.href
+                        ? "text-foreground font-medium"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
                   >
                     {item.label}
                   </Link>
@@ -85,6 +85,15 @@ export default function Navbar() {
             ))}
           </ul>
           <div className="flex items-center gap-2 sm:gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={openChatbot}
+              className="h-9 w-9"
+              title="Need help?"
+            >
+              <HelpCircle className="h-5 w-5" />
+            </Button>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

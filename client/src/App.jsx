@@ -7,6 +7,7 @@ import Navbar from "@/components/blocks/Navbar/Navbar";
 import Footer from "@/components/Footer";
 import ChatBotButton from "@/components/ChatBotButton";
 import { Toaster } from "sonner";
+import { ChatbotProvider } from "@/context/ChatbotContext";
 
 // PAGES
 
@@ -44,28 +45,30 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<GitHubInsights />} />
-          <Route path="/stats/:username" element={<GitHubInsights />} />
-          <Route path="/compare" element={<CompareUsers />} />
-          <Route path="/compare/:user1/:user2" element={<CompareUsers />} />
-          <Route path="/repo" element={<RepositoryDeepDive />} />
-          <Route path="/repo/:owner/:repo" element={<RepositoryDeepDive />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/widgets" element={<WidgetGenerator />} />
-          <Route path="/user-profile/:id" element={<UserProfile />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/contact" element={<ContactUs />} />
-        </Routes>
-        <SpeedInsights />
-        <Analytics />
-      </Layout>
-    </Router>
+    <ChatbotProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<GitHubInsights />} />
+            <Route path="/stats/:username" element={<GitHubInsights />} />
+            <Route path="/compare" element={<CompareUsers />} />
+            <Route path="/compare/:user1/:user2" element={<CompareUsers />} />
+            <Route path="/repo" element={<RepositoryDeepDive />} />
+            <Route path="/repo/:owner/:repo" element={<RepositoryDeepDive />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/widgets" element={<WidgetGenerator />} />
+            <Route path="/user-profile/:id" element={<UserProfile />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/contact" element={<ContactUs />} />
+          </Routes>
+          <SpeedInsights />
+          <Analytics />
+        </Layout>
+      </Router>
+    </ChatbotProvider>
   );
 }
 

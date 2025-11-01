@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { MessageCircle, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useChatbot } from "@/context/ChatbotContext";
 
 const ChatBotButton = () => {
   const navigate = useNavigate();
+  const { isChatbotOpen, closeChatbot } = useChatbot();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
   const suggestedPrompts = [
@@ -177,7 +178,7 @@ const ChatBotButton = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
+    if (isChatbotOpen && messages.length === 0) {
       setMessages([
         {
           from: "bot",
@@ -185,30 +186,26 @@ const ChatBotButton = () => {
         },
       ]);
     }
-  }, [isOpen]);
+  }, [isChatbotOpen]);
+
+  // Don't render if not open
+  if (!isChatbotOpen) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 hidden sm:block">
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button className="rounded-full h-14 w-14 p-0 shadow-lg cursor-pointer">
-            <MessageCircle className="w-6 h-6" />
-          </Button>
-        </PopoverTrigger>
+    <>
+      {/* Backdrop - minimal blur only */}
+      <div className="fixed inset-0 backdrop-blur-[2px] z-[9998]" onClick={closeChatbot} />
 
-        <PopoverContent
-          side="top"
-          align="end"
-          sideOffset={16}
-          className="w-[90vw] max-w-[450px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-xl z-9999"
-        >
+      {/* Chatbot Card */}
+      <div className="fixed bottom-6 right-6 z-[9999] animate-in slide-in-from-bottom-4 duration-300">
+        <div className="w-[90vw] max-w-[450px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-2xl border bg-background">
           <div className="border-b px-5 py-2.5 text-sm font-semibold flex justify-between items-center">
             Nexus Assistant
             <Button
               variant="ghost"
               size="icon"
               className="h-6 w-6 text-[18px] cursor-pointer"
-              onClick={() => setIsOpen(false)}
+              onClick={closeChatbot}
             >
               &times;
             </Button>
@@ -218,10 +215,11 @@ const ChatBotButton = () => {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`px-4 py-2.5 rounded-lg max-w-[85%] whitespace-pre-wrap ${msg.from === "user"
-                  ? "ml-auto bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground"
-                  }`}
+                className={`px-4 py-2.5 rounded-lg max-w-[85%] whitespace-pre-wrap ${
+                  msg.from === "user"
+                    ? "ml-auto bg-primary text-primary-foreground"
+                    : "bg-muted text-foreground"
+                }`}
               >
                 {msg.text}
               </div>
@@ -276,9 +274,9 @@ const ChatBotButton = () => {
               </Button>
             </form>
           </div>
-        </PopoverContent>
-      </Popover>
-    </div>
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "@/lib/axios";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
 import LockedAchievements from "@/components/LockedAchievements";
+import { GitHubUsernameBanner } from "@/components/GitHubUsernameBanner";
 
 export default function UserProfile() {
   const { id } = useParams();
@@ -18,6 +19,7 @@ export default function UserProfile() {
   const [formData, setFormData] = useState({});
   const [uploading, setUploading] = useState(false);
   const [minting, setMinting] = useState(false);
+  const githubUsernameRef = useRef(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -174,6 +176,19 @@ export default function UserProfile() {
         </div>
       </div>
 
+      {/* GitHub Username Banner */}
+      {!user.githubUsername && (
+        <GitHubUsernameBanner
+          onAddUsername={() => {
+            setEditMode(true);
+            setTimeout(() => {
+              githubUsernameRef.current?.focus();
+              githubUsernameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 100);
+          }}
+        />
+      )}
+
       {/* Account Overview Section */}
       <div className="border rounded-lg p-6 bg-background shadow-sm">
         <h3 className="text-lg font-medium mb-4">Account Overview</h3>
@@ -229,11 +244,15 @@ export default function UserProfile() {
           <div>
             <Label>GitHub Username</Label>
             <Input
+              ref={githubUsernameRef}
               name="githubUsername"
               value={formData.githubUsername || ""}
               onChange={handleChange}
               disabled={!editMode || !!user.githubId}
               placeholder={user.githubId ? "Auto-filled from GitHub" : "Enter your GitHub username"}
+              className={
+                !user.githubUsername && editMode ? "ring-2 ring-orange-500 ring-offset-2" : ""
+              }
             />
             {user.githubId && (
               <p className="text-xs text-muted-foreground mt-1">✓ Verified via GitHub OAuth</p>
