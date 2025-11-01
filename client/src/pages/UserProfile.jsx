@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
+import LockedAchievements from "@/components/LockedAchievements";
 
 export default function UserProfile() {
   const { id } = useParams();
@@ -377,6 +378,9 @@ export default function UserProfile() {
           </div>
         </div>
       </div>
+
+      {/* Locked Achievements Section */}
+      {user?.githubUsername && <LockedAchievements username={user.githubUsername} />}
 
       {/* Credential Badges Section */}
       {user?.credentialBadges?.length ? (

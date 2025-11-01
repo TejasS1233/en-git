@@ -12,7 +12,6 @@ import { Toaster } from "sonner";
 
 import Login from "@/pages/Login";
 import SignUp from "@/pages/SignUp";
-import Dashboard from "@/pages/Dashboard";
 import GitHubInsights from "@/pages/GitHubInsights";
 import CompareUsers from "@/pages/CompareUsers";
 import RepositoryDeepDive from "@/pages/RepositoryDeepDive";
@@ -59,7 +58,6 @@ function App() {
           <Route path="/user-profile/:id" element={<UserProfile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/contact" element={<ContactUs />} />

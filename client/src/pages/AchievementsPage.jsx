@@ -9,14 +9,20 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useParams } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import Achievements from "@/components/Achievements";
+import { useAuth } from "@/context/AuthContext";
 
-export default function Page() {
-  usePageTitle("Dashboard");
-
+export default function AchievementsPage() {
+  usePageTitle("Achievements");
+  const { user } = useAuth();
+  const { username: urlUsername } = useParams();
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
+
+  // Get GitHub username from URL params or user data
+  const githubUsername = urlUsername || user?.githubUsername || user?.username;
 
   return (
     <SidebarProvider>
@@ -54,7 +60,17 @@ export default function Page() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0"></div>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          {githubUsername ? (
+            <Achievements username={githubUsername} />
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500">
+                Please connect your GitHub account to view achievements
+              </p>
+            </div>
+          )}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

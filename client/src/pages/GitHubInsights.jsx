@@ -55,7 +55,6 @@ import {
 } from "@/lib/localStorage";
 import { exportToPDF } from "@/lib/pdfExport";
 import { AIInsights } from "@/components/AIInsights";
-import { GamificationBadges } from "@/components/GamificationBadges";
 import { SkillRadarChart } from "@/components/SkillRadarChart";
 import { TechStackBadges } from "@/components/TechStackBadges";
 import { LearningRecommendations } from "@/components/LearningRecommendations";
@@ -63,6 +62,7 @@ import { ShareCard } from "@/components/ShareCard";
 import { ContributionHeatmap } from "@/components/ContributionHeatmap";
 import ProfileScore from "@/components/ProfileScore";
 import { ProfileAnalysisTips } from "@/components/AnalysisTips";
+import UnlockedAchievements from "@/components/UnlockedAchievements";
 import {
   generateTweetText,
   copyToClipboard,
@@ -553,7 +553,7 @@ export default function GitHubInsightsPage() {
                   <TopicsCloud topics={insights.topics} />
                   <CommitTimingChart commitTimes={insights.commitTimes} />
                 </div>
-                <GamificationBadges insights={insights} />
+                <UnlockedAchievements username={username} />
                 {recommendations && <RecommendationsSection recommendations={recommendations} />}
               </TabsContent>
 
