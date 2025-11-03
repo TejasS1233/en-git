@@ -31,24 +31,40 @@ export const getUserInsights = asyncHandler(async (req, res) => {
     throw new ApiError(400, "username is required");
   }
 
+  console.log("\n🔍 ===== GET USER INSIGHTS CONTROLLER =====");
+  console.log("📍 Requested username:", username);
+  console.log("👤 req.user exists:", !!req.user);
+
+  if (req.user) {
+    console.log("👤 Authenticated user details:");
+    console.log("   - ID:", req.user._id);
+    console.log("   - Email:", req.user.email);
+    console.log("   - GitHub Username:", req.user.githubUsername || "NOT SET");
+    console.log("   - GitHub ID:", req.user.githubId || "NOT SET");
+    console.log("   - Has GitHub Token:", !!req.user.githubAccessToken);
+    console.log("   - Token length:", req.user.githubAccessToken?.length || 0);
+  } else {
+    console.log("👤 No authenticated user (anonymous request)");
+  }
+
   try {
     // Check if authenticated user is viewing their own profile
     const isOwnProfile = req.user && req.user.githubUsername === username;
     const userToken = isOwnProfile ? req.user.githubAccessToken : null;
 
-    // Debug logging
-    console.log("🔍 getUserInsights Debug:");
-    console.log("  - Requested username:", username);
-    console.log("  - Authenticated user:", req.user?.githubUsername || "none");
-    console.log("  - Is own profile:", isOwnProfile);
-    console.log("  - Has user token:", !!userToken);
+    console.log("\n🔐 AUTHENTICATION CHECK:");
+    console.log("   - Is own profile:", isOwnProfile);
+    console.log("   - Comparison:", req.user?.githubUsername, "===", username);
+    console.log("   - Will use user token:", !!userToken);
+    console.log("   - Token to use:", userToken ? `${userToken.substring(0, 10)}...` : "NONE");
 
     const [user, userLastUpdated] = await fetchUser(username);
     const [allRepos, reposLastUpdated] = await fetchUserRepos(username, 100, false, userToken);
 
-    console.log("  - Total repos fetched:", allRepos?.length || 0);
-    console.log("  - Private repos:", allRepos?.filter((r) => r.private).length || 0);
-    console.log("  - Public repos:", allRepos?.filter((r) => !r.private).length || 0);
+    console.log("\n📊 REPOS FETCHED:");
+    console.log("   - Total repos:", allRepos?.length || 0);
+    console.log("   - Private repos:", allRepos?.filter((r) => r.private).length || 0);
+    console.log("   - Public repos:", allRepos?.filter((r) => !r.private).length || 0);
 
     // Filter out private repos for public insights
     // Private repos are only included if the user is authenticated and viewing their own profile

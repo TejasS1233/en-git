@@ -44,13 +44,16 @@ router.get(
   (req, res) => {
     if (!req.user) return res.redirect("/login");
     const token = generateAccessToken(req.user);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+
     res
-      .cookie("accessToken", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 24 * 60 * 60 * 1000,
-      })
+      .cookie("accessToken", token, cookieOptions)
       .redirect(`${process.env.CLIENT_URL}/auth/callback`);
   }
 );
@@ -70,13 +73,16 @@ router.get(
   (req, res) => {
     if (!req.user) return res.redirect("/login");
     const token = generateAccessToken(req.user);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+
     res
-      .cookie("accessToken", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 24 * 60 * 60 * 1000,
-      })
+      .cookie("accessToken", token, cookieOptions)
       .redirect(`${process.env.CLIENT_URL}/auth/callback`);
   }
 );

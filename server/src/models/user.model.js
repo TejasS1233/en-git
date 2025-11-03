@@ -119,6 +119,10 @@ userSchema.pre("save", async function (next) {
 
 // Compare password
 userSchema.methods.isPasswordCorrect = async function (password) {
+  // If user has no password (OAuth user), return false
+  if (!this.password) {
+    return false;
+  }
   return await bcrypt.compare(password, this.password);
 };
 

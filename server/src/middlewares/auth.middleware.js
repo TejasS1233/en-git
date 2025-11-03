@@ -35,35 +35,51 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 });
 
 // Optional JWT verification - doesn't throw error if no token
-export const optionalJWT = asyncHandler(async (req, res, next) => {
-  try {
-    const token =
-      req.cookies?.accessToken || req.headers["authorization"]?.replace("Bearer", "").trim();
+export const optionalJWT = async (req, res, next) => {
+  console.log("\n🔐 ===== OPTIONAL JWT MIDDLEWARE =====");
+  console.log("📍 Request URL:", req.originalUrl);
+  console.log("📍 Request Method:", req.method);
 
-    console.log("🔐 optionalJWT Debug:");
-    console.log("  - Has cookie token:", !!req.cookies?.accessToken);
-    console.log("  - Has auth header:", !!req.headers["authorization"]);
-    console.log("  - Token found:", !!token);
+  try {
+    const cookieToken = req.cookies?.accessToken;
+    const headerToken = req.headers["authorization"]?.replace("Bearer ", "");
+    const token = cookieToken || headerToken;
+
+    console.log("🍪 Cookie token exists:", !!cookieToken);
+    console.log("📨 Header token exists:", !!headerToken);
+    console.log("🎫 Final token exists:", !!token);
 
     if (token) {
+      console.log("🔓 Attempting to verify token...");
       const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      console.log("✅ Token verified! User ID:", decodedToken._id);
+
       const user = await User.findById(decodedToken?._id).select(
         "-password -refreshToken +githubAccessToken"
       );
 
       if (user) {
-        console.log("  - User found:", user.githubUsername || user.email);
-        console.log("  - Has GitHub token:", !!user.githubAccessToken);
+        console.log("👤 User found in database:");
+        console.log("   - ID:", user._id);
+        console.log("   - Email:", user.email);
+        console.log("   - GitHub Username:", user.githubUsername || "NOT SET");
+        console.log("   - GitHub ID:", user.githubId || "NOT SET");
+        console.log("   - Has GitHub Access Token:", !!user.githubAccessToken);
+        console.log("   - Token length:", user.githubAccessToken?.length || 0);
         req.user = user;
+        console.log("✅ req.user SET successfully");
       } else {
-        console.log("  - User not found in database");
+        console.log("❌ User NOT found in database for ID:", decodedToken._id);
       }
     } else {
-      console.log("  - No token provided (anonymous request)");
+      console.log("ℹ️  No token provided - anonymous request");
     }
   } catch (error) {
-    // Silently fail - this is optional auth
-    console.log("  - Optional JWT verification failed:", error.message);
+    console.log("⚠️  Optional JWT verification failed:", error.message);
+    console.log("   Error type:", error.name);
   }
+
+  console.log("🏁 Middleware complete. req.user exists:", !!req.user);
+  console.log("===== END OPTIONAL JWT =====\n");
   next();
-});
+};

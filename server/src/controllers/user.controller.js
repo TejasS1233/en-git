@@ -56,6 +56,15 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ $or: [{ email }, { phoneNumber }] });
   if (!user) throw new ApiError("User not found", 404);
 
+  // Check if user signed up with OAuth (no password)
+  if (!user.password && (user.googleId || user.githubId)) {
+    const provider = user.googleId ? "Google" : "GitHub";
+    throw new ApiError(
+      `This account uses ${provider} login. Please sign in with ${provider}.`,
+      400
+    );
+  }
+
   const isPassValid = await user.isPasswordCorrect(password);
   if (!isPassValid) throw new ApiError("Invalid password", 401);
 

@@ -61,6 +61,12 @@ export async function fetchUser(username, refresh = false) {
 }
 
 export async function fetchUserRepos(username, per_page = 100, refresh = false, userToken = null) {
+  console.log("\n📦 ===== FETCH USER REPOS SERVICE =====");
+  console.log("   - Username:", username);
+  console.log("   - Has user token:", !!userToken);
+  console.log("   - Token preview:", userToken ? `${userToken.substring(0, 10)}...` : "NONE");
+  console.log("   - Refresh:", refresh);
+
   const pages = [1, 2, 3];
   const limit = pLimit(2);
   const ttl = 60 * 30; // 30 minutes
@@ -69,11 +75,9 @@ export async function fetchUserRepos(username, per_page = 100, refresh = false, 
   const endpoint = userToken ? `/user/repos` : `/users/${username}/repos`;
   const cacheKey = userToken ? `repos:auth:${username}` : `repos:${username}`;
 
-  console.log("📦 fetchUserRepos Debug:");
-  console.log("  - Username:", username);
-  console.log("  - Has user token:", !!userToken);
-  console.log("  - Endpoint:", endpoint);
-  console.log("  - Cache key:", cacheKey);
+  console.log("   - Endpoint:", endpoint);
+  console.log("   - Cache key:", cacheKey);
+  console.log("   - Will fetch private repos:", !!userToken);
 
   const results = await Promise.all(
     pages.map((page) =>
