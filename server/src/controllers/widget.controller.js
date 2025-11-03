@@ -1011,7 +1011,7 @@ async function generateCommitTimesWidget(username, theme, customColors = {}) {
       <!-- Header -->
       <rect width="700" height="60" fill="${bgSecondary}" rx="12"/>
       <text x="350" y="28" fill="url(#commitGrad)" font-size="20" font-weight="700" font-family="system-ui" text-anchor="middle">
-        Commit Activity by Hour (UTC)
+        Commit Activity by Hour
       </text>
       <text x="350" y="48" fill="${subtext}" font-size="13" font-family="system-ui" text-anchor="middle">
         You're a <tspan fill="${accent}" font-weight="600">${profile}</tspan> coder

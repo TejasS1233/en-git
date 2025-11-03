@@ -75,15 +75,15 @@ export function commitTimeDistribution(events, timezoneOffset = 0) {
 }
 
 export function weeklyActivity(events, commits = []) {
-  // group by ISO week (naive: YYYY-WW)
+  // group by ISO week (using local time, not UTC)
   const map = new Map();
 
   // Process events
   for (const e of events || []) {
     const d = new Date(e.created_at);
-    const y = d.getUTCFullYear();
-    const onejan = new Date(Date.UTC(y, 0, 1));
-    const week = Math.ceil(((d - onejan) / 86400000 + onejan.getUTCDay() + 1) / 7);
+    const y = d.getFullYear(); // Use local year
+    const onejan = new Date(y, 0, 1); // Use local date
+    const week = Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7);
     const key = `${y}-W${String(week).padStart(2, "0")}`;
     map.set(key, (map.get(key) || 0) + 1);
   }
@@ -92,9 +92,9 @@ export function weeklyActivity(events, commits = []) {
   for (const c of commits || []) {
     const d = new Date(c.commit?.author?.date || c.commit?.committer?.date);
     if (!d || isNaN(d.getTime())) continue;
-    const y = d.getUTCFullYear();
-    const onejan = new Date(Date.UTC(y, 0, 1));
-    const week = Math.ceil(((d - onejan) / 86400000 + onejan.getUTCDay() + 1) / 7);
+    const y = d.getFullYear(); // Use local year
+    const onejan = new Date(y, 0, 1); // Use local date
+    const week = Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7);
     const key = `${y}-W${String(week).padStart(2, "0")}`;
     map.set(key, (map.get(key) || 0) + 1);
   }

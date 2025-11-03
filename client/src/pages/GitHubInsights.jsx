@@ -984,7 +984,7 @@ function CommitTimingChart({ commitTimes }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Commit Activity by Hour (UTC)
+            Commit Activity by Hour
           </CardTitle>
           <CardDescription>No recent commit activity found</CardDescription>
         </CardHeader>
@@ -1010,7 +1010,7 @@ function CommitTimingChart({ commitTimes }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Commit Activity by Hour (UTC)
+            Commit Activity by Hour
           </CardTitle>
           <CardDescription>No recent commit activity found</CardDescription>
         </CardHeader>
@@ -1026,7 +1026,7 @@ function CommitTimingChart({ commitTimes }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
-          Commit Activity by Hour (UTC)
+          Commit Activity by Hour
         </CardTitle>
         <CardDescription>
           You're a <Badge variant="secondary">{profile || "developer"}</Badge>

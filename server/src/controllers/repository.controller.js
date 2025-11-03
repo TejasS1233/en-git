@@ -15,13 +15,17 @@ export const getRepositoryInsights = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Check if authenticated user owns this repo
-    const isOwnRepo = req.user && req.user.githubUsername === owner;
-    const userToken = isOwnRepo ? req.user.githubAccessToken : null;
-
-    // Use user token if available, otherwise use server token
-    const token = userToken || process.env.GITHUB_TOKEN;
+    // Try user token first if logged in (works for owned repos and collaborator repos)
+    // Fall back to server token if user not logged in
+    const token = req.user?.githubAccessToken || process.env.GITHUB_TOKEN;
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    console.log("🔍 Repository Insights Debug:");
+    console.log("  - Owner:", owner);
+    console.log("  - Repo:", repo);
+    console.log("  - Logged in user:", req.user?.githubUsername || "none");
+    console.log("  - Using user token:", !!req.user?.githubAccessToken);
+    console.log("  - Token preview:", token ? `${token.substring(0, 10)}...` : "none");
 
     // Fetch repository data
     const [repoData, languages, contributors, commits, issues, pullRequests] = await Promise.all([
