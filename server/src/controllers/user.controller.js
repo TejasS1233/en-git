@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import { getCookieOptions, getClearCookieOptions } from "../utils/cookieOptions.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   const user = await User.findById(userId);
@@ -71,17 +72,10 @@ const loginUser = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
   const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  };
-
   return res
     .status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie("accessToken", accessToken, getCookieOptions())
+    .cookie("refreshToken", refreshToken, getCookieOptions())
     .json(
       new ApiResponse(200, "User logged in successfully", {
         user: loggedInUser,
@@ -95,15 +89,9 @@ const loginUser = asyncHandler(async (req, res) => {
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(req.user._id, { $set: { refreshToken: undefined } });
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  };
-
   return res
-    .clearCookie("accessToken", cookieOptions)
-    .clearCookie("refreshToken", cookieOptions)
+    .clearCookie("accessToken", getClearCookieOptions())
+    .clearCookie("refreshToken", getClearCookieOptions())
     .status(200)
     .json(new ApiResponse(200, "User logged out successfully"));
 });
@@ -120,17 +108,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  };
-
   return res
     .status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie("accessToken", accessToken, getCookieOptions())
+    .cookie("refreshToken", refreshToken, getCookieOptions())
     .json(
       new ApiResponse(200, "Access token refreshed successfully", { accessToken, refreshToken })
     );

@@ -16,6 +16,7 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 import passport from "../utils/passport.js";
 import { generateAccessToken } from "../utils/jwt.js";
+import { getCookieOptions } from "../utils/cookieOptions.js";
 
 const router = Router();
 
@@ -45,15 +46,8 @@ router.get(
     if (!req.user) return res.redirect("/login");
     const token = generateAccessToken(req.user);
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    };
-
     res
-      .cookie("accessToken", token, cookieOptions)
+      .cookie("accessToken", token, getCookieOptions())
       .redirect(`${process.env.CLIENT_URL}/auth/callback`);
   }
 );
@@ -74,15 +68,8 @@ router.get(
     if (!req.user) return res.redirect("/login");
     const token = generateAccessToken(req.user);
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    };
-
     res
-      .cookie("accessToken", token, cookieOptions)
+      .cookie("accessToken", token, getCookieOptions())
       .redirect(`${process.env.CLIENT_URL}/auth/callback`);
   }
 );
