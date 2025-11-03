@@ -36,8 +36,19 @@ export const getUserInsights = asyncHandler(async (req, res) => {
     const isOwnProfile = req.user && req.user.githubUsername === username;
     const userToken = isOwnProfile ? req.user.githubAccessToken : null;
 
+    // Debug logging
+    console.log("🔍 getUserInsights Debug:");
+    console.log("  - Requested username:", username);
+    console.log("  - Authenticated user:", req.user?.githubUsername || "none");
+    console.log("  - Is own profile:", isOwnProfile);
+    console.log("  - Has user token:", !!userToken);
+
     const [user, userLastUpdated] = await fetchUser(username);
     const [allRepos, reposLastUpdated] = await fetchUserRepos(username, 100, false, userToken);
+
+    console.log("  - Total repos fetched:", allRepos?.length || 0);
+    console.log("  - Private repos:", allRepos?.filter((r) => r.private).length || 0);
+    console.log("  - Public repos:", allRepos?.filter((r) => !r.private).length || 0);
 
     // Filter out private repos for public insights
     // Private repos are only included if the user is authenticated and viewing their own profile

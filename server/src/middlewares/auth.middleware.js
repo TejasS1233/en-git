@@ -40,6 +40,11 @@ export const optionalJWT = asyncHandler(async (req, res, next) => {
     const token =
       req.cookies?.accessToken || req.headers["authorization"]?.replace("Bearer", "").trim();
 
+    console.log("🔐 optionalJWT Debug:");
+    console.log("  - Has cookie token:", !!req.cookies?.accessToken);
+    console.log("  - Has auth header:", !!req.headers["authorization"]);
+    console.log("  - Token found:", !!token);
+
     if (token) {
       const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       const user = await User.findById(decodedToken?._id).select(
@@ -47,12 +52,18 @@ export const optionalJWT = asyncHandler(async (req, res, next) => {
       );
 
       if (user) {
+        console.log("  - User found:", user.githubUsername || user.email);
+        console.log("  - Has GitHub token:", !!user.githubAccessToken);
         req.user = user;
+      } else {
+        console.log("  - User not found in database");
       }
+    } else {
+      console.log("  - No token provided (anonymous request)");
     }
   } catch (error) {
     // Silently fail - this is optional auth
-    console.log("Optional JWT verification failed:", error.message);
+    console.log("  - Optional JWT verification failed:", error.message);
   }
   next();
 });

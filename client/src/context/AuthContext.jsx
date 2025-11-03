@@ -28,7 +28,13 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
+      // Clear user state
       setUser(null);
+      // Clear any localStorage items
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     }
   }, []);
 

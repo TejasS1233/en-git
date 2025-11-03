@@ -69,6 +69,12 @@ export async function fetchUserRepos(username, per_page = 100, refresh = false, 
   const endpoint = userToken ? `/user/repos` : `/users/${username}/repos`;
   const cacheKey = userToken ? `repos:auth:${username}` : `repos:${username}`;
 
+  console.log("📦 fetchUserRepos Debug:");
+  console.log("  - Username:", username);
+  console.log("  - Has user token:", !!userToken);
+  console.log("  - Endpoint:", endpoint);
+  console.log("  - Cache key:", cacheKey);
+
   const results = await Promise.all(
     pages.map((page) =>
       limit(() =>
