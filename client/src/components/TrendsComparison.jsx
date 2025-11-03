@@ -33,7 +33,11 @@ export function TrendsComparison({ comparison, period }) {
   const metrics = [
     { label: "Followers", current: current.userData.followers, change: changes?.followers },
     { label: "Following", current: current.userData.following, change: changes?.following },
-    { label: "Repositories", current: current.userData.public_repos, change: changes?.repos },
+    {
+      label: "Repositories",
+      current: current.reposCount || current.userData.public_repos,
+      change: changes?.repos,
+    },
     { label: "Total Stars", current: current.totalStars, change: changes?.stars },
     { label: "Total Forks", current: current.totalForks, change: changes?.forks },
   ];

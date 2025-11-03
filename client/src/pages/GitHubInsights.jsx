@@ -726,7 +726,7 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
           <p className="text-muted-foreground text-sm line-clamp-2">{user.bio || "No bio"}</p>
           <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
             <span className="whitespace-nowrap">
-              <strong>{user.public_repos || 0}</strong> repos
+              <strong>{reposCount || 0}</strong> repos
             </span>
             <span className="whitespace-nowrap">
               <strong>{user.followers || 0}</strong> followers

@@ -5,9 +5,6 @@ import axios from "axios";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GITHUB_API = "https://api.github.com";
-const headers = process.env.GITHUB_TOKEN
-  ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
-  : {};
 
 // Get repository details and analytics
 export const getRepositoryInsights = asyncHandler(async (req, res) => {
@@ -18,6 +15,14 @@ export const getRepositoryInsights = asyncHandler(async (req, res) => {
   }
 
   try {
+    // Check if authenticated user owns this repo
+    const isOwnRepo = req.user && req.user.githubUsername === owner;
+    const userToken = isOwnRepo ? req.user.githubAccessToken : null;
+
+    // Use user token if available, otherwise use server token
+    const token = userToken || process.env.GITHUB_TOKEN;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
     // Fetch repository data
     const [repoData, languages, contributors, commits, issues, pullRequests] = await Promise.all([
       axios.get(`${GITHUB_API}/repos/${owner}/${repo}`, { headers }),

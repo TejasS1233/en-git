@@ -134,7 +134,7 @@ export function ProgressReport({ report }) {
 
   // Activity achievements based on current stats
   const totalStars = current?.totalStars || 0;
-  const totalRepos = current?.userData?.public_repos || 0;
+  const totalRepos = current?.reposCount || current?.userData?.public_repos || 0;
   const followers = current?.userData?.followers || 0;
 
   if (totalStars >= 100) {
@@ -193,7 +193,9 @@ export function ProgressReport({ report }) {
               <div className="text-xs text-muted-foreground">Followers</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
-              <div className="text-2xl font-bold">{current?.userData?.public_repos || 0}</div>
+              <div className="text-2xl font-bold">
+                {current?.reposCount || current?.userData?.public_repos || 0}
+              </div>
               <div className="text-xs text-muted-foreground">Repositories</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
@@ -214,12 +216,13 @@ export function ProgressReport({ report }) {
               {achievements.map((achievement, i) => (
                 <div
                   key={i}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${achievement.type === "major"
-                    ? "bg-linear-to-r from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border border-yellow-200 dark:border-yellow-800"
-                    : achievement.type === "medium"
-                      ? "bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 border border-blue-200 dark:border-blue-800"
-                      : "bg-muted/50"
-                    }`}
+                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                    achievement.type === "major"
+                      ? "bg-linear-to-r from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border border-yellow-200 dark:border-yellow-800"
+                      : achievement.type === "medium"
+                        ? "bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 border border-blue-200 dark:border-blue-800"
+                        : "bg-muted/50"
+                  }`}
                 >
                   <span className="text-2xl">{achievement.icon}</span>
                   <span
