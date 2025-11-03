@@ -347,7 +347,7 @@ export const ACHIEVEMENTS = [
   {
     id: "night_owl",
     name: "Night Owl",
-    description: "Code between midnight and 6 AM",
+    description: "Code between midnight and 6 AM (your local time)",
     icon: "Moon",
     category: ACHIEVEMENT_CATEGORIES.ACTIVITY,
     tier: ACHIEVEMENT_TIERS.SILVER,
@@ -358,7 +358,7 @@ export const ACHIEVEMENTS = [
   {
     id: "early_bird",
     name: "Early Bird",
-    description: "Code between 5 AM and 9 AM",
+    description: "Code between 5 AM and 9 AM (your local time)",
     icon: "Sunrise",
     category: ACHIEVEMENT_CATEGORIES.ACTIVITY,
     tier: ACHIEVEMENT_TIERS.SILVER,

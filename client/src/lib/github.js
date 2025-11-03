@@ -1,14 +1,20 @@
 import api from "./axios";
 
 export async function getGithubInsights(username, refresh = false) {
-  const params = refresh ? { refresh: true } : {};
+  // Get user's timezone offset in minutes (negative for west of UTC, positive for east)
+  const timezoneOffset = -new Date().getTimezoneOffset();
+  const params = refresh ? { refresh: true, tz: timezoneOffset } : { tz: timezoneOffset };
   const { data } = await api.get(`/github/insights/${encodeURIComponent(username)}`, { params });
   return data;
 }
 
 export async function getGithubRecommendations(username, refresh = false) {
-  const params = refresh ? { refresh: true } : {};
-  const { data } = await api.get(`/github/recommendations/${encodeURIComponent(username)}`, { params });
+  // Get user's timezone offset in minutes
+  const timezoneOffset = -new Date().getTimezoneOffset();
+  const params = refresh ? { refresh: true, tz: timezoneOffset } : { tz: timezoneOffset };
+  const { data } = await api.get(`/github/recommendations/${encodeURIComponent(username)}`, {
+    params,
+  });
   return data;
 }
 

@@ -100,9 +100,12 @@ export const getUserInsights = asyncHandler(async (req, res) => {
       firstEvent: eventsData?.[0],
     });
 
+    // Get timezone offset from query params (in minutes, e.g., -300 for EST)
+    const timezoneOffset = parseInt(req.query.tz) || 0;
+
     const languagesAgg = aggregateLanguages(repos, repoLanguages);
     const topics = topicsFrequency(repos);
-    const commitTimes = commitTimeDistribution(eventsData || []);
+    const commitTimes = commitTimeDistribution(eventsData || [], timezoneOffset);
     const weekly = weeklyActivity(eventsData || [], commitsData || []);
     const topStarred = mostStarred(repos, 3);
     const topActive = mostActive(repos, 3);

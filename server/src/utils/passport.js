@@ -72,12 +72,9 @@ passport.use(
         let user = await User.findOne({ email });
 
         if (user) {
-          // Link GitHub ID and username if not already linked, and update access token
-          if (!user.githubId) {
-            user.githubId = profile.id;
-            user.githubUsername = profile.username;
-          }
-          // Always update the access token to keep it fresh
+          // Always update GitHub info and access token
+          user.githubId = profile.id;
+          user.githubUsername = profile.username;
           user.githubAccessToken = accessToken;
           await user.save({ validateBeforeSave: false });
         } else {

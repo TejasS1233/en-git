@@ -89,12 +89,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { validateGithubUsername } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 
 export default function GitHubInsightsPage() {
   const { username: urlUsername } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [username, setUsername] = useState(urlUsername || "");
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState(null);
@@ -123,7 +125,7 @@ export default function GitHubInsightsPage() {
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
   // Check if user is logged in
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     setBookmarks(getBookmarks());

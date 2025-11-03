@@ -44,17 +44,29 @@ export function topicsFrequency(repos) {
   return sortEntriesDesc(freq);
 }
 
-export function commitTimeDistribution(events) {
+export function commitTimeDistribution(events, timezoneOffset = 0) {
   // From public events, approximate push times
+  // timezoneOffset is in minutes (e.g., -300 for EST, 330 for IST)
   const hours = Array.from({ length: 24 }, () => 0);
+
   for (const e of events || []) {
     const type = e.type;
     if (type === "PushEvent" || type === "PullRequestEvent" || type === "IssuesEvent") {
       const d = new Date(e.created_at);
-      const h = d.getUTCHours();
-      hours[h] += 1;
+      // Convert UTC to local time using timezone offset
+      const utcHour = d.getUTCHours();
+      const utcMinute = d.getUTCMinutes();
+      const totalMinutes = utcHour * 60 + utcMinute + timezoneOffset;
+
+      // Handle day wraparound
+      let localHour = Math.floor(totalMinutes / 60);
+      if (localHour < 0) localHour += 24;
+      if (localHour >= 24) localHour -= 24;
+
+      hours[localHour] += 1;
     }
   }
+
   const early = hours.slice(5, 12).reduce((a, b) => a + b, 0);
   const night =
     hours.slice(20).reduce((a, b) => a + b, 0) + hours.slice(0, 5).reduce((a, b) => a + b, 0);
