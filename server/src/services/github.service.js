@@ -13,12 +13,13 @@ const gh = axios.create({
   timeout: 15000,
 });
 
-function authHeader() {
-  const token = process.env.GITHUB_TOKEN;
+function authHeader(userToken = null) {
+  // Prioritize user's personal token for private repo access
+  const token = userToken || process.env.GITHUB_TOKEN;
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-async function cachedGet(key, url, { params = {}, ttl, refresh = false } = {}) {
+async function cachedGet(key, url, { params = {}, ttl, refresh = false, userToken = null } = {}) {
   if (refresh) {
     cache.del(key);
   } else {
@@ -32,7 +33,7 @@ async function cachedGet(key, url, { params = {}, ttl, refresh = false } = {}) {
 
   try {
     console.log(`Fetching from GitHub API: ${url}`, params);
-    const { data } = await gh.get(url, { params, headers: authHeader() });
+    const { data } = await gh.get(url, { params, headers: authHeader(userToken) });
     const lastUpdated = new Date().toISOString();
     console.log(`API Response for ${key}:`, {
       isArray: Array.isArray(data),
@@ -59,18 +60,31 @@ export async function fetchUser(username, refresh = false) {
   return cachedGet(`user:${username}`, `/users/${username}`, { ttl, refresh });
 }
 
-export async function fetchUserRepos(username, per_page = 100, refresh = false) {
+export async function fetchUserRepos(username, per_page = 100, refresh = false, userToken = null) {
   const pages = [1, 2, 3];
   const limit = pLimit(2);
   const ttl = 60 * 30; // 30 minutes
 
+  // If we have a user token, use the authenticated endpoint to get private repos
+  const endpoint = userToken ? `/user/repos` : `/users/${username}/repos`;
+  const cacheKey = userToken ? `repos:auth:${username}` : `repos:${username}`;
+
   const results = await Promise.all(
     pages.map((page) =>
       limit(() =>
-        cachedGet(`repos:${username}:${page}`, `/users/${username}/repos`, {
-          params: { per_page, page, sort: "updated" },
+        cachedGet(`${cacheKey}:${page}`, endpoint, {
+          params: {
+            per_page,
+            page,
+            sort: "updated",
+            // Include all repo types when authenticated
+            ...(userToken
+              ? { visibility: "all", affiliation: "owner,collaborator,organization_member" }
+              : {}),
+          },
           ttl,
           refresh,
+          userToken,
         })
       )
     )

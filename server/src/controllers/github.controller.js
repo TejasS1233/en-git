@@ -32,12 +32,16 @@ export const getUserInsights = asyncHandler(async (req, res) => {
   }
 
   try {
+    // Check if authenticated user is viewing their own profile
+    const isOwnProfile = req.user && req.user.githubUsername === username;
+    const userToken = isOwnProfile ? req.user.githubAccessToken : null;
+
     const [user, userLastUpdated] = await fetchUser(username);
-    const [allRepos, reposLastUpdated] = await fetchUserRepos(username);
+    const [allRepos, reposLastUpdated] = await fetchUserRepos(username, 100, false, userToken);
 
     // Filter out private repos for public insights
     // Private repos are only included if the user is authenticated and viewing their own profile
-    const repos = allRepos.filter((repo) => !repo.private);
+    const repos = isOwnProfile ? allRepos : allRepos.filter((repo) => !repo.private);
 
     // fetch languages per repo (limit concurrency)
     const limit = pLimit(5);
@@ -140,8 +144,12 @@ export const getRecommendations = asyncHandler(async (req, res) => {
   }
 
   try {
+    // Check if authenticated user is viewing their own profile
+    const isOwnProfile = req.user && req.user.githubUsername === username;
+    const userToken = isOwnProfile ? req.user.githubAccessToken : null;
+
     const [user, userLastUpdated] = await fetchUser(username);
-    const [repos, reposLastUpdated] = await fetchUserRepos(username);
+    const [repos, reposLastUpdated] = await fetchUserRepos(username, 100, false, userToken);
 
     // Get user's top languages and topics
     const limit = pLimit(5);
@@ -233,9 +241,13 @@ export const getAIInsights = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
   try {
+    // Check if authenticated user is viewing their own profile
+    const isOwnProfile = req.user && req.user.githubUsername === username;
+    const userToken = isOwnProfile ? req.user.githubAccessToken : null;
+
     // First, get the user's insights
     const [user] = await fetchUser(username);
-    const [repos] = await fetchUserRepos(username);
+    const [repos] = await fetchUserRepos(username, 100, false, userToken);
 
     if (!repos || repos.length === 0) {
       throw new ApiError(404, "No repositories found for this user");

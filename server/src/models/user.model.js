@@ -64,6 +64,10 @@ const userSchema = new Schema(
       trim: true,
       index: true,
     },
+    githubAccessToken: {
+      type: String,
+      select: false, // Don't include in queries by default for security
+    },
     lastSnapshotDate: {
       type: Date,
     },

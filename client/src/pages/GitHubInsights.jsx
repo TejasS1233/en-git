@@ -174,8 +174,8 @@ export default function GitHubInsightsPage() {
       // Load historical data
       loadHistoricalData(user);
 
-      // Show signup prompt after 3 seconds if not logged in
-      if (!isLoggedIn) {
+      // Show signup prompt after 3 seconds if not logged in and insights loaded
+      if (!isLoggedIn && insResponse?.data?.data) {
         setTimeout(() => setShowSignupPrompt(true), 3000);
       }
 

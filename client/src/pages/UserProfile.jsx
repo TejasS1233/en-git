@@ -176,8 +176,8 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* GitHub Username Banner */}
-      {!user.githubUsername && (
+      {/* GitHub Username Banner - Only show if logged in and no GitHub username */}
+      {user && !user.githubUsername && !user.githubId && (
         <GitHubUsernameBanner
           onAddUsername={() => {
             setEditMode(true);

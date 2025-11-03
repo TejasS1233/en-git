@@ -33,3 +33,26 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     throw new ApiError(error.message || "Access token is invalid or expired", 401);
   }
 });
+
+// Optional JWT verification - doesn't throw error if no token
+export const optionalJWT = asyncHandler(async (req, res, next) => {
+  try {
+    const token =
+      req.cookies?.accessToken || req.headers["authorization"]?.replace("Bearer", "").trim();
+
+    if (token) {
+      const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      const user = await User.findById(decodedToken?._id).select(
+        "-password -refreshToken +githubAccessToken"
+      );
+
+      if (user) {
+        req.user = user;
+      }
+    }
+  } catch (error) {
+    // Silently fail - this is optional auth
+    console.log("Optional JWT verification failed:", error.message);
+  }
+  next();
+});
