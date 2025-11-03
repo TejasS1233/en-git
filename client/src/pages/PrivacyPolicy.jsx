@@ -21,12 +21,33 @@ export default function PrivacyPolicy() {
             <p>en-git collects and processes the following information:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>
-                GitHub profile information (username, repositories, contributions) accessed through
-                GitHub's public API
+                <strong>Public GitHub Data:</strong> Username, public repositories, contributions,
+                and profile information accessed through GitHub's public API
+              </li>
+              <li>
+                <strong>Private Repository Data (with your permission):</strong> When you authorize
+                access, we collect statistics from your private repositories and organization
+                repositories to provide accurate analytics. This includes commit counts, language
+                usage, and contribution patterns.
+              </li>
+              <li>
+                <strong>Organization Membership:</strong> Information about organizations you belong
+                to (read-only access)
               </li>
               <li>Usage data and analytics to improve our service</li>
-              <li>Authentication tokens when you sign in with GitHub (stored securely)</li>
+              <li>
+                Authentication tokens when you sign in with GitHub (stored securely and encrypted)
+              </li>
             </ul>
+
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 my-4">
+              <p className="text-sm font-medium">
+                <strong>🔒 Privacy Guarantee:</strong> Private repository names, code, and sensitive
+                information are NEVER displayed publicly. We only use private repo data for
+                calculating your personal statistics and achievements, which remain visible only to
+                you when logged in.
+              </p>
+            </div>
 
             <h2 className="text-xl font-semibold mt-6">2. How We Use Your Information</h2>
             <p>We use the collected information to:</p>
@@ -46,11 +67,32 @@ export default function PrivacyPolicy() {
               <li>Retained only as long as necessary to provide our services</li>
             </ul>
 
-            <h2 className="text-xl font-semibold mt-6">4. GitHub API Usage</h2>
+            <h2 className="text-xl font-semibold mt-6">4. GitHub API Usage & Permissions</h2>
             <p>
-              en-git uses GitHub's public API to fetch repository and user data. We comply with
-              GitHub's API terms of service and rate limits. All data accessed is publicly available
-              on GitHub.
+              en-git uses GitHub's API to fetch repository and user data. We comply with GitHub's
+              API terms of service and rate limits.
+            </p>
+            <p className="mt-2">
+              <strong>Permissions We Request:</strong>
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>
+                <strong>user:email</strong> - Access to your email address for account creation and
+                notifications
+              </li>
+              <li>
+                <strong>repo</strong> - Access to public and private repositories (only for
+                calculating your personal statistics)
+              </li>
+              <li>
+                <strong>read:org</strong> - Read-only access to organization membership and
+                repositories
+              </li>
+            </ul>
+            <p className="mt-2">
+              <strong>Important:</strong> Private repository data is used ONLY for your personal
+              analytics and is never shared publicly or with other users. Public profiles and
+              widgets only display information from public repositories.
             </p>
 
             <h2 className="text-xl font-semibold mt-6">5. Cookies and Tracking</h2>
@@ -61,14 +103,26 @@ export default function PrivacyPolicy() {
               <li>Analyze usage patterns to improve our service</li>
             </ul>
 
-            <h2 className="text-xl font-semibold mt-6">6. Your Rights</h2>
+            <h2 className="text-xl font-semibold mt-6">6. Your Rights & Data Control</h2>
             <p>You have the right to:</p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Access your personal data</li>
-              <li>Request deletion of your data</li>
-              <li>Opt-out of data collection</li>
-              <li>Revoke GitHub authentication at any time</li>
+              <li>Access your personal data at any time through your profile</li>
+              <li>Request deletion of your data (contact us or delete your account)</li>
+              <li>Opt-out of data collection by not authorizing private repo access</li>
+              <li>
+                Revoke GitHub authentication at any time through GitHub settings or your profile
+              </li>
+              <li>Control what data is publicly visible (private repo data is never public)</li>
+              <li>
+                Choose to only share public repository data by not granting private repo permissions
+              </li>
             </ul>
+
+            <p className="mt-4 text-sm bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+              <strong>Note:</strong> You can revoke our access to your private repositories at any
+              time through your GitHub account settings → Applications → Authorized OAuth Apps →
+              en-git → Revoke.
+            </p>
 
             <h2 className="text-xl font-semibold mt-6">7. Chrome Extension</h2>
             <p>Our Chrome extension:</p>

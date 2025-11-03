@@ -33,7 +33,11 @@ export const getUserInsights = asyncHandler(async (req, res) => {
 
   try {
     const [user, userLastUpdated] = await fetchUser(username);
-    const [repos, reposLastUpdated] = await fetchUserRepos(username);
+    const [allRepos, reposLastUpdated] = await fetchUserRepos(username);
+
+    // Filter out private repos for public insights
+    // Private repos are only included if the user is authenticated and viewing their own profile
+    const repos = allRepos.filter((repo) => !repo.private);
 
     // fetch languages per repo (limit concurrency)
     const limit = pLimit(5);

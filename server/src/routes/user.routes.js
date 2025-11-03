@@ -56,7 +56,12 @@ router.get(
 );
 
 // --- GitHub OAuth ---
-router.get("/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
+router.get(
+  "/auth/github",
+  passport.authenticate("github", {
+    scope: ["user:email", "repo", "read:org"],
+  })
+);
 
 // --- GitHub OAuth Callback ---
 router.get(
