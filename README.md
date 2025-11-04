@@ -59,7 +59,6 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
   <a href=".github/SECURITY.md"><strong>Security Policy</strong></a> | 
   <a href=".github/PRIVACY-POLICY.md"><strong>Privacy Policy</strong></a> | 
   <a href=".github/ACHIEVEMENTS.md"><strong>Attainable Achievements</strong></a> | 
-  <a href=".github/DEV_DOCS.md"><strong>Developer Documentation</strong></a>
 </p>
 
 ## 📄 License
