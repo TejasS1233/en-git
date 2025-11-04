@@ -23,11 +23,23 @@ const leaderboardSchema = new mongoose.Schema(
     totalStars: Number,
     topLanguage: String,
     profileUrl: String,
+    // Niche leaderboard data
+    languages: [String], // All languages used
+    topics: [String], // Topics/domains (web, mobile, ml, etc.)
+    languageScores: {
+      type: Map,
+      of: Number,
+    }, // Language-specific scores
   },
   {
     timestamps: true,
   }
 );
+
+// Indexes for niche leaderboards
+leaderboardSchema.index({ languages: 1, score: -1 });
+leaderboardSchema.index({ topics: 1, score: -1 });
+leaderboardSchema.index({ topLanguage: 1, score: -1 });
 
 // Index for sorting by score
 leaderboardSchema.index({ score: -1, updatedAt: -1 });
