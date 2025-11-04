@@ -350,6 +350,144 @@ export const getChallengeStats = asyncHandler(async (req, res) => {
   );
 });
 
+// Get AI-powered challenge suggestions
+export const getAISuggestions = asyncHandler(async (req, res) => {
+  const { githubUsername } = req.body;
+
+  if (!githubUsername) {
+    throw new ApiError(400, "GitHub username is required");
+  }
+
+  try {
+    // Fetch user's GitHub data
+    const [user] = await fetchUser(githubUsername);
+    const [repos] = await fetchUserRepos(githubUsername, 100, false, req.user.githubAccessToken);
+    const [events] = await fetchUserEvents(githubUsername);
+
+    // Calculate current stats
+    const currentStats = {
+      followers: user.followers || 0,
+      totalStars: repos.reduce((sum, repo) => sum + repo.stargazers_count, 0),
+      publicRepos: repos.length,
+      totalForks: repos.reduce((sum, repo) => sum + repo.forks_count, 0),
+      recentCommits: events.filter((e) => e.type === "PushEvent").length,
+      languages: [...new Set(repos.map((r) => r.language).filter(Boolean))].length,
+    };
+
+    // Get existing challenges to avoid duplicates
+    const existingChallenges = await Challenge.find({
+      userId: req.user._id,
+      status: "active",
+    });
+
+    const existingTypes = new Set(existingChallenges.map((c) => c.type));
+
+    // Generate smart suggestions based on current stats
+    const suggestions = [];
+
+    // Followers challenge
+    if (!existingTypes.has("followers") && currentStats.followers < 1000) {
+      const target = Math.ceil(currentStats.followers * 1.5) || 10;
+      suggestions.push({
+        type: "followers",
+        title: `Reach ${target} Followers`,
+        description: `Grow your GitHub community by gaining ${target - currentStats.followers} more followers`,
+        targetValue: target,
+        difficulty: target < 50 ? "easy" : target < 200 ? "medium" : "hard",
+        xp: target < 50 ? 100 : target < 200 ? 250 : 500,
+        duration: "30 days",
+        category: "growth",
+      });
+    }
+
+    // Stars challenge
+    if (!existingTypes.has("stars") && currentStats.totalStars < 500) {
+      const target = Math.ceil(currentStats.totalStars * 1.3) || 25;
+      suggestions.push({
+        type: "stars",
+        title: `Collect ${target} Total Stars`,
+        description: `Increase your total repository stars to ${target}`,
+        targetValue: target,
+        difficulty: target < 100 ? "easy" : target < 300 ? "medium" : "hard",
+        xp: target < 100 ? 100 : target < 300 ? 250 : 500,
+        duration: "60 days",
+        category: "growth",
+      });
+    }
+
+    // Commits challenge
+    if (!existingTypes.has("commits")) {
+      const target = 50;
+      suggestions.push({
+        type: "commits",
+        title: "Make 50 Commits",
+        description: "Stay active and make 50 commits across your repositories",
+        targetValue: target,
+        difficulty: "easy",
+        xp: 100,
+        duration: "30 days",
+        category: "activity",
+      });
+    }
+
+    // Repo stars challenge (for most popular repo)
+    if (repos.length > 0 && !existingTypes.has("repo_stars")) {
+      const topRepo = repos.sort((a, b) => b.stargazers_count - a.stargazers_count)[0];
+      const currentStars = topRepo.stargazers_count;
+      const target = Math.ceil(currentStars * 1.5) || 10;
+
+      suggestions.push({
+        type: "repo_stars",
+        title: `Get ${target} Stars on ${topRepo.name}`,
+        description: `Grow your most popular repository to ${target} stars`,
+        targetValue: target,
+        repoName: topRepo.name,
+        difficulty: target < 50 ? "easy" : target < 200 ? "medium" : "hard",
+        xp: target < 50 ? 100 : target < 200 ? 250 : 500,
+        duration: "45 days",
+        category: "growth",
+      });
+    }
+
+    // Contribution streak challenge
+    if (!existingTypes.has("streak_days")) {
+      suggestions.push({
+        type: "streak_days",
+        title: "Build a 30-Day Streak",
+        description: "Contribute to GitHub every day for 30 consecutive days",
+        targetValue: 30,
+        difficulty: "hard",
+        xp: 500,
+        duration: "30 days",
+        category: "streak",
+      });
+    }
+
+    // Languages challenge
+    if (!existingTypes.has("languages_used") && currentStats.languages < 10) {
+      const target = Math.min(currentStats.languages + 3, 10);
+      suggestions.push({
+        type: "languages_used",
+        title: `Code in ${target} Languages`,
+        description: "Expand your skills by coding in multiple programming languages",
+        targetValue: target,
+        difficulty: target >= 10 ? "legendary" : "medium",
+        xp: target >= 10 ? 1000 : 250,
+        duration: "90 days",
+        category: "streak",
+      });
+    }
+
+    // Return top 3 suggestions
+    const topSuggestions = suggestions.slice(0, 3);
+
+    return res.status(200).json(new ApiResponse(200, "AI suggestions generated", topSuggestions));
+  } catch (error) {
+    console.error("Failed to generate AI suggestions:", error);
+    throw new ApiError(500, "Failed to generate challenge suggestions");
+  }
+});
+
 // Update all user's active challenges
 export const updateAllUserChallenges = asyncHandler(async (req, res) => {
   const userId = req.user._id;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   Dialog,
@@ -63,7 +63,7 @@ const DIFFICULTY_XP = {
   legendary: 1000,
 };
 
-export default function CreateChallengeDialog({ open, onOpenChange, onSuccess }) {
+export default function CreateChallengeDialog({ open, onOpenChange, onSuccess, initialData }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -76,6 +76,22 @@ export default function CreateChallengeDialog({ open, onOpenChange, onSuccess })
     deadline: "",
     difficulty: "medium",
   });
+
+  // Pre-fill form when initialData is provided
+  useEffect(() => {
+    if (initialData && open) {
+      setFormData({
+        title: initialData.title || "",
+        description: initialData.description || "",
+        type: initialData.type || "followers",
+        category: initialData.category || "growth",
+        targetValue: initialData.targetValue?.toString() || "",
+        repoName: initialData.repoName || "",
+        deadline: "",
+        difficulty: initialData.difficulty || "medium",
+      });
+    }
+  }, [initialData, open]);
 
   const needsRepoName = ["repo_stars", "forks", "watchers"].includes(formData.type);
 

@@ -140,3 +140,6 @@ tmp/
 .expo/
 .expo-shared/
 *.tsbuildinfo
+
+# Documentation drafts and planning
+md/

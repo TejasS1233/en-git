@@ -16,8 +16,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Target, Trophy, Clock, TrendingUp, Star, Users, GitBranch } from "lucide-react";
+import {
+  Plus,
+  Target,
+  Trophy,
+  Clock,
+  TrendingUp,
+  Star,
+  Users,
+  GitBranch,
+  Sparkles,
+} from "lucide-react";
 import CreateChallengeDialog from "@/components/CreateChallengeDialog";
+import AIChallengeDialog from "@/components/AIChallengeDialog";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
 
@@ -28,9 +39,11 @@ export default function ChallengesPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isAISuggestionOpen, setIsAISuggestionOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("active");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [challengeToDelete, setChallengeToDelete] = useState(null);
+  const [aiSuggestionData, setAiSuggestionData] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -191,10 +204,16 @@ export default function ChallengesPage() {
           <h1 className="text-4xl font-bold mb-2">Challenges</h1>
           <p className="text-muted-foreground">Set goals and track your GitHub growth</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Challenge
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsAISuggestionOpen(true)}>
+            <Sparkles className="mr-2 h-4 w-4" />
+            Ask AI
+          </Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Challenge
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -384,10 +403,26 @@ export default function ChallengesPage() {
 
       <CreateChallengeDialog
         open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateDialogOpen(open);
+          if (!open) setAiSuggestionData(null);
+        }}
+        initialData={aiSuggestionData}
         onSuccess={() => {
           fetchChallenges();
           fetchStats();
+          setAiSuggestionData(null);
+        }}
+      />
+
+      <AIChallengeDialog
+        open={isAISuggestionOpen}
+        onOpenChange={setIsAISuggestionOpen}
+        onSelectChallenge={(suggestion) => {
+          setAiSuggestionData(suggestion);
+          setIsAISuggestionOpen(false);
+          setIsCreateDialogOpen(true);
+          toast.success("Challenge suggestion loaded! Set your deadline and create.");
         }}
       />
 
