@@ -418,4 +418,128 @@ const getGithubInsights = asyncHandler(async (req, res) => {
     );
 });
 
+export const getRepositoryData = asyncHandler(async (req, res) => {
+  const { owner, repo: repoName } = req.params;
+
+  if (!owner || !repoName) {
+    throw new ApiError(400, "Owner and repository name are required");
+  }
+
+  try {
+    // Fetch repository details from GitHub API
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        ...(process.env.GITHUB_TOKEN && {
+          Authorization: `token ${process.env.GITHUB_TOKEN}`,
+        }),
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new ApiError(404, `Repository '${owner}/${repoName}' not found`);
+      }
+      throw new ApiError(response.status, `GitHub API error: ${response.statusText}`);
+    }
+
+    const repoData = await response.json();
+
+    // Calculate health score
+    const healthScore = calculateRepoHealthScore(repoData);
+
+    return res.status(200).json(
+      new ApiResponse(200, "Repository data fetched successfully", {
+        repo: repoData,
+        healthScore,
+      })
+    );
+  } catch (error) {
+    console.error("getRepositoryData error:", error);
+    if (error.response?.status === 403) {
+      throw new ApiError(
+        403,
+        "GitHub API rate limit exceeded. Please add a GITHUB_TOKEN to your .env file or try again later."
+      );
+    }
+    if (error.response?.status === 404) {
+      throw new ApiError(404, `Repository '${owner}/${repoName}' not found`);
+    }
+    throw new ApiError(500, error.message || "Failed to fetch repository data");
+  }
+});
+
+// Helper function to calculate repository health score
+function calculateRepoHealthScore(repo) {
+  let score = 0;
+  const factors = [];
+
+  // Has description (10 points)
+  if (repo.description) {
+    score += 10;
+    factors.push({ factor: "Has description", points: 10 });
+  }
+
+  // Has README (15 points) - inferred from has_wiki or size > 0
+  if (repo.size > 0) {
+    score += 15;
+    factors.push({ factor: "Has content", points: 15 });
+  }
+
+  // Has license (10 points)
+  if (repo.license) {
+    score += 10;
+    factors.push({ factor: "Has license", points: 10 });
+  }
+
+  // Recent activity (15 points) - updated within last 6 months
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  if (new Date(repo.updated_at) > sixMonthsAgo) {
+    score += 15;
+    factors.push({ factor: "Recently updated", points: 15 });
+  }
+
+  // Has topics/tags (10 points)
+  if (repo.topics && repo.topics.length > 0) {
+    score += 10;
+    factors.push({ factor: "Has topics", points: 10 });
+  }
+
+  // Stars (up to 20 points)
+  const starPoints = Math.min(20, Math.floor(repo.stargazers_count / 10));
+  if (starPoints > 0) {
+    score += starPoints;
+    factors.push({ factor: `${repo.stargazers_count} stars`, points: starPoints });
+  }
+
+  // Forks (up to 10 points)
+  const forkPoints = Math.min(10, Math.floor(repo.forks_count / 5));
+  if (forkPoints > 0) {
+    score += forkPoints;
+    factors.push({ factor: `${repo.forks_count} forks`, points: forkPoints });
+  }
+
+  // Low open issues ratio (10 points)
+  if (repo.open_issues_count < 10) {
+    score += 10;
+    factors.push({ factor: "Low open issues", points: 10 });
+  }
+
+  // Determine grade
+  let grade;
+  if (score >= 90) grade = "A+";
+  else if (score >= 80) grade = "A";
+  else if (score >= 70) grade = "B";
+  else if (score >= 60) grade = "C";
+  else if (score >= 50) grade = "D";
+  else grade = "F";
+
+  return {
+    score: Math.min(100, score),
+    grade,
+    factors,
+  };
+}
+
 export { getGithubInsights };
