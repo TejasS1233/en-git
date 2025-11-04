@@ -10,6 +10,7 @@
   </div>
 
 ## Website Demo
+
 **Live Link**: [en-git.vercel.app](https://en-git.vercel.app/)
 
 ![ezgif-805876d1d2e3e5](https://github.com/user-attachments/assets/0a50521a-2b1b-49ca-bf6e-b21660d80bcb)
@@ -26,7 +27,8 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 
 - **Developer Comparison**: Place any two profiles side-by-side to instantly compare their languages, repository stats, and activity levels.
 
-- **Deep Repository Insights**: Analyze any repository for its tech stack, recent activity, and quality, and discover its most starred or active projects.
+- **Deep Repository Insights**: Analyze any repository for its tech stack, recent activity, and quality, and discover its most starred or active projects. Supports private repositories and organization repos with proper authentication
+  ensuring complete privacy.
 
 - **AI & Historical Tracking**: Receive AI-powered career advice and skill suggestions based on your activity. Track your profile's growth over time with historical charts and progress reports.
 
@@ -35,6 +37,8 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 - **Global Leaderboard**: Compete with developers worldwide! See your ranking based on profile score, compare yourself with top developers, and track your position on the global leaderboard.
 
 - **Embeddable Widgets**: Showcase your GitHub stats anywhere with 8 customizable SVG widgets. Perfect for READMEs, portfolios, blogs, and documentation sites. Features include dynamic data generation, custom color themes, smart caching for zero downtime, and support for light/dark modes. Widgets display real commit data, skill profiles, activity trends, and more—all embeddable with a simple image tag.
+
+- **Challenge Mode**: Gamify your GitHub growth with personalized challenges! Set goals across 12 different challenge types including followers, stars, commits, pull requests, contribution streaks, and more. Track your progress with real-time updates, earn XP based on difficulty (Easy to Legendary), unlock 19 tiered achievements, and compete with yourself to maintain high success rates. Features automated progress tracking every 6 hours, milestone celebrations, and a comprehensive stats dashboard.
 
 - **Utility Features**: Bookmark favorite profiles, export reports to PDF, share stats on social media, and switch between dark/light modes.
 
@@ -45,7 +49,7 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 - **Instant Profile Insights**: See a user's profile score, developer rating (Beginner → Elite), top 5 languages, and quick stats just by visiting their GitHub profile page.
 - **Customizable & Productive**: Personalize your themes and set custom keyboard shortcuts to analyze profiles, repos, and files in seconds, boosting your workflow.
 - **Seamless Web App Integration**: One click to send the current profile or repo to the full web app for a deep-dive analysis, developer comparison, or to view historical tracking.
-See the [Chrome Extension Installation Guide](.github/chrome_ext_installation.md) to get started.
+  See the [Chrome Extension Installation Guide](.github/chrome_ext_installation.md) to get started.
 
 ## 🤝 Contributing & Documentation
 

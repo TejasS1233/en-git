@@ -57,32 +57,79 @@ export default function Navbar() {
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Logo />
           </Link>
-          <ul className="hidden md:flex gap-8">
-            {NAV_LINKS.map((item) => (
-              <li key={item.href}>
-                {item.external ? (
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {item.label}
-                  </a>
-                ) : (
-                  <Link
-                    to={item.href}
-                    className={`transition-colors ${
-                      activePath === item.href
-                        ? "text-foreground font-medium"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </li>
-            ))}
+          <ul className="hidden lg:flex items-center gap-6">
+            <li>
+              <Link
+                to="/"
+                className={`transition-colors text-sm ${
+                  activePath === "/"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/compare"
+                className={`transition-colors text-sm ${
+                  activePath === "/compare"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Compare
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/repo"
+                className={`transition-colors text-sm ${
+                  activePath === "/repo"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Repository
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/leaderboard"
+                className={`transition-colors text-sm ${
+                  activePath === "/leaderboard"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Leaderboard
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/challenges"
+                className={`transition-colors text-sm ${
+                  activePath === "/challenges"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Challenges
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/widgets"
+                className={`transition-colors text-sm ${
+                  activePath === "/widgets"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Widgets
+              </Link>
+            </li>
           </ul>
           <div className="flex items-center gap-2 sm:gap-3">
             <Button

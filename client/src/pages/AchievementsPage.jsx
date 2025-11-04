@@ -1,4 +1,3 @@
-import { AppSidebar } from "@/components/blocks/Dashboard/AppSidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,

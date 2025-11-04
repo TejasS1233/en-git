@@ -78,6 +78,7 @@ import badgeRouter from "./routes/badge.routes.js";
 import leaderboardRouter from "./routes/leaderboard.routes.js";
 import widgetRouter from "./routes/widget.routes.js";
 import achievementsRouter from "./routes/achievements.routes.js";
+import challengeRouter from "./routes/challenge.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -90,6 +91,7 @@ app.use("/api/v1/stats", statsHistoryRouter);
 app.use("/api/v1/badges", badgeRouter);
 app.use("/api/v1/leaderboard", leaderboardRouter);
 app.use("/api/v1/achievements", achievementsRouter);
+app.use("/api/v1/challenges", challengeRouter);
 app.use("/widget", widgetRouter); // No /api/v1 prefix for widgets
 
 io.on("connection", (socket) => {

@@ -2,6 +2,7 @@ import cron from "node-cron";
 import { User } from "../models/user.model.js";
 import Leaderboard from "../models/leaderboard.model.js";
 import { sendEmail, sendBulkEmails } from "./email.service.js";
+import { updateAllActiveChallenges, expireOldChallenges } from "./challenge.service.js";
 
 // Store previous scores and ranks for comparison
 const userHistory = new Map();
@@ -139,11 +140,47 @@ export async function sendAchievementEmail(userId, achievementData) {
   }
 }
 
+// Challenge Progress Updates - Every 6 hours
+export function scheduleChallengeUpdates() {
+  cron.schedule("0 */6 * * *", async () => {
+    console.log("🎯 Updating active challenges...");
+
+    try {
+      const results = await updateAllActiveChallenges();
+      console.log(`✅ Challenge update completed:`, results);
+    } catch (error) {
+      console.error("❌ Challenge update job failed:", error);
+    }
+  });
+
+  console.log("✅ Challenge update cron job scheduled (Every 6 hours)");
+}
+
+// Expire Old Challenges - Every hour
+export function scheduleExpireChallenges() {
+  cron.schedule("0 * * * *", async () => {
+    console.log("⏰ Checking for expired challenges...");
+
+    try {
+      const count = await expireOldChallenges();
+      if (count > 0) {
+        console.log(`✅ Expired ${count} challenges`);
+      }
+    } catch (error) {
+      console.error("❌ Expire challenges job failed:", error);
+    }
+  });
+
+  console.log("✅ Expire challenges cron job scheduled (Every hour)");
+}
+
 // Initialize all cron jobs
 export function initializeCronJobs() {
   console.log("\n🕐 Initializing cron jobs...");
   scheduleWeeklyReports();
   scheduleScoreAlerts();
   scheduleLeaderboardAlerts();
+  scheduleChallengeUpdates();
+  scheduleExpireChallenges();
   console.log("✅ All cron jobs initialized\n");
 }

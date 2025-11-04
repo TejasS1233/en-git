@@ -8,11 +8,11 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { Menu, Github } from "lucide-react";
+import { Menu } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useAuth } from "@/context/AuthContext";
-import { NAV_LINKS } from "@/config/nav";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/Logo";
 
 export const NavigationSheet = () => {
   const [open, setOpen] = useState(false);
@@ -44,41 +44,82 @@ export const NavigationSheet = () => {
         </VisuallyHidden>
 
         <div className="space-y-8">
-          <div className="flex items-center gap-2">
-            <Github className="w-7 h-7 text-primary" />
-            <span className="font-bold text-2xl bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              en-git
-            </span>
+          <div className="flex items-center">
+            <Logo />
           </div>
           <nav className="space-y-4">
-            {NAV_LINKS.map((link) =>
-              link.external ? (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setOpen(false)}
-                  className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
-                >
-                  {link.label}
-                </a>
-              ) : (
-                <NavLink
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => setOpen(false)}
-                  className={({ isActive }) =>
-                    cn(
-                      "block text-base font-medium transition-colors duration-200",
-                      isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                    )
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              )
-            )}
+            <NavLink
+              to="/"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  "block text-base font-medium transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )
+              }
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/compare"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  "block text-base font-medium transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )
+              }
+            >
+              Compare Users
+            </NavLink>
+            <NavLink
+              to="/repo"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  "block text-base font-medium transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )
+              }
+            >
+              Repository Insights
+            </NavLink>
+            <NavLink
+              to="/leaderboard"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  "block text-base font-medium transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )
+              }
+            >
+              Leaderboard
+            </NavLink>
+            <NavLink
+              to="/challenges"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  "block text-base font-medium transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )
+              }
+            >
+              Challenges
+            </NavLink>
+            <NavLink
+              to="/widgets"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  "block text-base font-medium transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )
+              }
+            >
+              Widgets
+            </NavLink>
           </nav>
         </div>
 
