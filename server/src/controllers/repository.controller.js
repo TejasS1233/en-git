@@ -391,7 +391,8 @@ export const generateRepoComparison = asyncHandler(async (req, res) => {
   console.log("Request body exists:", !!req.body);
   console.log("Request body type:", typeof req.body);
 
-  const { repositories } = req.body || {};
+  const { repositories, language = "en" } = req.body || {};
+  console.log("  - Requested language:", language);
 
   console.log("  - Repositories exists:", !!repositories);
   console.log("  - Repositories is array:", Array.isArray(repositories));
@@ -536,11 +537,13 @@ Identify non-obvious advantages:
 - Strong documentation signals (topics, description, license)
 
 ## 🎲 The Real-World Decision
-Answer these questions directly:
-- **For a new startup**: Which repo has less risk of abandonment?
-- **For enterprise**: Which has better long-term support signals?
-- **For contributors**: Which community is more welcoming (PR merge rate)?
-- **For stability**: Which has fewer breaking changes (issue patterns)?
+Answer these questions directly for EACH repository being compared:
+- **For a new startup**: Rank the repos by risk of abandonment
+- **For enterprise**: Rank by long-term support signals
+- **For contributors**: Rank by community welcoming (PR merge rate)
+- **For stability**: Rank by stability indicators
+
+If comparing 3+ repos, provide a clear ranking (1st, 2nd, 3rd) for each category.
 
 ## 💣 Controversial Take
 Give ONE spicy, opinionated insight that challenges conventional wisdom. Examples:
@@ -556,8 +559,9 @@ WRITING RULES:
 - Use analogies and metaphors
 - Call out BS (e.g., "vanity metrics", "zombie projects", "tourist stars")
 - Write like you're advising a friend, not a corporate memo
-- 400-500 words max
+- 400-600 words max (scale with number of repos - more repos = more words allowed)
 - Use markdown formatting with emojis
+- **IMPORTANT**: If comparing 3+ repositories, analyze ALL of them, not just the first two. Provide rankings and comparisons across all repos.
 
 FORBIDDEN PHRASES:
 - "Both are good options"

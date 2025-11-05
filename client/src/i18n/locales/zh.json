@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "home": "首页",
+    "insights": "洞察",
+    "compare": "比较",
+    "leaderboard": "排行榜",
+    "challenges": "挑战",
+    "achievements": "成就",
+    "contact": "联系"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "search": "搜索",
+    "filter": "筛选",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "view": "查看",
+    "close": "关闭"
+  },
+  "home": {
+    "title": "GitHub 分析与洞察",
+    "subtitle": "将您的 GitHub 个人资料转化为可操作的洞察",
+    "cta": "开始使用"
+  },
+  "compare": {
+    "title": "比较 GitHub",
+    "users": "比较开发者",
+    "repos": "比较仓库",
+    "placeholder": "输入用户名或仓库",
+    "button": "比较",
+    "winner": "获胜者",
+    "aiAnalysis": "AI 驱动分析"
+  }
+}

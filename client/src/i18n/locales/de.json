@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "insights": "Einblicke",
+    "compare": "Vergleichen",
+    "leaderboard": "Bestenliste",
+    "challenges": "Herausforderungen",
+    "achievements": "Erfolge",
+    "contact": "Kontakt"
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Ansehen",
+    "close": "Schließen"
+  },
+  "home": {
+    "title": "GitHub Analytics & Einblicke",
+    "subtitle": "Verwandeln Sie Ihr GitHub-Profil in umsetzbare Einblicke",
+    "cta": "Loslegen"
+  },
+  "compare": {
+    "title": "GitHub Vergleichen",
+    "users": "Entwickler Vergleichen",
+    "repos": "Repositories Vergleichen",
+    "placeholder": "Benutzername oder Repository eingeben",
+    "button": "Vergleichen",
+    "winner": "Gewinner",
+    "aiAnalysis": "KI-gestützte Analyse"
+  }
+}

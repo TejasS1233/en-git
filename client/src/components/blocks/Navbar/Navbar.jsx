@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, Settings, LayoutDashboard, User, HelpCircle } from "lucide-react";
 import { NavigationSheet } from "./navigation-sheet";
 import { Logo } from "@/components/Logo";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 export default function Navbar() {
   const { pathname } = useLocation();
@@ -195,6 +196,7 @@ export default function Navbar() {
                 </Button>
               </>
             )}
+            <LanguageSelector />
             <ModeToggle className="hidden md:inline-flex" />
             <div className="md:hidden">
               <NavigationSheet />

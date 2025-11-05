@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "insights": "Perspectivas",
+    "compare": "Comparar",
+    "leaderboard": "Clasificación",
+    "challenges": "Desafíos",
+    "achievements": "Logros",
+    "contact": "Contacto"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "close": "Cerrar"
+  },
+  "home": {
+    "title": "Análisis e Insights de GitHub",
+    "subtitle": "Transforma tu perfil de GitHub en insights accionables",
+    "cta": "Comenzar"
+  },
+  "compare": {
+    "title": "Comparar GitHub",
+    "users": "Comparar Desarrolladores",
+    "repos": "Comparar Repositorios",
+    "placeholder": "Ingresa usuario o repositorio",
+    "button": "Comparar",
+    "winner": "Ganador",
+    "aiAnalysis": "Análisis con IA"
+  }
+}

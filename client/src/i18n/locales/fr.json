@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "home": "Home",
+    "insights": "Insights",
+    "compare": "Compare",
+    "leaderboard": "Leaderboard",
+    "challenges": "Challenges",
+    "achievements": "Achievements",
+    "contact": "Contact"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "search": "Search",
+    "filter": "Filter",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close"
+  },
+  "home": {
+    "title": "GitHub Analytics & Insights",
+    "subtitle": "Transform your GitHub profile into actionable insights",
+    "cta": "Get Started"
+  },
+  "compare": {
+    "title": "Compare GitHub",
+    "users": "Compare Developers",
+    "repos": "Compare Repositories",
+    "placeholder": "Enter username or repository",
+    "button": "Compare",
+    "winner": "Winner",
+    "aiAnalysis": "AI-Powered Analysis"
+  }
+}
