@@ -13,7 +13,7 @@
 
 **Live Link**: [en-git.vercel.app](https://en-git.vercel.app/)
 
-![ezgif-805876d1d2e3e5](https://github.com/user-attachments/assets/0a50521a-2b1b-49ca-bf6e-b21660d80bcb)
+![ezgif-6a95c8758ea4d3](https://github.com/user-attachments/assets/3e46e065-e76f-42a4-92c1-2ca6d3b1fb60)
 
 Found en-git useful?
 
@@ -22,6 +22,7 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 ## Features
 
 ### **Website**
+
 
 - **Core Profile Analysis**: Get a complete breakdown of any user, including their top languages, contribution patterns, profile score, and detected domains (e.g., frontend, backend).
 
