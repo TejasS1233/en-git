@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Button } from "@/components/ui/button";
+import { FaHome } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -71,7 +72,18 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-muted/10">
       {/* Boxed login card */}
-      <div className="w-full max-w-xl rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors">
+      <div className="w-full max-w-xl rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors relative">
+        {/* Home icon positioned at the top-left of the card */}
+        <Link to="/" aria-label="Back to home" className="absolute top-8 left-8 p-3 rounded-md flex items-center gap-1 group">
+          <span
+            className="font-bold text-3xl transition-colors text-primary group-hover:text-primary/90"
+          >
+            &lt;
+          </span>
+          <FaHome 
+            className="h-7 w-7 transition-colors text-primary group-hover:text-primary/90"
+          />
+        </Link>
         <Logo className="h-9 w-9" />
         <p className="mt-4 text-xl font-bold tracking-tight text-center">Log in</p>
 

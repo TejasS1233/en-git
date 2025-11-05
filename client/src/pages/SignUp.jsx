@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { FaHome } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -92,12 +93,25 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background transition-colors px-4 py-20">
-      <div className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-md p-8 transition-colors">
+      <div className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-md p-8 transition-colors relative">
+        {/* Home icon positioned at the top-left of the card */}
+        
+        <Link to="/" aria-label="Back to home" className="absolute top-8 left-8 p-3 rounded-md flex items-center gap-1 group">
+          <span
+            className="font-bold text-3xl transition-colors text-primary group-hover:text-primary/90"
+          >
+            &lt;
+          </span>
+          <FaHome 
+            className="h-7 w-7 transition-colors text-primary group-hover:text-primary/90"
+          />
+        </Link>
+        
         <div className="flex flex-col items-center">
           <Logo className="h-9 w-9" />
           <p className="mt-4 text-xl font-bold tracking-tight">Sign up</p>
         </div>
-
+        
         <Form {...form}>
           <form className="w-full space-y-5 mt-6" onSubmit={form.handleSubmit(onSubmit)}>
             {/* Google Sign-in */}

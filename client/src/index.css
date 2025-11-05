@@ -487,3 +487,30 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+.login-card {
+  position: relative;
+}
+
+.back-home-inside {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+}
+
+.home-icon-btn {
+  font-size: 26px;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  align-items: center;
+  justify-content: center;
+  transition: 0.25s ease-in-out;
+}
+
+.home-icon-btn:hover {
+  transform: scale(1.1);
+  background: #008b8b; /* matches your theme color */
+}
