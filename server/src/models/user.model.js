@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const userSchema = new Schema(
   {
@@ -105,6 +106,10 @@ const userSchema = new Schema(
       achievements: { type: Boolean, default: false },
       leaderboardUpdates: { type: Boolean, default: false },
     },
+    webhookToken: {
+      type: String,
+      select: false, // Don't include in queries by default for security
+    },
   },
   { timestamps: true }
 );
@@ -149,6 +154,11 @@ userSchema.methods.generateRefreshToken = function () {
   return jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
   });
+};
+
+// Generate webhook token
+userSchema.methods.generateWebhookToken = function () {
+  return crypto.randomBytes(32).toString("hex");
 };
 
 export const User = mongoose.model("User", userSchema);

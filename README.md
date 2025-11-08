@@ -41,6 +41,8 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 
 - **Challenge Mode**: Gamify your GitHub growth with personalized challenges! Set goals across 12 different challenge types including followers, stars, commits, pull requests, contribution streaks, and more. Track your progress with real-time updates, earn XP based on difficulty (Easy to Legendary), unlock 19 tiered achievements, and compete with yourself to maintain high success rates. Features automated progress tracking every 6 hours, milestone celebrations, and a comprehensive stats dashboard.
 
+- **GitHub Actions Integration**: Automatically update your stats on every push! Set up a simple GitHub Actions workflow to sync your activity in real-time. Your commits, PRs, issues, and achievements update instantly without manual intervention. Perfect for maintaining accurate stats and completing challenges automatically. [Quick Setup Guide](.github/ADD_TO_YOUR_REPO.md)
+
 - **Utility Features**: Bookmark favorite profiles, export reports to PDF, share stats on social media, and switch between dark/light modes.
 
 ### **Chrome extension**

@@ -24,6 +24,7 @@ import WidgetGenerator from "@/pages/WidgetGenerator";
 import UserProfile from "@/pages/UserProfile";
 import ChallengesPage from "@/pages/ChallengesPage";
 import AchievementsPage from "@/pages/AchievementsPage";
+import Settings from "@/pages/Settings";
 
 const hiddenLayoutRoutes = ["/login", "/signup", "/dashboard", "/auth/callback"];
 
@@ -62,6 +63,7 @@ function App() {
             <Route path="/user-profile/:id" element={<UserProfile />} />
             <Route path="/challenges" element={<ChallengesPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/auth/callback" element={<AuthCallback />} />

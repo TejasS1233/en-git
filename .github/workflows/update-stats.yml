@@ -1,0 +1,63 @@
+name: Update en-git Stats
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    types: [opened, closed, merged]
+  issues:
+    types: [opened, closed]
+  workflow_dispatch:
+    inputs:
+      username:
+        description: 'GitHub username to update stats for'
+        required: false
+        type: string
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get GitHub username
+        id: get-username
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.username }}" ]; then
+            echo "username=${{ github.event.inputs.username }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            echo "username=${{ github.event.pusher.name }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "username=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "issues" ]; then
+            echo "username=${{ github.event.issue.user.login }}" >> $GITHUB_OUTPUT
+          else
+            echo "username=${{ github.actor }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update stats on en-git
+        run: |
+          curl -X POST https://en-git.vercel.app/api/v1/webhook/refresh-stats \
+            -H "Content-Type: application/json" \
+            -d '{
+              "username": "${{ steps.get-username.outputs.username }}",
+              "token": "${{ secrets.ENGIT_WEBHOOK_TOKEN }}"
+            }'
+        continue-on-error: true
+
+      - name: Notify completion
+        if: success()
+        run: |
+          echo "✅ Stats updated successfully for user: ${{ steps.get-username.outputs.username }}"
+          echo "🔗 View your stats at: https://en-git.vercel.app/stats/${{ steps.get-username.outputs.username }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Failed to update stats"
+          echo "Please check your en-git webhook configuration"
