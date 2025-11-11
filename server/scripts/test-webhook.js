@@ -39,31 +39,33 @@ setTimeout(() => {
 
 function testHealthCheck() {
   const url = `${API_URL}/api/v1/webhook/health`;
-  
-  https.get(url, (res) => {
-    let data = "";
-    
-    res.on("data", (chunk) => {
-      data += chunk;
-    });
-    
-    res.on("end", () => {
-      if (res.statusCode === 200) {
-        console.log("   ✅ Health check passed");
-        try {
-          const json = JSON.parse(data);
-          console.log(`   📊 Response:`, json);
-        } catch (e) {
-          console.log(`   📊 Raw response:`, data);
+
+  https
+    .get(url, (res) => {
+      let data = "";
+
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      res.on("end", () => {
+        if (res.statusCode === 200) {
+          console.log("   ✅ Health check passed");
+          try {
+            const json = JSON.parse(data);
+            console.log(`   📊 Response:`, json);
+          } catch (e) {
+            console.log(`   📊 Raw response:`, data);
+          }
+        } else {
+          console.log(`   ❌ Health check failed (status: ${res.statusCode})`);
+          console.log(`   📊 Response:`, data);
         }
-      } else {
-        console.log(`   ❌ Health check failed (status: ${res.statusCode})`);
-        console.log(`   📊 Response:`, data);
-      }
+      });
+    })
+    .on("error", (err) => {
+      console.log("   ❌ Health check error:", err.message);
     });
-  }).on("error", (err) => {
-    console.log("   ❌ Health check error:", err.message);
-  });
 }
 
 function testStatsRefresh() {
@@ -72,7 +74,7 @@ function testStatsRefresh() {
     username: username,
     token: WEBHOOK_TOKEN,
   });
-  
+
   const options = {
     hostname: url.hostname,
     port: url.port || 443,
@@ -83,16 +85,16 @@ function testStatsRefresh() {
       "Content-Length": Buffer.byteLength(postData),
     },
   };
-  
+
   console.log(`   👤 Testing for username: ${username}`);
-  
+
   const req = https.request(options, (res) => {
     let data = "";
-    
+
     res.on("data", (chunk) => {
       data += chunk;
     });
-    
+
     res.on("end", () => {
       if (res.statusCode === 200) {
         console.log("   ✅ Stats refresh successful!");
@@ -113,11 +115,11 @@ function testStatsRefresh() {
       }
     });
   });
-  
+
   req.on("error", (err) => {
     console.log("   ❌ Stats refresh error:", err.message);
   });
-  
+
   req.write(postData);
   req.end();
 }

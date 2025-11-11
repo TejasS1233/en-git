@@ -23,13 +23,14 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 
 ### **Website**
 
-
 - **Core Profile Analysis**: Get a complete breakdown of any user, including their top languages, contribution patterns, profile score, and detected domains (e.g., frontend, backend).
 
 - **Developer Comparison**: Place any two profiles side-by-side to instantly compare their languages, repository stats, and activity levels.
 
 - **Deep Repository Insights**: Analyze any repository for its tech stack, recent activity, and quality, and discover its most starred or active projects. Supports private repositories and organization repos with proper authentication
   ensuring complete privacy.
+
+- **Repo Radar**: Discover similar, lesser-known repositories using intelligent matching. Find hidden gems based on language, topics, and activity—perfect for finding new projects to contribute to or learn from.
 
 - **AI & Historical Tracking**: Receive AI-powered career advice and skill suggestions based on your activity. Track your profile's growth over time with historical charts and progress reports.
 

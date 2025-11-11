@@ -690,3 +690,218 @@ Return ONLY the description text, nothing else. No quotes, no explanations.`;
     throw new ApiError(500, error.message || "Failed to generate description");
   }
 });
+
+// Get similar lesser-known repositories
+export const getSimilarRepositories = asyncHandler(async (req, res) => {
+  const { owner, repo } = req.params;
+  const { language, topics, stars } = req.query;
+
+  if (!owner || !repo) {
+    throw new ApiError(400, "Owner and repository name are required");
+  }
+
+  try {
+    const token = req.user?.githubAccessToken || process.env.GITHUB_TOKEN;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    console.log("🔍 Repo Radar - Finding similar repositories:");
+    console.log("  - Target repo:", `${owner}/${repo}`);
+    console.log("  - Language:", language || "any");
+    console.log("  - Topics:", topics || "none");
+    console.log("  - Stars threshold:", stars || "not specified");
+
+    // Parse topics
+    const topicsArray = topics ? topics.split(",").filter(Boolean) : [];
+    const starsCount = parseInt(stars) || 0;
+
+    // Build search query - we'll try multiple strategies if needed
+    let searchQuery = "";
+    
+    // Add language filter
+    if (language && language !== "null") {
+      searchQuery += `language:${language} `;
+    }
+
+    // Add topic filters - use OR logic by trying most relevant topics first
+    // For better results, we'll only use 1-2 most common topics
+    if (topicsArray.length > 0) {
+      // Prioritize more common/general topics over specific ones
+      const priorityTopics = ["javascript", "typescript", "react", "nodejs", "python", "java"];
+      const commonTopics = topicsArray.filter(t => priorityTopics.includes(t.toLowerCase()));
+      const topicsToUse = commonTopics.length > 0 ? commonTopics.slice(0, 1) : topicsArray.slice(0, 1);
+      
+      topicsToUse.forEach((topic) => {
+        searchQuery += `topic:${topic} `;
+      });
+    }
+
+    // Filter for lesser-known repos with more flexible range
+    let minStars = 10;
+    let maxStars = 1000; // Default cap
+    
+    if (starsCount > 0) {
+      // For low-star repos (< 100), use wider range
+      if (starsCount < 100) {
+        minStars = Math.max(5, Math.floor(starsCount * 0.1)); // 10% minimum
+        maxStars = Math.max(50, starsCount * 3); // Up to 3x the stars
+      } else {
+        // For higher-star repos, use original logic
+        minStars = Math.max(10, Math.floor(starsCount * 0.05)); // 5% minimum
+        maxStars = Math.floor(starsCount * 0.8); // Max 80% of stars
+      }
+    }
+    
+    searchQuery += `stars:${minStars}..${maxStars} `;
+
+    // Filter for active repos (updated in last 2 years for better results)
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+    searchQuery += `pushed:>${twoYearsAgo.toISOString().split("T")[0]} `;
+
+    // Add additional quality filters
+    searchQuery += `is:public fork:false archived:false`;
+
+    console.log("  - Search query:", searchQuery.trim());
+
+    // Search for similar repositories
+    let searchResponse = await axios.get(`${GITHUB_API}/search/repositories`, {
+      headers,
+      params: {
+        q: searchQuery.trim(),
+        sort: "updated", // Sort by recently updated
+        order: "desc",
+        per_page: 20, // Get more results to filter
+      },
+    });
+
+    let repositories = searchResponse.data.items || [];
+    console.log(`  - Found ${repositories.length} potential matches`);
+
+    // Fallback: If no results, try a broader search with just language
+    if (repositories.length === 0 && language && language !== "null") {
+      console.log("  - No results found, trying broader search with just language...");
+      const fallbackQuery = `language:${language} stars:${minStars}..${maxStars} pushed:>${twoYearsAgo.toISOString().split("T")[0]} is:public fork:false archived:false`;
+      console.log("  - Fallback query:", fallbackQuery);
+      
+      searchResponse = await axios.get(`${GITHUB_API}/search/repositories`, {
+        headers,
+        params: {
+          q: fallbackQuery,
+          sort: "stars",
+          order: "desc",
+          per_page: 20,
+        },
+      });
+      
+      repositories = searchResponse.data.items || [];
+      console.log(`  - Fallback found ${repositories.length} potential matches`);
+    }
+
+    // Filter out the original repository
+    let filteredRepos = repositories.filter(
+      (r) => r.full_name.toLowerCase() !== `${owner}/${repo}`.toLowerCase()
+    );
+
+    // Score and rank repositories
+    const scoredRepos = filteredRepos.map((r) => {
+      let score = 0;
+      let matchReason = [];
+
+      // Language match bonus
+      if (language && r.language === language) {
+        score += 30;
+        matchReason.push("Same primary language");
+      }
+
+      // Topic overlap bonus (more generous scoring)
+      const repoTopics = r.topics || [];
+      const matchingTopics = repoTopics.filter((t) => topicsArray.includes(t));
+      if (matchingTopics.length > 0) {
+        score += matchingTopics.length * 15; // Reduced from 20 to be less strict
+        matchReason.push(`${matchingTopics.length} matching topic(s)`);
+      } else if (repoTopics.length > 0 && topicsArray.length > 0) {
+        // Even if no exact match, give small bonus if repo has any topics
+        score += 5;
+      }
+
+      // Recent activity bonus (updated in last 6 months)
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      if (new Date(r.updated_at) > sixMonthsAgo) {
+        score += 15;
+        matchReason.push("Recently active");
+      }
+
+      // Good documentation bonus
+      if (r.has_wiki || r.has_pages) {
+        score += 10;
+        matchReason.push("Well documented");
+      }
+
+      // Active community (issues enabled) - more flexible range
+      if (r.has_issues && r.open_issues_count > 0 && r.open_issues_count < 200) {
+        score += 10;
+        matchReason.push("Active community");
+      }
+
+      // Star scoring - more flexible for low-star repos
+      if (starsCount < 100) {
+        // For low-star repos, any repo in range is good
+        if (r.stargazers_count >= minStars && r.stargazers_count <= maxStars) {
+          score += 20;
+          matchReason.push("Similar popularity");
+        }
+      } else {
+        // Original logic for higher-star repos
+        const starRatio = r.stargazers_count / Math.max(starsCount, 1);
+        if (starRatio >= 0.1 && starRatio <= 0.7) {
+          score += 15;
+          matchReason.push("Hidden gem potential");
+        }
+      }
+
+      // Healthy fork ratio
+      const forkRatio = r.forks_count / Math.max(r.stargazers_count, 1);
+      if (forkRatio >= 0.05 && forkRatio <= 0.5) {
+        score += 5;
+        matchReason.push("Good contribution activity");
+      }
+
+      // Description exists (quality signal)
+      if (r.description && r.description.length > 20) {
+        score += 5;
+        matchReason.push("Well described");
+      }
+
+      return {
+        ...r,
+        score,
+        matchReason: matchReason.length > 0 ? matchReason.join(" • ") : "Similar characteristics",
+      };
+    });
+
+    // Sort by score and limit to top 10
+    const topRepos = scoredRepos
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+
+    console.log(`  - Returning ${topRepos.length} top-scored repositories`);
+
+    return res.status(200).json(
+      new ApiResponse(200, "Similar repositories found successfully", {
+        repositories: topRepos,
+        totalFound: repositories.length,
+        query: searchQuery.trim(),
+      })
+    );
+  } catch (error) {
+    console.error("Similar Repositories Error:", error);
+    if (error.response?.status === 403) {
+      throw new ApiError(
+        403,
+        "GitHub API rate limit exceeded. Please try again later or add a GITHUB_TOKEN."
+      );
+    }
+    throw new ApiError(500, error.message || "Failed to find similar repositories");
+  }
+});

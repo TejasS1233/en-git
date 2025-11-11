@@ -6,7 +6,6 @@ import { updateUserStatsCache } from "../services/statsCache.service.js";
 import { Challenge } from "../models/challenge.model.js";
 import { User } from "../models/user.model.js";
 
-
 const verifyGitHubSignature = (payload, signature, secret) => {
   if (!signature) {
     return false;
@@ -14,11 +13,8 @@ const verifyGitHubSignature = (payload, signature, secret) => {
 
   const hmac = crypto.createHmac("sha256", secret);
   const digest = "sha256=" + hmac.update(payload).digest("hex");
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(digest)
-  );
+
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
 };
 
 /**
@@ -45,41 +41,43 @@ const handleGitHubWebhook = asyncHandler(async (req, res) => {
 
   // Extract username from the payload
   const username = req.body.sender?.login || req.body.pusher?.name;
-  
+
   if (!username) {
     throw new ApiError(400, "Could not extract username from webhook payload");
   }
 
   // Handle different event types
   let updateResult = null;
-  
+
   switch (event) {
     case "push":
       updateResult = await handlePushEvent(req.body, username);
       break;
-    
+
     case "pull_request":
       updateResult = await handlePullRequestEvent(req.body, username);
       break;
-    
+
     case "issues":
       updateResult = await handleIssuesEvent(req.body, username);
       break;
-    
+
     case "star":
     case "watch":
       updateResult = await handleStarEvent(req.body, username);
       break;
-    
+
     case "fork":
       updateResult = await handleForkEvent(req.body, username);
       break;
-    
+
     default:
       console.log(` Unhandled event type: ${event}`);
       return res
         .status(200)
-        .json(new ApiResponse(200, { event, action: "ignored" }, "Event received but not processed"));
+        .json(
+          new ApiResponse(200, { event, action: "ignored" }, "Event received but not processed")
+        );
   }
 
   return res
@@ -95,7 +93,9 @@ const handlePushEvent = async (payload, username) => {
   const repository = payload.repository?.name;
   const branch = payload.ref?.replace("refs/heads/", "");
 
-  console.log(`📝 Push event: ${username} pushed ${commits.length} commits to ${repository}/${branch}`);
+  console.log(
+    `📝 Push event: ${username} pushed ${commits.length} commits to ${repository}/${branch}`
+  );
 
   // Invalidate stats cache to force refresh
   await updateUserStatsCache(username);
@@ -200,7 +200,7 @@ const handleStarEvent = async (payload, username) => {
   const repoOwner = payload.repository?.owner?.login;
   if (repoOwner) {
     await updateUserStatsCache(repoOwner);
-    
+
     if (action === "created") {
       await updateChallenges(repoOwner, "star_received", {
         repository,
@@ -232,7 +232,7 @@ const handleForkEvent = async (payload, username) => {
   const repoOwner = payload.repository?.owner?.login;
   if (repoOwner) {
     await updateUserStatsCache(repoOwner);
-    
+
     await updateChallenges(repoOwner, "fork_received", {
       repository,
       forker: username,
@@ -280,42 +280,42 @@ const updateChallenges = async (username, eventType, eventData) => {
             shouldUpdate = true;
           }
           break;
-        
+
         case "pull_request_opened":
           if (challenge.type === "pull_requests") {
             challenge.currentValue += 1;
             shouldUpdate = true;
           }
           break;
-        
+
         case "pull_request_merged":
           if (challenge.type === "merged_prs") {
             challenge.currentValue += 1;
             shouldUpdate = true;
           }
           break;
-        
+
         case "issue_opened":
           if (challenge.type === "issues_opened") {
             challenge.currentValue += 1;
             shouldUpdate = true;
           }
           break;
-        
+
         case "issue_closed":
           if (challenge.type === "issues_closed") {
             challenge.currentValue += 1;
             shouldUpdate = true;
           }
           break;
-        
+
         case "star_received":
           if (challenge.type === "stars") {
             challenge.currentValue += 1;
             shouldUpdate = true;
           }
           break;
-        
+
         case "fork_received":
           if (challenge.type === "forks") {
             challenge.currentValue += 1;
@@ -357,14 +357,17 @@ const refreshUserStats = asyncHandler(async (req, res) => {
 
   // Find user and verify their webhook token
   const user = await User.findOne({ githubUsername: username }).select("+webhookToken");
-  
+
   if (!user) {
     throw new ApiError(404, "User not found. Please sign up on en-git first.");
   }
 
   // Check if user has a webhook token
   if (!user.webhookToken) {
-    throw new ApiError(401, "Webhook token not generated. Please generate one from your settings page.");
+    throw new ApiError(
+      401,
+      "Webhook token not generated. Please generate one from your settings page."
+    );
   }
 
   // Verify the token matches
@@ -420,7 +423,9 @@ const getWebhookToken = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Webhook token retrieved successfully", { token: user.webhookToken }));
+    .json(
+      new ApiResponse(200, "Webhook token retrieved successfully", { token: user.webhookToken })
+    );
 });
 
 /**
@@ -441,13 +446,15 @@ const regenerateWebhookToken = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Webhook token regenerated successfully", { token: user.webhookToken }));
+    .json(
+      new ApiResponse(200, "Webhook token regenerated successfully", { token: user.webhookToken })
+    );
 });
 
-export { 
-  handleGitHubWebhook, 
-  refreshUserStats, 
+export {
+  handleGitHubWebhook,
+  refreshUserStats,
   webhookHealth,
   getWebhookToken,
-  regenerateWebhookToken
+  regenerateWebhookToken,
 };

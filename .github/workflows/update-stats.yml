@@ -13,14 +13,14 @@ on:
   workflow_dispatch:
     inputs:
       username:
-        description: 'GitHub username to update stats for'
+        description: "GitHub username to update stats for"
         required: false
         type: string
 
 jobs:
   update-stats:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

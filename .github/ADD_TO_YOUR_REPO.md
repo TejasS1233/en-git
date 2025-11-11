@@ -5,16 +5,19 @@ Add this workflow to your repo and your stats update automatically on every push
 ## Setup (2 minutes)
 
 ### 1. Get Your Token
+
 Visit [en-git.vercel.app/settings](https://en-git.vercel.app/settings) and copy your webhook token.
 
 ### 2. Add to GitHub
+
 - Go to your repo → **Settings** → **Secrets** → **Actions**
 - Click **New repository secret**
 - Name: `ENGIT_TOKEN`
-- Value: *paste your token*
+- Value: _paste your token_
 - Save
 
 ### 3. Create Workflow File
+
 Create `.github/workflows/engit-stats.yml`:
 
 ```yaml
@@ -35,6 +38,7 @@ jobs:
 ```
 
 ### 4. Push
+
 ```bash
 git add .github/workflows/engit-stats.yml
 git commit -m "Add en-git auto-update"

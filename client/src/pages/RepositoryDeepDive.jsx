@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { RepositoryAnalysisTips } from "@/components/AnalysisTips";
 import { AIRepoDescription } from "@/components/AIRepoDescription";
 import { RepoHealthScore } from "@/components/RepoHealthScore";
+import RepoRadar from "@/components/RepoRadar";
 import {
   BarChart,
   Bar,
@@ -748,6 +749,17 @@ export default function RepositoryDeepDive() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Repo Radar - Similar Repositories */}
+      <div className="mt-8">
+        <RepoRadar
+          owner={repository.owner.login}
+          repo={repository.name}
+          language={repository.language}
+          topics={repository.topics}
+          stars={repository.stargazers_count}
+        />
+      </div>
     </div>
   );
 }

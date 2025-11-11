@@ -16,11 +16,8 @@ export const updateUserStatsCache = async (username, token = null) => {
     console.log(`🔄 Updating stats cache for: ${username}`);
 
     // Fetch fresh user data from GitHub
-    const { data: user } = await axios.get(
-      `https://api.github.com/users/${username}`,
-      { headers }
-    );
-    
+    const { data: user } = await axios.get(`https://api.github.com/users/${username}`, { headers });
+
     // Fetch user's repositories
     const { data: repos } = await axios.get(
       `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`,
@@ -47,7 +44,7 @@ export const updateUserStatsCache = async (username, token = null) => {
     });
 
     console.log(`✅ Stats cache updated for: ${username}`);
-    
+
     return stats;
   } catch (error) {
     console.error(`❌ Error updating stats cache for ${username}:`, error.message);
@@ -62,14 +59,14 @@ export const updateUserStatsCache = async (username, token = null) => {
  */
 export const getCachedStats = (username) => {
   const cached = statsCache.get(username);
-  
+
   if (!cached) {
     return null;
   }
 
   // Check if cache is still valid
   const isExpired = Date.now() - cached.timestamp > CACHE_TTL;
-  
+
   if (isExpired) {
     statsCache.delete(username);
     return null;
