@@ -12,7 +12,7 @@ export class CodeQualityAnalyzer {
   /**
    * Analyze a code file and return quality metrics
    */
-  async analyzeFile(content, fileInfo) {
+  async analyzeFile(content, fileInfo, useAI = true) {
     const cacheKey = `${fileInfo.path}-${fileInfo.sha || Date.now()}`;
 
     // Check cache
@@ -23,22 +23,77 @@ export class CodeQualityAnalyzer {
       }
     }
 
-    const metrics = {
+    // Basic static analysis (fast)
+    const basicMetrics = {
       qualityScore: this.calculateQualityScore(content, fileInfo),
       complexity: this.calculateComplexity(content, fileInfo),
       linesOfCode: this.countLines(content),
       issues: this.findIssues(content, fileInfo),
       suggestions: this.generateSuggestions(content, fileInfo),
       breakdown: this.getScoreBreakdown(content, fileInfo),
+      // Enhanced metrics
+      security: this.analyzeSecurityIssues(content, fileInfo),
+      performance: this.analyzePerformance(content, fileInfo),
+      codeSmells: this.detectCodeSmells(content, fileInfo),
+      maintainability: this.calculateMaintainabilityIndex(content, fileInfo),
+      detailedMetrics: this.getDetailedMetrics(content, fileInfo),
+      bestPractices: this.checkBestPractices(content, fileInfo),
     };
+
+    // Add AI analysis if enabled and file is reasonable size
+    if (useAI && content.length < 50000) {
+      try {
+        // Dynamically import AI service
+        const aiModule = await import("./aiCodeAnalysis.js");
+        const aiService = aiModule.aiCodeAnalysisService;
+
+        // Run AI analysis in background (don't block basic results)
+        basicMetrics.aiAnalysis = {
+          status: "analyzing",
+          message: "AI agents are analyzing your code...",
+        };
+
+        // Start AI analysis
+        aiService
+          .analyzeWithAI(content, fileInfo, basicMetrics)
+          .then((aiInsights) => {
+            // Update cache with AI results
+            basicMetrics.aiAnalysis = aiInsights;
+            this.cache.set(cacheKey, {
+              data: basicMetrics,
+              timestamp: Date.now(),
+            });
+
+            // Trigger custom event to update UI
+            window.dispatchEvent(
+              new CustomEvent("en-git-ai-analysis-complete", {
+                detail: { fileInfo, aiInsights },
+              })
+            );
+          });
+      } catch (error) {
+        console.warn("AI analysis not available:", error);
+        basicMetrics.aiAnalysis = {
+          enabled: false,
+          message: "AI analysis unavailable",
+        };
+      }
+    } else {
+      basicMetrics.aiAnalysis = {
+        enabled: false,
+        message: useAI
+          ? "File too large for AI analysis"
+          : "AI analysis disabled",
+      };
+    }
 
     // Cache results
     this.cache.set(cacheKey, {
-      data: metrics,
+      data: basicMetrics,
       timestamp: Date.now(),
     });
 
-    return metrics;
+    return basicMetrics;
   }
 
   /**
@@ -413,6 +468,585 @@ export class CodeQualityAnalyzer {
    */
   clearCache() {
     this.cache.clear();
+  }
+
+  /**
+   * Analyze security vulnerabilities
+   */
+  analyzeSecurityIssues(content, fileInfo) {
+    const issues = [];
+    const ext = fileInfo.extension?.toLowerCase();
+
+    // SQL Injection patterns
+    if (
+      /\$\{.*\}|`\$\{|String\s*\+|concat\(.*\+/i.test(content) &&
+      /(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)/i.test(content)
+    ) {
+      issues.push({
+        type: "critical",
+        category: "SQL Injection",
+        message: "Potential SQL injection vulnerability detected",
+        description:
+          "String concatenation or template literals used in SQL queries. Use parameterized queries instead.",
+        severity: "critical",
+      });
+    }
+
+    // XSS vulnerabilities
+    if (
+      /innerHTML|outerHTML|document\.write|eval\(/.test(content) &&
+      /\$\{|req\.|params\.|query\.|body\./i.test(content)
+    ) {
+      issues.push({
+        type: "critical",
+        category: "XSS",
+        message: "Potential Cross-Site Scripting (XSS) vulnerability",
+        description:
+          "Unsafe DOM manipulation with user input. Sanitize all user inputs before inserting into DOM.",
+        severity: "critical",
+      });
+    }
+
+    // Eval usage
+    const evalMatches = content.match(/\beval\s*\(/g);
+    if (evalMatches) {
+      issues.push({
+        type: "critical",
+        category: "Code Execution",
+        message: `Found ${evalMatches.length} eval() usage(s)`,
+        description:
+          "eval() executes arbitrary code and is a major security risk. Avoid using eval().",
+        severity: "critical",
+      });
+    }
+
+    // Hardcoded secrets/credentials
+    const secretPatterns = [
+      { pattern: /password\s*=\s*['"][^'"]{4,}['"]/, name: "Password" },
+      { pattern: /api[_-]?key\s*=\s*['"][^'"]{10,}['"]/, name: "API Key" },
+      { pattern: /secret\s*=\s*['"][^'"]{10,}['"]/, name: "Secret" },
+      { pattern: /token\s*=\s*['"][^'"]{20,}['"]/, name: "Token" },
+      {
+        pattern: /aws[_-]?access[_-]?key/i,
+        name: "AWS Access Key",
+      },
+    ];
+
+    secretPatterns.forEach(({ pattern, name }) => {
+      if (pattern.test(content)) {
+        issues.push({
+          type: "critical",
+          category: "Hardcoded Credentials",
+          message: `Potential hardcoded ${name} detected`,
+          description: `Use environment variables or secure credential storage instead of hardcoding ${name.toLowerCase()}s.`,
+          severity: "critical",
+        });
+      }
+    });
+
+    // Insecure random
+    if (
+      /Math\.random\(\)/.test(content) &&
+      /crypto|security|token|session/i.test(content)
+    ) {
+      issues.push({
+        type: "warning",
+        category: "Weak Randomness",
+        message: "Math.random() used in security context",
+        description:
+          "Math.random() is not cryptographically secure. Use crypto.randomBytes() or window.crypto.getRandomValues() for security purposes.",
+        severity: "high",
+      });
+    }
+
+    // HTTP instead of HTTPS
+    if (/http:\/\/(?!localhost|127\.0\.0\.1)/i.test(content)) {
+      issues.push({
+        type: "warning",
+        category: "Insecure Protocol",
+        message: "HTTP URLs detected (use HTTPS)",
+        description: "Always use HTTPS for secure communication.",
+        severity: "medium",
+      });
+    }
+
+    // Unsafe file operations
+    if (
+      /fs\.readFileSync|fs\.writeFileSync|child_process\.exec/.test(content)
+    ) {
+      issues.push({
+        type: "warning",
+        category: "Unsafe Operations",
+        message: "Potentially unsafe file/process operations",
+        description:
+          "Synchronous file operations can block the event loop. Validate all file paths and sanitize command inputs.",
+        severity: "medium",
+      });
+    }
+
+    return {
+      issues,
+      score: Math.max(0, 100 - issues.length * 15),
+      critical: issues.filter((i) => i.severity === "critical").length,
+      high: issues.filter((i) => i.severity === "high").length,
+      medium: issues.filter((i) => i.severity === "medium").length,
+    };
+  }
+
+  /**
+   * Analyze performance issues
+   */
+  analyzePerformance(content, fileInfo) {
+    const issues = [];
+
+    // Nested loops
+    const nestedLoopPattern = /for\s*\([^)]*\)[^{]*{[^}]*for\s*\([^)]*\)/g;
+    const nestedLoops = content.match(nestedLoopPattern);
+    if (nestedLoops) {
+      issues.push({
+        type: "warning",
+        message: `${nestedLoops.length} nested loop(s) detected`,
+        description:
+          "Nested loops can cause O(n²) or worse complexity. Consider optimizing with maps/sets.",
+        impact: "High time complexity",
+        severity: "medium",
+      });
+    }
+
+    // Array methods in loops
+    if (/for\s*\([^)]*\)[^{]*{[^}]*\.(push|concat|splice)/.test(content)) {
+      issues.push({
+        type: "info",
+        message: "Array mutations inside loops",
+        description:
+          "Frequent array mutations in loops can be slow. Consider pre-allocating or using different data structures.",
+        impact: "Memory allocation overhead",
+        severity: "low",
+      });
+    }
+
+    // Multiple DOM queries in loops
+    if (
+      /for\s*\([^)]*\)[^{]*{[^}]*(querySelector|getElementById|getElementsBy)/.test(
+        content
+      )
+    ) {
+      issues.push({
+        type: "warning",
+        message: "DOM queries inside loops",
+        description:
+          "Cache DOM references outside loops to avoid repeated queries.",
+        impact: "Repeated expensive DOM operations",
+        severity: "medium",
+      });
+    }
+
+    // Synchronous operations
+    const syncOps = [
+      { pattern: /\.readFileSync\(/, name: "Synchronous file read" },
+      { pattern: /\.writeFileSync\(/, name: "Synchronous file write" },
+      { pattern: /JSON\.parse\([^)]{200,}\)/, name: "Large JSON.parse()" },
+    ];
+
+    syncOps.forEach(({ pattern, name }) => {
+      if (pattern.test(content)) {
+        issues.push({
+          type: "warning",
+          message: name,
+          description:
+            "Blocking operations can freeze the event loop. Use async alternatives.",
+          impact: "Event loop blocking",
+          severity: "medium",
+        });
+      }
+    });
+
+    // Memory leaks
+    if (
+      /addEventListener\(/.test(content) &&
+      !/removeEventListener\(/.test(content)
+    ) {
+      issues.push({
+        type: "info",
+        message: "Event listeners without cleanup",
+        description:
+          "Always remove event listeners to prevent memory leaks, especially in SPAs.",
+        impact: "Potential memory leak",
+        severity: "low",
+      });
+    }
+
+    // Large objects/arrays
+    const largeArrayMatch = content.match(/\[[^\]]{500,}\]/);
+    if (largeArrayMatch) {
+      issues.push({
+        type: "info",
+        message: "Large inline array detected",
+        description:
+          "Consider loading large datasets from external files or APIs.",
+        impact: "Bundle size increase",
+        severity: "low",
+      });
+    }
+
+    // Inefficient string concatenation in loops
+    if (/for\s*\([^)]*\)[^{]*{[^}]*\+=\s*['"`]/.test(content)) {
+      issues.push({
+        type: "warning",
+        message: "String concatenation in loops",
+        description:
+          "Use array.join() or template literals for better performance.",
+        impact: "String allocation overhead",
+        severity: "low",
+      });
+    }
+
+    return {
+      issues,
+      score: Math.max(0, 100 - issues.length * 10),
+      optimizationOpportunities: issues.length,
+    };
+  }
+
+  /**
+   * Detect code smells and anti-patterns
+   */
+  detectCodeSmells(content, fileInfo) {
+    const smells = [];
+
+    // God Object/Class (too many methods)
+    const methodCount = (content.match(/function\s+\w+|const\s+\w+\s*=/g) || [])
+      .length;
+    if (methodCount > 20) {
+      smells.push({
+        type: "God Object",
+        message: `File contains ${methodCount} functions/methods`,
+        description:
+          "Consider breaking this into smaller, focused modules following Single Responsibility Principle.",
+        severity: "medium",
+      });
+    }
+
+    // Long parameter lists
+    const longParams = content.match(/function\s+\w+\s*\([^)]{60,}\)/g);
+    if (longParams) {
+      smells.push({
+        type: "Long Parameter List",
+        message: `${longParams.length} function(s) with long parameter lists`,
+        description: "Use objects/config patterns instead of many parameters.",
+        severity: "low",
+      });
+    }
+
+    // Duplicated code
+    const lines = content
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 10);
+    const duplicates = lines.filter(
+      (line, idx) => lines.indexOf(line) !== idx
+    ).length;
+    if (duplicates > 10) {
+      smells.push({
+        type: "Code Duplication",
+        message: `~${duplicates} duplicated lines detected`,
+        description: "Extract common code into reusable functions/utilities.",
+        severity: "medium",
+      });
+    }
+
+    // Feature Envy (excessive chaining)
+    const chainMatches = content.match(
+      /\.\w+\(\)[.\s]*\.\w+\(\)[.\s]*\.\w+\(\)/g
+    );
+    if (chainMatches && chainMatches.length > 5) {
+      smells.push({
+        type: "Feature Envy",
+        message: "Excessive method chaining detected",
+        description:
+          "Long chains can be hard to debug. Consider intermediate variables.",
+        severity: "low",
+      });
+    }
+
+    // Primitive Obsession
+    if (/string|number|boolean/gi.test(content)) {
+      const primitiveCount = (
+        content.match(/:\s*(string|number|boolean)/gi) || []
+      ).length;
+      if (primitiveCount > 15) {
+        smells.push({
+          type: "Primitive Obsession",
+          message: "Heavy use of primitive types",
+          description:
+            "Consider using custom types/classes for better type safety.",
+          severity: "low",
+        });
+      }
+    }
+
+    // Shotgun Surgery (try-catch everywhere)
+    const tryCatchCount = (content.match(/try\s*{/g) || []).length;
+    if (tryCatchCount > 5) {
+      smells.push({
+        type: "Shotgun Surgery",
+        message: `${tryCatchCount} try-catch blocks`,
+        description:
+          "Centralize error handling with error boundaries or middleware.",
+        severity: "low",
+      });
+    }
+
+    // Dead code
+    const unusedVars = content.match(/const\s+\w+\s*=.*;\s*$(?![\s\S]*\1)/gm);
+    if (unusedVars && unusedVars.length > 3) {
+      smells.push({
+        type: "Dead Code",
+        message: "Potentially unused variables detected",
+        description:
+          "Remove unused code to reduce bundle size and improve readability.",
+        severity: "low",
+      });
+    }
+
+    // Magic strings/numbers
+    const magicStrings = content.match(/['"][A-Z_]{4,}['"]/g);
+    if (magicStrings && magicStrings.length > 5) {
+      smells.push({
+        type: "Magic Values",
+        message: "Many hardcoded strings detected",
+        description:
+          "Extract constants to named variables for better maintainability.",
+        severity: "low",
+      });
+    }
+
+    return {
+      smells,
+      score: Math.max(0, 100 - smells.length * 8),
+      totalSmells: smells.length,
+    };
+  }
+
+  /**
+   * Calculate Maintainability Index (0-100)
+   * Based on Halstead metrics and cyclomatic complexity
+   */
+  calculateMaintainabilityIndex(content, fileInfo) {
+    const lines = content.split("\n");
+    const linesOfCode = this.countLines(content);
+    const complexity = this.getNumericComplexity(content);
+    const commentRatio =
+      this.countCommentLines(content, fileInfo.extension) / lines.length;
+
+    // Simplified maintainability index
+    let mi = 100;
+
+    // Volume penalty (based on LOC)
+    if (linesOfCode > 500) mi -= 30;
+    else if (linesOfCode > 300) mi -= 20;
+    else if (linesOfCode > 150) mi -= 10;
+
+    // Complexity penalty
+    mi -= Math.min(complexity, 40);
+
+    // Documentation bonus
+    if (commentRatio >= 0.15) mi += 10;
+    else if (commentRatio < 0.05) mi -= 15;
+
+    // Coupling (imports/requires)
+    const imports = (content.match(/import\s|require\s*\(/g) || []).length;
+    mi -= Math.min(imports * 2, 20);
+
+    mi = Math.max(0, Math.min(100, Math.round(mi)));
+
+    let rating;
+    if (mi >= 80) rating = "Excellent";
+    else if (mi >= 65) rating = "Good";
+    else if (mi >= 50) rating = "Fair";
+    else if (mi >= 25) rating = "Poor";
+    else rating = "Critical";
+
+    return {
+      index: mi,
+      rating,
+      technicalDebt: this.estimateTechnicalDebt(mi, linesOfCode),
+    };
+  }
+
+  /**
+   * Get numeric complexity value
+   */
+  getNumericComplexity(content) {
+    const patterns = {
+      if: /\bif\s*\(/g,
+      for: /\bfor\s*\(/g,
+      while: /\bwhile\s*\(/g,
+      switch: /\bswitch\s*\(/g,
+      case: /\bcase\s+/g,
+      catch: /\bcatch\s*\(/g,
+      ternary: /\?[^:]+:/g,
+      logicalAnd: /&&/g,
+      logicalOr: /\|\|/g,
+    };
+
+    let complexity = 0;
+    for (const pattern of Object.values(patterns)) {
+      const matches = content.match(pattern);
+      if (matches) complexity += matches.length;
+    }
+
+    return complexity;
+  }
+
+  /**
+   * Estimate technical debt in hours
+   */
+  estimateTechnicalDebt(mi, linesOfCode) {
+    // Lower maintainability = more debt
+    const debtFactor = (100 - mi) / 100;
+    const hoursPerLine = 0.05; // Avg 3 minutes per line to refactor
+    const estimatedHours = Math.round(debtFactor * linesOfCode * hoursPerLine);
+
+    return {
+      hours: estimatedHours,
+      days: Math.round(estimatedHours / 8),
+      priority: mi < 50 ? "High" : mi < 65 ? "Medium" : "Low",
+    };
+  }
+
+  /**
+   * Get detailed code metrics
+   */
+  getDetailedMetrics(content, fileInfo) {
+    const lines = content.split("\n");
+
+    return {
+      totalLines: lines.length,
+      codeLines: this.countLines(content),
+      commentLines: this.countCommentLines(content, fileInfo.extension),
+      blankLines: lines.filter((l) => l.trim().length === 0).length,
+      functions: (content.match(/function\s+\w+|const\s+\w+\s*=/g) || [])
+        .length,
+      classes: (content.match(/class\s+\w+/g) || []).length,
+      imports: (content.match(/import\s|require\s*\(/g) || []).length,
+      exports: (content.match(/export\s|module\.exports/g) || []).length,
+      conditionals: (content.match(/\bif\s*\(|\belse\b|\bswitch\s*\(/g) || [])
+        .length,
+      loops: (content.match(/\bfor\s*\(|\bwhile\s*\(/g) || []).length,
+      tryCatch: (content.match(/\btry\s*{|\bcatch\s*\(/g) || []).length,
+      avgLineLength: Math.round(
+        lines.reduce((sum, line) => sum + line.length, 0) / lines.length
+      ),
+      maxLineLength: Math.max(...lines.map((l) => l.length)),
+      cyclomaticComplexity: this.getNumericComplexity(content),
+    };
+  }
+
+  /**
+   * Check language-specific best practices
+   */
+  checkBestPractices(content, fileInfo) {
+    const violations = [];
+    const ext = fileInfo.extension?.toLowerCase();
+
+    // JavaScript/TypeScript specific
+    if (ext === ".js" || ext === ".jsx" || ext === ".ts" || ext === ".tsx") {
+      // Use const/let instead of var
+      if (/\bvar\s+\w+/.test(content)) {
+        violations.push({
+          rule: "Use const/let",
+          message: "Avoid 'var', use 'const' or 'let' instead",
+          severity: "low",
+        });
+      }
+
+      // Arrow functions for callbacks
+      if (/\.map\s*\(\s*function\s*\(/.test(content)) {
+        violations.push({
+          rule: "Arrow Functions",
+          message: "Use arrow functions for cleaner callback syntax",
+          severity: "low",
+        });
+      }
+
+      // Async/await vs promises
+      if (
+        /\.then\s*\([^)]*\)\.then\s*\(/.test(content) &&
+        !/async\s+/.test(content)
+      ) {
+        violations.push({
+          rule: "Async/Await",
+          message: "Consider using async/await instead of promise chains",
+          severity: "low",
+        });
+      }
+
+      // Strict equality
+      if (/[^=!]==[^=]|!=[^=]/.test(content)) {
+        violations.push({
+          rule: "Strict Equality",
+          message: "Use === and !== instead of == and !=",
+          severity: "medium",
+        });
+      }
+
+      // Optional chaining
+      if (/&&\s*\w+\.\w+\s*&&\s*\w+\.\w+\.\w+/.test(content)) {
+        violations.push({
+          rule: "Optional Chaining",
+          message:
+            "Consider using optional chaining (?.) for safer property access",
+          severity: "low",
+        });
+      }
+    }
+
+    // React specific
+    if (ext === ".jsx" || ext === ".tsx") {
+      // Missing key prop in lists
+      if (
+        /\.map\s*\([^)]*\)\s*=>\s*</.test(content) &&
+        !/key=/i.test(content)
+      ) {
+        violations.push({
+          rule: "React Keys",
+          message: "Add 'key' prop to elements in lists",
+          severity: "medium",
+        });
+      }
+
+      // Inline functions in JSX
+      if (/<\w+[^>]*\s+on\w+={[^}]*=>/g.test(content)) {
+        violations.push({
+          rule: "React Performance",
+          message:
+            "Avoid inline functions in JSX (use useCallback or class methods)",
+          severity: "low",
+        });
+      }
+    }
+
+    // Python specific
+    if (ext === ".py") {
+      // PEP 8 line length
+      const longLines = content
+        .split("\n")
+        .filter((line) => line.length > 79).length;
+      if (longLines > 0) {
+        violations.push({
+          rule: "PEP 8",
+          message: `${longLines} line(s) exceed 79 characters`,
+          severity: "low",
+        });
+      }
+    }
+
+    return {
+      violations,
+      score: Math.max(0, 100 - violations.length * 10),
+      compliant: violations.length === 0,
+    };
   }
 }
 

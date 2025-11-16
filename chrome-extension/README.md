@@ -18,6 +18,7 @@ AI-Powered GitHub Analytics right in your browser!
   - Complexity level (Low/Medium/High)
   - Detailed modal with score breakdown, issues, and suggestions
   - Automatic navigation detection - no reload needed!
+- 🤖 **AI Multi-Agent Analysis**: 5 specialized AI agents review code for security, performance, architecture, standards & refactoring
 
 ### Core Features
 

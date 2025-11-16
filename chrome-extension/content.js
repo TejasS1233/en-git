@@ -47,6 +47,25 @@ class CodeQualityAnalyzer {
       issues: this.findIssues(content, fileInfo),
       suggestions: this.generateSuggestions(content, fileInfo),
       breakdown: this.getScoreBreakdown(content, fileInfo),
+      // Enhanced metrics
+      security: this.analyzeSecurityIssues
+        ? this.analyzeSecurityIssues(content, fileInfo)
+        : null,
+      performance: this.analyzePerformance
+        ? this.analyzePerformance(content, fileInfo)
+        : null,
+      codeSmells: this.detectCodeSmells
+        ? this.detectCodeSmells(content, fileInfo)
+        : null,
+      maintainability: this.calculateMaintainabilityIndex
+        ? this.calculateMaintainabilityIndex(content, fileInfo)
+        : null,
+      detailedMetrics: this.getDetailedMetrics
+        ? this.getDetailedMetrics(content, fileInfo)
+        : null,
+      bestPractices: this.checkBestPractices
+        ? this.checkBestPractices(content, fileInfo)
+        : null,
     };
 
     this.cache.set(cacheKey, {
@@ -365,6 +384,225 @@ class CodeQualityAnalyzer {
     return breakdown;
   }
 
+  // ==================== ENHANCED ANALYSIS METHODS ====================
+
+  analyzeSecurityIssues(content, fileInfo) {
+    const issues = [];
+
+    // SQL Injection
+    if (
+      /\$\{.*\}|`\$\{|String\s*\+|concat\(.*\+/i.test(content) &&
+      /(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)/i.test(content)
+    ) {
+      issues.push({
+        type: "critical",
+        category: "SQL Injection",
+        message: "Potential SQL injection vulnerability detected",
+        description:
+          "String concatenation or template literals used in SQL queries. Use parameterized queries instead.",
+        severity: "critical",
+      });
+    }
+
+    // XSS vulnerabilities
+    if (
+      /innerHTML|outerHTML|document\.write|eval\(/.test(content) &&
+      /\$\{|req\.|params\.|query\.|body\./i.test(content)
+    ) {
+      issues.push({
+        type: "critical",
+        category: "XSS",
+        message: "Potential Cross-Site Scripting (XSS) vulnerability",
+        description:
+          "Unsafe DOM manipulation with user input. Sanitize all user inputs before inserting into DOM.",
+        severity: "critical",
+      });
+    }
+
+    // Eval usage
+    const evalMatches = content.match(/\beval\s*\(/g);
+    if (evalMatches) {
+      issues.push({
+        type: "critical",
+        category: "Code Execution",
+        message: `Found ${evalMatches.length} eval() usage(s)`,
+        description:
+          "eval() executes arbitrary code and is a major security risk. Avoid using eval().",
+        severity: "critical",
+      });
+    }
+
+    return {
+      issues,
+      score: Math.max(0, 100 - issues.length * 15),
+      critical: issues.filter((i) => i.severity === "critical").length,
+      high: issues.filter((i) => i.severity === "high").length,
+      medium: issues.filter((i) => i.severity === "medium").length,
+    };
+  }
+
+  analyzePerformance(content, fileInfo) {
+    const issues = [];
+
+    // Nested loops
+    const nestedLoops = content.match(
+      /for\s*\([^)]*\)[^{]*{[^}]*for\s*\([^)]*\)/g
+    );
+    if (nestedLoops) {
+      issues.push({
+        type: "warning",
+        message: `${nestedLoops.length} nested loop(s) detected`,
+        description:
+          "Nested loops can cause O(n²) or worse complexity. Consider optimizing with maps/sets.",
+        impact: "High time complexity",
+        severity: "medium",
+      });
+    }
+
+    // DOM queries in loops
+    if (
+      /for\s*\([^)]*\)[^{]*{[^}]*(querySelector|getElementById|getElementsBy)/.test(
+        content
+      )
+    ) {
+      issues.push({
+        type: "warning",
+        message: "DOM queries inside loops",
+        description:
+          "Cache DOM references outside loops to avoid repeated queries.",
+        impact: "Repeated expensive DOM operations",
+        severity: "medium",
+      });
+    }
+
+    return {
+      issues,
+      score: Math.max(0, 100 - issues.length * 10),
+      optimizationOpportunities: issues.length,
+    };
+  }
+
+  detectCodeSmells(content, fileInfo) {
+    const smells = [];
+
+    // God Object/Class (too many methods)
+    const methodCount = (content.match(/function\s+\w+|const\s+\w+\s*=/g) || [])
+      .length;
+    if (methodCount > 20) {
+      smells.push({
+        type: "God Object",
+        message: `File contains ${methodCount} functions/methods`,
+        description:
+          "Consider breaking this into smaller, focused modules following Single Responsibility Principle.",
+        severity: "medium",
+      });
+    }
+
+    // Long parameter lists
+    const longParams = content.match(
+      /function\s+\w+\s*\([^)]{50,}\)|=>\s*\([^)]{50,}\)/g
+    );
+    if (longParams) {
+      smells.push({
+        type: "Long Parameter List",
+        message: `${longParams.length} function(s) with long parameter lists`,
+        description:
+          "Functions with many parameters are hard to use. Consider using an options object.",
+        severity: "low",
+      });
+    }
+
+    return { smells };
+  }
+
+  calculateMaintainabilityIndex(content, fileInfo) {
+    const lines = content.split("\n");
+    const codeLines = lines.filter(
+      (l) =>
+        l.trim() && !l.trim().startsWith("//") && !l.trim().startsWith("/*")
+    ).length;
+    const complexity = this.countComplexity(content);
+    const commentRatio =
+      this.countCommentLines(content, fileInfo.extension) / lines.length;
+
+    // Maintainability Index formula (simplified)
+    let index =
+      171 -
+      5.2 * Math.log(codeLines) -
+      0.23 * complexity -
+      16.2 * Math.log(codeLines * (1 - commentRatio));
+    index = Math.max(0, Math.min(100, Math.round(index)));
+
+    let rating = "Low";
+    if (index >= 85) rating = "Excellent";
+    else if (index >= 65) rating = "Good";
+    else if (index >= 50) rating = "Moderate";
+
+    const hours = Math.ceil(codeLines / 50);
+    const days = Math.ceil(hours / 8);
+
+    return {
+      index,
+      rating,
+      technicalDebt: {
+        hours,
+        days,
+        priority: index < 50 ? "High" : index < 65 ? "Medium" : "Low",
+      },
+    };
+  }
+
+  getDetailedMetrics(content, fileInfo) {
+    const lines = content.split("\n");
+    return {
+      totalLines: lines.length,
+      codeLines: lines.filter((l) => l.trim() && !l.trim().startsWith("//"))
+        .length,
+      commentLines: this.countCommentLines(content, fileInfo.extension),
+      blankLines: lines.filter((l) => !l.trim()).length,
+      functions: (content.match(/function\s+\w+|const\s+\w+\s*=\s*\(/g) || [])
+        .length,
+      classes: (content.match(/class\s+\w+/g) || []).length,
+      cyclomaticComplexity: this.countComplexity(content),
+      avgLineLength: Math.round(content.length / lines.length),
+    };
+  }
+
+  checkBestPractices(content, fileInfo) {
+    const violations = [];
+    const ext = fileInfo.extension?.toLowerCase();
+
+    // Check for console.log in production code
+    if (/console\.(log|debug|info)/.test(content)) {
+      violations.push({
+        rule: "Remove debug statements",
+        message:
+          "Found console.log statements that should be removed before production",
+      });
+    }
+
+    // Check for TODO/FIXME comments
+    if (/TODO|FIXME/.test(content)) {
+      violations.push({
+        rule: "Resolve TODOs",
+        message: "Found TODO/FIXME comments that need to be addressed",
+      });
+    }
+
+    return { violations };
+  }
+
+  countComplexity(content) {
+    let complexity = 1;
+    complexity += (content.match(/\bif\s*\(/g) || []).length;
+    complexity += (content.match(/\belse\b/g) || []).length;
+    complexity += (content.match(/\bfor\s*\(/g) || []).length;
+    complexity += (content.match(/\bwhile\s*\(/g) || []).length;
+    complexity += (content.match(/\bcase\s+/g) || []).length;
+    complexity += (content.match(/&&|\|\|/g) || []).length;
+    return complexity;
+  }
+
   clearCache() {
     this.cache.clear();
   }
@@ -373,6 +611,483 @@ class CodeQualityAnalyzer {
 const codeQualityAnalyzer = new CodeQualityAnalyzer();
 
 // ==================== END CODE QUALITY ANALYZER ====================
+
+// ==================== AI CODE ANALYSIS SERVICE ====================
+
+class AICodeAnalysisService {
+  constructor() {
+    this.apiKey = null;
+    this.apiEndpoint =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    this.agents = {
+      security: this.createSecurityAgent(),
+      performance: this.createPerformanceAgent(),
+      architecture: this.createArchitectureAgent(),
+      bestPractices: this.createBestPracticesAgent(),
+      refactoring: this.createRefactoringAgent(),
+    };
+  }
+
+  async initialize() {
+    // Get API key from Chrome storage
+    return new Promise((resolve) => {
+      chrome.storage.sync.get(["geminiApiKey"], (result) => {
+        if (result.geminiApiKey) {
+          this.apiKey = result.geminiApiKey;
+          console.log("Gemini API key loaded from storage");
+        } else {
+          console.warn(
+            "No Gemini API key found in storage. Please configure it in extension settings."
+          );
+        }
+        resolve();
+      });
+    });
+  }
+
+  createSecurityAgent() {
+    return {
+      name: "Security Sentinel",
+      role: "security-expert",
+      systemPrompt: `Analyze for security issues: SQL injection, XSS, auth flaws, crypto issues, input validation, data exposure. List only the TOP 3 most critical findings.`,
+    };
+  }
+
+  createPerformanceAgent() {
+    return {
+      name: "Performance Optimizer",
+      role: "performance-expert",
+      systemPrompt: `Analyze for performance issues: inefficient algorithms, memory leaks, N+1 queries, blocking operations. List only TOP 3 most impactful findings.
+
+Analyze for:
+- Time complexity issues (O(n²), O(n³))
+- Memory leaks and excessive allocations
+- Inefficient algorithms and data structures
+- Blocking operations
+- Redundant computations
+- Cache inefficiencies
+- Bundle size concerns
+- Database query optimization
+
+Provide:
+1. Performance impact (High/Medium/Low)
+2. Specific bottleneck description
+3. Current time/space complexity
+4. Optimization strategy
+5. Expected improvement
+6. Code refactoring suggestion
+
+Focus on real-world impact and practical optimizations.`,
+    };
+  }
+
+  createArchitectureAgent() {
+    return {
+      name: "Architecture Advisor",
+      role: "architecture-expert",
+      systemPrompt: `Analyze architecture: design patterns, SOLID principles, coupling, modularity, technical debt. List only TOP 3 architectural issues.`,
+    };
+  }
+
+  createBestPracticesAgent() {
+    return {
+      name: "Standards Guardian",
+      role: "best-practices-expert",
+      systemPrompt: `Check best practices: naming conventions, error handling, documentation, modern syntax, framework patterns. List only TOP 3 violations.`,
+    };
+  }
+
+  createRefactoringAgent() {
+    return {
+      name: "Refactoring Specialist",
+      role: "refactoring-expert",
+      systemPrompt: `Suggest refactorings: reduce complexity, improve naming, extract functions, eliminate duplication, modernize syntax. List only TOP 3 refactoring opportunities.`,
+    };
+  }
+
+  async analyzeWithAI(code, fileInfo, basicMetrics) {
+    if (!this.apiKey) {
+      await this.initialize();
+    }
+
+    if (!this.apiKey) {
+      console.warn(
+        "AI analysis skipped: No API key configured. Please add your Gemini API key in extension settings."
+      );
+      return {
+        enabled: false,
+        message:
+          "AI analysis not available - API key not configured. Please add your Gemini API key in extension settings.",
+      };
+    }
+
+    console.log(
+      "Starting AI analysis with",
+      Object.keys(this.agents).length,
+      "agents..."
+    );
+
+    try {
+      const codeContext = this.prepareCodeContext(code, fileInfo, basicMetrics);
+
+      const [
+        securityAnalysis,
+        performanceAnalysis,
+        architectureAnalysis,
+        bestPracticesAnalysis,
+        refactoringAnalysis,
+      ] = await Promise.allSettled([
+        this.runAgent(this.agents.security, codeContext),
+        this.runAgent(this.agents.performance, codeContext),
+        this.runAgent(this.agents.architecture, codeContext),
+        this.runAgent(this.agents.bestPractices, codeContext),
+        this.runAgent(this.agents.refactoring, codeContext),
+      ]);
+
+      const aiInsights = {
+        enabled: true,
+        timestamp: new Date().toISOString(),
+        agents: {
+          security: this.extractResult(securityAnalysis),
+          performance: this.extractResult(performanceAnalysis),
+          architecture: this.extractResult(architectureAnalysis),
+          bestPractices: this.extractResult(bestPracticesAnalysis),
+          refactoring: this.extractResult(refactoringAnalysis),
+        },
+        summary: await this.generateSummary(
+          this.extractResult(securityAnalysis),
+          this.extractResult(performanceAnalysis),
+          this.extractResult(architectureAnalysis),
+          this.extractResult(bestPracticesAnalysis),
+          this.extractResult(refactoringAnalysis)
+        ),
+      };
+
+      return aiInsights;
+    } catch (error) {
+      console.error("AI analysis error:", error);
+      return {
+        enabled: false,
+        error: error.message,
+      };
+    }
+  }
+
+  prepareCodeContext(code, fileInfo, basicMetrics) {
+    const maxCodeLength = 400; // EXTREMELY reduced to avoid MAX_TOKENS
+    let truncatedCode;
+
+    if (code.length > maxCodeLength) {
+      // Smart truncation: show beginning and end
+      const headSize = 250;
+      const tailSize = 100;
+      truncatedCode =
+        code.substring(0, headSize) +
+        "\n...\n" +
+        code.substring(code.length - tailSize);
+    } else {
+      truncatedCode = code;
+    }
+
+    return {
+      fileName: fileInfo.name,
+      language: this.detectLanguage(fileInfo.extension),
+      code: truncatedCode,
+      loc: basicMetrics.linesOfCode,
+      complexity: basicMetrics.complexity,
+      score: basicMetrics.qualityScore,
+    };
+  }
+
+  async runAgent(agent, context) {
+    const prompt = `${agent.systemPrompt}
+
+${context.code}
+
+JSON: {"findings":[{"severity":"High|Medium|Low","title":"","description":"","recommendation":""}],"overallAssessment":"","priorityActions":[]}`;
+
+    console.log(
+      `Agent ${agent.name} - Prompt length: ${prompt.length} chars, Code length: ${context.code.length} chars`
+    );
+
+    try {
+      const response = await fetch(`${this.apiEndpoint}?key=${this.apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            topK: 20,
+            topP: 0.8,
+            maxOutputTokens: 800,
+          },
+          safetySettings: [
+            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_NONE",
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_NONE",
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `API request failed: ${response.status} - ${errorText}`
+        );
+      }
+
+      const data = await response.json();
+
+      // Check if response has expected structure
+      if (!data.candidates || !data.candidates[0]) {
+        console.error(`Agent ${agent.name} - No candidates in response:`, data);
+        throw new Error("No candidates in API response");
+      }
+
+      const candidate = data.candidates[0];
+
+      // Check for MAX_TOKENS - this means response was cut off but we still have partial data
+      if (candidate.finishReason === "MAX_TOKENS") {
+        console.warn(
+          `Agent ${agent.name} - Response truncated (MAX_TOKENS). Full candidate structure:`,
+          JSON.stringify(candidate, null, 2)
+        );
+      }
+
+      if (
+        !candidate.content ||
+        !candidate.content.parts ||
+        !candidate.content.parts[0]
+      ) {
+        console.error(
+          `Agent ${agent.name} - Incomplete response structure. Has content?`,
+          !!candidate.content,
+          "Has parts?",
+          !!candidate.content?.parts,
+          "Parts length:",
+          candidate.content?.parts?.length
+        );
+
+        // When MAX_TOKENS, sometimes the response is EMPTY - we need to handle this gracefully
+        if (candidate.finishReason === "MAX_TOKENS") {
+          console.error(
+            `Agent ${agent.name} - MAX_TOKENS with no content. The input prompt is too large!`
+          );
+          return {
+            findings: [],
+            overallAssessment: "Input code too large for analysis",
+            priorityActions: ["Reduce code size or analyze specific sections"],
+          };
+        }
+
+        throw new Error("Incomplete API response structure");
+      }
+
+      const text = candidate.content.parts[0].text;
+
+      if (!text || text.trim().length === 0) {
+        console.error(`Agent ${agent.name} - Empty response text`);
+        throw new Error("Empty response from API");
+      }
+
+      // Log partial text for debugging MAX_TOKENS
+      if (candidate.finishReason === "MAX_TOKENS") {
+        console.log(
+          `Agent ${agent.name} - Partial text (first 200 chars):`,
+          text.substring(0, 200)
+        );
+        console.log(`Agent ${agent.name} - Text length:`, text.length);
+      }
+
+      // Try to extract JSON from markdown code blocks - try multiple patterns
+      let jsonText = text.trim();
+
+      // Remove markdown code fences if present
+      if (jsonText.startsWith("```")) {
+        // Find the first newline after ```json or ```
+        const firstNewline = jsonText.indexOf("\n");
+        if (firstNewline > -1) {
+          // Remove the opening ```json or ```
+          jsonText = jsonText.substring(firstNewline + 1);
+        }
+
+        // Find the closing ```
+        const lastBackticks = jsonText.lastIndexOf("```");
+        if (lastBackticks > -1) {
+          // Remove the closing ```
+          jsonText = jsonText.substring(0, lastBackticks);
+        }
+
+        jsonText = jsonText.trim();
+      }
+
+      // If still no valid JSON, try to extract just the object
+      if (!jsonText.startsWith("{")) {
+        const objectMatch = jsonText.match(/(\{[\s\S]*\})/);
+        if (objectMatch) {
+          jsonText = objectMatch[1].trim();
+        }
+      }
+
+      // Parse JSON
+      try {
+        const parsed = JSON.parse(jsonText);
+        // Validate structure
+        if (!parsed.findings) parsed.findings = [];
+        if (!parsed.overallAssessment)
+          parsed.overallAssessment = "Analysis completed";
+        if (!parsed.priorityActions) parsed.priorityActions = [];
+        return parsed;
+      } catch (parseError) {
+        console.warn(
+          `Agent ${agent.name} - JSON parse failed, attempting recovery...`
+        );
+
+        // Try to extract partial findings if JSON is truncated
+        try {
+          // Add closing braces to make it valid
+          let fixedJson = jsonText;
+          if (!fixedJson.endsWith("}")) {
+            // Count opening and closing braces
+            const openBraces = (fixedJson.match(/\{/g) || []).length;
+            const closeBraces = (fixedJson.match(/\}/g) || []).length;
+            const bracesToAdd = openBraces - closeBraces;
+
+            // Try to close open strings
+            if (fixedJson.includes('"') && !fixedJson.match(/"[^"]*$/)) {
+              fixedJson += '"';
+            }
+
+            // Add missing closing brackets/braces
+            fixedJson += "]".repeat(
+              Math.max(
+                0,
+                (fixedJson.match(/\[/g) || []).length -
+                  (fixedJson.match(/\]/g) || []).length
+              )
+            );
+            fixedJson += "}".repeat(Math.max(0, bracesToAdd));
+          }
+
+          const recovered = JSON.parse(fixedJson);
+          console.log(
+            `Agent ${agent.name} - Successfully recovered partial data`
+          );
+          if (!recovered.findings) recovered.findings = [];
+          if (!recovered.overallAssessment)
+            recovered.overallAssessment =
+              "Partial analysis (response was truncated)";
+          if (!recovered.priorityActions) recovered.priorityActions = [];
+          return recovered;
+        } catch (recoveryError) {
+          console.error(
+            `Agent ${agent.name} - Recovery failed:`,
+            parseError.message
+          );
+          throw new Error(`Failed to parse JSON: ${parseError.message}`);
+        }
+      }
+    } catch (error) {
+      console.error(`Agent ${agent.name} final error:`, error.message);
+      return {
+        findings: [],
+        overallAssessment: `Analysis failed: ${error.message}`,
+        priorityActions: [],
+      };
+    }
+  }
+
+  extractResult(settledPromise) {
+    if (settledPromise.status === "fulfilled") {
+      return settledPromise.value;
+    }
+    return {
+      findings: [],
+      overallAssessment: "Analysis failed",
+      priorityActions: [],
+    };
+  }
+
+  async generateSummary(
+    security,
+    performance,
+    architecture,
+    bestPractices,
+    refactoring
+  ) {
+    const allFindings = [
+      ...(security.findings || []),
+      ...(performance.findings || []),
+      ...(architecture.findings || []),
+      ...(bestPractices.findings || []),
+      ...(refactoring.findings || []),
+    ];
+
+    const criticalCount = allFindings.filter(
+      (f) => f.severity === "Critical"
+    ).length;
+    const highCount = allFindings.filter((f) => f.severity === "High").length;
+    const mediumCount = allFindings.filter(
+      (f) => f.severity === "Medium"
+    ).length;
+
+    let overallRating;
+    if (criticalCount > 0) overallRating = "Needs Immediate Attention";
+    else if (highCount > 2) overallRating = "Requires Improvement";
+    else if (highCount > 0 || mediumCount > 3)
+      overallRating = "Good with Minor Issues";
+    else overallRating = "Excellent";
+
+    return {
+      overallRating,
+      totalFindings: allFindings.length,
+      bySeverity: {
+        critical: criticalCount,
+        high: highCount,
+        medium: mediumCount,
+        low: allFindings.length - criticalCount - highCount - mediumCount,
+      },
+      topPriorities: [
+        ...(security.priorityActions || []).slice(0, 2),
+        ...(performance.priorityActions || []).slice(0, 1),
+        ...(architecture.priorityActions || []).slice(0, 1),
+      ].slice(0, 4),
+    };
+  }
+
+  detectLanguage(extension) {
+    const langMap = {
+      ".js": "javascript",
+      ".jsx": "javascript",
+      ".ts": "typescript",
+      ".tsx": "typescript",
+      ".py": "python",
+      ".java": "java",
+      ".cpp": "cpp",
+      ".c": "c",
+      ".go": "go",
+      ".rs": "rust",
+      ".rb": "ruby",
+      ".php": "php",
+      ".cs": "csharp",
+      ".swift": "swift",
+      ".kt": "kotlin",
+    };
+    return langMap[extension?.toLowerCase()] || "text";
+  }
+}
+
+const aiCodeAnalysisService = new AICodeAnalysisService();
+
+// ==================== END AI CODE ANALYSIS SERVICE ====================
 
 let settings = null;
 
@@ -1813,6 +2528,28 @@ async function analyzeAndShowBadges(fileRow, fileInfo, repoInfo, button) {
     // Analyze code quality
     const metrics = await codeQualityAnalyzer.analyzeFile(content, fileInfo);
 
+    // Set initial AI analysis status
+    metrics.aiAnalysis = { status: "analyzing" };
+
+    console.log("en-git: Starting AI analysis for", fileInfo.name);
+
+    // Trigger AI analysis in background (don't wait for it)
+    const aiAnalysisPromise = aiCodeAnalysisService
+      .analyzeWithAI(content, fileInfo, metrics)
+      .then((aiAnalysis) => {
+        metrics.aiAnalysis = aiAnalysis;
+        console.log("AI analysis completed:", aiAnalysis);
+        return aiAnalysis;
+      })
+      .catch((error) => {
+        console.error("AI analysis failed:", error);
+        metrics.aiAnalysis = {
+          enabled: false,
+          error: error.message,
+        };
+        return metrics.aiAnalysis;
+      });
+
     // Remove analyze button
     button.remove();
 
@@ -1820,9 +2557,24 @@ async function analyzeAndShowBadges(fileRow, fileInfo, repoInfo, button) {
     const badgeContainer = createBadgeContainer(metrics, fileInfo, content);
 
     // Add click handler to show detail modal
-    badgeContainer.querySelector(".en-git-quality-badge").onclick = (e) => {
+    badgeContainer.querySelector(".en-git-quality-badge").onclick = async (
+      e
+    ) => {
       e.preventDefault();
       e.stopPropagation();
+
+      // Wait for AI analysis if it's still running
+      if (metrics.aiAnalysis?.status === "analyzing") {
+        console.log("Waiting for AI analysis to complete...");
+        await aiAnalysisPromise;
+        console.log("AI analysis complete. Final state:", metrics.aiAnalysis);
+      } else {
+        console.log(
+          "AI analysis state when opening modal:",
+          metrics.aiAnalysis
+        );
+      }
+
       showQualityDetailModal(fileInfo, metrics);
     };
 
@@ -1965,15 +2717,18 @@ function showQualityDetailModal(fileInfo, metrics) {
   const overlay = document.createElement("div");
   overlay.className = "en-git-quality-modal-overlay";
 
-  // Create modal
+  // Create modal (make it larger for more content)
   const modal = document.createElement("div");
   modal.className = "en-git-quality-modal";
+  modal.style.maxWidth = "900px";
+  modal.style.maxHeight = "90vh";
+  modal.style.overflow = "auto";
 
   // Modal header
   const header = document.createElement("div");
   header.className = "en-git-modal-header";
   header.innerHTML = `
-    <h2 class="en-git-modal-title">📊 ${fileInfo.name}</h2>
+    <h2 class="en-git-modal-title">${fileInfo.name}</h2>
     <button class="en-git-modal-close">×</button>
   `;
 
@@ -1992,26 +2747,145 @@ function showQualityDetailModal(fileInfo, metrics) {
   // Modal content
   const content = document.createElement("div");
 
-  // Score section
+  // Score section with metrics overview
   const scoreSection = document.createElement("div");
   scoreSection.className = "en-git-modal-score";
   const scoreColor = getScoreColor(metrics.qualityScore);
   scoreSection.innerHTML = `
-    <div class="en-git-modal-score-value" style="color: ${scoreColor}">
-      ${metrics.qualityScore}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px;">
+      <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, ${scoreColor}22 0%, ${scoreColor}11 100%); border-radius: 8px; border: 2px solid ${scoreColor};">
+        <div class="en-git-modal-score-value" style="color: ${scoreColor}; font-size: 42px; font-weight: bold;">
+          ${metrics.qualityScore}
+        </div>
+        <div class="en-git-modal-score-label" style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Quality Score</div>
+      </div>
+      ${
+        metrics.security
+          ? `
+      <div style="text-align: center; padding: 15px; background: ${
+        metrics.security.critical > 0 ? "#ef444422" : "#10b98122"
+      }; border-radius: 8px; border: 2px solid ${
+              metrics.security.critical > 0 ? "#ef4444" : "#10b981"
+            };">
+        <div style="font-size: 42px; font-weight: bold; color: ${
+          metrics.security.critical > 0 ? "#ef4444" : "#10b981"
+        };">
+          ${metrics.security.score}
+        </div>
+        <div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Security</div>
+        <div style="font-size: 10px; margin-top: 4px;">
+          ${
+            metrics.security.critical +
+            metrics.security.high +
+            metrics.security.medium
+          } issues
+        </div>
+      </div>`
+          : ""
+      }
+      ${
+        metrics.maintainability
+          ? `
+      <div style="text-align: center; padding: 15px; background: ${getScoreColor(
+        metrics.maintainability.index
+      )}22; border-radius: 8px; border: 2px solid ${getScoreColor(
+              metrics.maintainability.index
+            )};">
+        <div style="font-size: 42px; font-weight: bold; color: ${getScoreColor(
+          metrics.maintainability.index
+        )};">
+          ${metrics.maintainability.index}
+        </div>
+        <div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Maintainability</div>
+        <div style="font-size: 10px; margin-top: 4px;">
+          ${metrics.maintainability.rating}
+        </div>
+      </div>`
+          : ""
+      }
+      <div style="text-align: center; padding: 15px; background: #8b5cf622; border-radius: 8px; border: 2px solid #8b5cf6;">
+        <div style="font-size: 42px; font-weight: bold; color: #8b5cf6;">
+          ${metrics.complexity}
+        </div>
+        <div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Complexity</div>
+        <div style="font-size: 10px; margin-top: 4px;">
+          ${metrics.linesOfCode} LOC
+        </div>
+      </div>
     </div>
-    <div class="en-git-modal-score-label">Quality Score</div>
   `;
 
-  // Breakdown section
+  // Create tabs
+  const tabsContainer = document.createElement("div");
+  tabsContainer.style.cssText =
+    "display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px solid #e5e7eb; overflow-x: auto;";
+
+  const tabs = [
+    { id: "overview", label: "Overview", icon: "" },
+    { id: "ai", label: "AI Insights", icon: "" },
+    { id: "security", label: "Security", icon: "" },
+    { id: "performance", label: "Performance", icon: "" },
+    { id: "quality", label: "Quality", icon: "" },
+    { id: "metrics", label: "Metrics", icon: "" },
+  ];
+
+  let activeTab = "overview";
+
+  tabs.forEach((tab) => {
+    const tabBtn = document.createElement("button");
+    tabBtn.textContent = tab.label;
+    tabBtn.style.cssText = `
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    `;
+    if (tab.id === activeTab) {
+      tabBtn.style.borderBottom = "2px solid #667eea";
+      tabBtn.style.color = "#667eea";
+    }
+    tabBtn.onclick = () => {
+      document.querySelectorAll(".en-git-tab-btn").forEach((b) => {
+        b.style.borderBottom = "2px solid transparent";
+        b.style.color = "inherit";
+      });
+      tabBtn.style.borderBottom = "2px solid #667eea";
+      tabBtn.style.color = "#667eea";
+
+      document
+        .querySelectorAll(".en-git-tab-content")
+        .forEach((c) => (c.style.display = "none"));
+      document.getElementById(`en-git-tab-${tab.id}`).style.display = "block";
+    };
+    tabBtn.className = "en-git-tab-btn";
+    tabsContainer.appendChild(tabBtn);
+  });
+
+  // Tab contents container
+  const tabContents = document.createElement("div");
+
+  // Debug: Log metrics to see what's available
+  console.log("en-git: Metrics object:", metrics);
+  console.log("en-git: Has security?", !!metrics.security);
+  console.log("en-git: Has performance?", !!metrics.performance);
+  console.log("en-git: Has codeSmells?", !!metrics.codeSmells);
+  console.log("en-git: Has bestPractices?", !!metrics.bestPractices);
+  console.log("en-git: Has detailedMetrics?", !!metrics.detailedMetrics);
+  console.log("en-git: Has maintainability?", !!metrics.maintainability);
+
+  // Overview Tab
+  const overviewTab = document.createElement("div");
+  overviewTab.id = "en-git-tab-overview";
+  overviewTab.className = "en-git-tab-content";
+
   const breakdownSection = document.createElement("div");
   breakdownSection.className = "en-git-modal-section";
-  breakdownSection.innerHTML = `
-    <div class="en-git-modal-section-title">
-      📈 Score Breakdown
-    </div>
-  `;
-
+  breakdownSection.innerHTML = `<div class="en-git-modal-section-title">Score Breakdown</div>`;
   for (const [key, value] of Object.entries(metrics.breakdown)) {
     const item = document.createElement("div");
     item.className = "en-git-breakdown-item";
@@ -2026,56 +2900,616 @@ function showQualityDetailModal(fileInfo, metrics) {
     `;
     breakdownSection.appendChild(item);
   }
+  overviewTab.appendChild(breakdownSection);
 
-  // Issues section
-  if (metrics.issues.length > 0) {
+  if (metrics.issues && metrics.issues.length > 0) {
     const issuesSection = document.createElement("div");
     issuesSection.className = "en-git-modal-section";
-    issuesSection.innerHTML = `
-      <div class="en-git-modal-section-title">
-        ⚠️ Issues Found
-      </div>
-    `;
-
-    metrics.issues.forEach((issue) => {
+    issuesSection.innerHTML = `<div class="en-git-modal-section-title">Issues Found (${metrics.issues.length})</div>`;
+    metrics.issues.slice(0, 5).forEach((issue) => {
       const item = document.createElement("div");
       item.className = "en-git-issue-item";
-      item.innerHTML = `
-        <span class="en-git-issue-icon">⚠️</span>
-        <span>${issue.message}</span>
-      `;
+      item.innerHTML = `<span class="en-git-issue-icon">!</span><span>${issue.message}</span>`;
       issuesSection.appendChild(item);
     });
-
-    content.appendChild(issuesSection);
+    overviewTab.appendChild(issuesSection);
   }
 
-  // Suggestions section
-  if (metrics.suggestions.length > 0) {
+  if (metrics.suggestions && metrics.suggestions.length > 0) {
     const suggestionsSection = document.createElement("div");
     suggestionsSection.className = "en-git-modal-section";
-    suggestionsSection.innerHTML = `
-      <div class="en-git-modal-section-title">
-        💡 Suggestions
-      </div>
-    `;
-
-    metrics.suggestions.forEach((suggestion) => {
+    suggestionsSection.innerHTML = `<div class="en-git-modal-section-title">Top Suggestions</div>`;
+    metrics.suggestions.slice(0, 5).forEach((suggestion) => {
       const item = document.createElement("div");
       item.className = "en-git-suggestion-item";
-      item.innerHTML = `
-        <span class="en-git-suggestion-icon">💡</span>
-        <span>${suggestion}</span>
-      `;
+      item.innerHTML = `<span class="en-git-suggestion-icon">→</span><span>${suggestion}</span>`;
       suggestionsSection.appendChild(item);
     });
-
-    content.appendChild(suggestionsSection);
+    overviewTab.appendChild(suggestionsSection);
   }
 
+  // Security Tab
+  const securityTab = document.createElement("div");
+  securityTab.id = "en-git-tab-security";
+  securityTab.className = "en-git-tab-content";
+  securityTab.style.display = "none";
+
+  if (metrics.security) {
+    securityTab.innerHTML = `
+      <div class="en-git-modal-section">
+        <div class="en-git-modal-section-title">Security Analysis</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+          <div style="padding: 12px; background: #ef444422; border-radius: 8px; text-align: center;">
+            <div style="font-size: 24px; font-weight: bold; color: #ef4444;">${
+              metrics.security.critical
+            }</div>
+            <div style="font-size: 12px; opacity: 0.7;">Critical</div>
+          </div>
+          <div style="padding: 12px; background: #f9731622; border-radius: 8px; text-align: center;">
+            <div style="font-size: 24px; font-weight: bold; color: #f97316;">${
+              metrics.security.high
+            }</div>
+            <div style="font-size: 12px; opacity: 0.7;">High</div>
+          </div>
+          <div style="padding: 12px; background: #eab30822; border-radius: 8px; text-align: center;">
+            <div style="font-size: 24px; font-weight: bold; color: #eab308;">${
+              metrics.security.medium
+            }</div>
+            <div style="font-size: 12px; opacity: 0.7;">Medium</div>
+          </div>
+        </div>
+        ${metrics.security.issues
+          .map(
+            (issue) => `
+          <div style="padding: 12px; margin-bottom: 8px; background: ${
+            issue.severity === "critical" ? "#ef444411" : "#f9731611"
+          }; border-left: 3px solid ${
+              issue.severity === "critical" ? "#ef4444" : "#f97316"
+            }; border-radius: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px; color: ${
+              issue.severity === "critical" ? "#ef4444" : "#f97316"
+            };">
+              ${issue.category} - ${issue.severity.toUpperCase()}
+            </div>
+            <div style="font-size: 14px; margin-bottom: 4px;">${
+              issue.message
+            }</div>
+            <div style="font-size: 12px; opacity: 0.7;">${
+              issue.description
+            }</div>
+          </div>
+        `
+          )
+          .join("")}
+        ${
+          metrics.security.issues.length === 0
+            ? '<div style="text-align: center; padding: 20px; opacity: 0.6;">No security issues detected!</div>'
+            : ""
+        }
+      </div>
+    `;
+  } else {
+    securityTab.innerHTML = `
+      <div class="en-git-modal-section" style="text-align: center; padding: 40px;">
+        <p style="opacity: 0.6;">Security analysis not available for this file</p>
+      </div>
+    `;
+  }
+
+  // Performance Tab
+  const performanceTab = document.createElement("div");
+  performanceTab.id = "en-git-tab-performance";
+  performanceTab.className = "en-git-tab-content";
+  performanceTab.style.display = "none";
+  if (metrics.performance) {
+    performanceTab.innerHTML = `
+      <div class="en-git-modal-section">
+        <div class="en-git-modal-section-title">Performance Analysis</div>
+        <div style="padding: 12px; background: ${getScoreColor(
+          metrics.performance.score
+        )}22; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+          <div style="font-size: 32px; font-weight: bold; color: ${getScoreColor(
+            metrics.performance.score
+          )};">${metrics.performance.score}</div>
+          <div style="font-size: 12px;">Performance Score</div>
+          <div style="font-size: 11px; margin-top: 4px; opacity: 0.7;">${
+            metrics.performance.optimizationOpportunities
+          } optimization opportunities</div>
+        </div>
+        ${metrics.performance.issues
+          .map(
+            (issue) => `
+          <div style="padding: 12px; margin-bottom: 8px; background: #f9731611; border-left: 3px solid #f97316; border-radius: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">${issue.message}</div>
+            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">${issue.description}</div>
+            <div style="font-size: 11px; color: #f97316;">Impact: ${issue.impact}</div>
+          </div>
+        `
+          )
+          .join("")}
+        ${
+          metrics.performance.issues.length === 0
+            ? '<div style="text-align: center; padding: 20px; opacity: 0.6;">No performance issues detected!</div>'
+            : ""
+        }
+      </div>
+    `;
+  } else {
+    performanceTab.innerHTML = `
+      <div class="en-git-modal-section" style="text-align: center; padding: 40px;">
+        <p style="opacity: 0.6;">Performance analysis not available for this file</p>
+      </div>
+    `;
+  }
+
+  // Quality Tab
+  const qualityTab = document.createElement("div");
+  qualityTab.id = "en-git-tab-quality";
+  qualityTab.className = "en-git-tab-content";
+  qualityTab.style.display = "none";
+  if (metrics.codeSmells && metrics.bestPractices) {
+    qualityTab.innerHTML = `
+      <div class="en-git-modal-section">
+        <div class="en-git-modal-section-title">Code Smells</div>
+        ${metrics.codeSmells.smells
+          .map(
+            (smell) => `
+          <div style="padding: 12px; margin-bottom: 8px; background: #eab30811; border-left: 3px solid #eab308; border-radius: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">${smell.type}</div>
+            <div style="font-size: 13px; margin-bottom: 4px;">${smell.message}</div>
+            <div style="font-size: 12px; opacity: 0.7;">${smell.description}</div>
+          </div>
+        `
+          )
+          .join("")}
+        ${
+          metrics.codeSmells.smells.length === 0
+            ? '<div style="text-align: center; padding: 20px; opacity: 0.6;">No code smells detected!</div>'
+            : ""
+        }
+      </div>
+      <div class="en-git-modal-section">
+        <div class="en-git-modal-section-title">Best Practices</div>
+        ${metrics.bestPractices.violations
+          .map(
+            (v) => `
+          <div style="padding: 12px; margin-bottom: 8px; background: #3b82f611; border-left: 3px solid #3b82f6; border-radius: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">${v.rule}</div>
+            <div style="font-size: 13px;">${v.message}</div>
+          </div>
+        `
+          )
+          .join("")}
+        ${
+          metrics.bestPractices.violations.length === 0
+            ? '<div style="text-align: center; padding: 20px; opacity: 0.6;">All best practices followed!</div>'
+            : ""
+        }
+      </div>
+    `;
+  } else {
+    qualityTab.innerHTML = `
+      <div class="en-git-modal-section" style="text-align: center; padding: 40px;">
+        <p style="opacity: 0.6;">Quality analysis not available for this file</p>
+      </div>
+    `;
+  }
+
+  // Metrics Tab
+  const metricsTab = document.createElement("div");
+  metricsTab.id = "en-git-tab-metrics";
+  metricsTab.className = "en-git-tab-content";
+  metricsTab.style.display = "none";
+  if (metrics.detailedMetrics && metrics.maintainability) {
+    const m = metrics.detailedMetrics;
+    metricsTab.innerHTML = `
+      <div class="en-git-modal-section">
+        <div class="en-git-modal-section-title">Code Metrics</div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Total Lines</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.totalLines
+            }</div>
+          </div>
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Code Lines</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.codeLines
+            }</div>
+          </div>
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Comment Lines</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.commentLines
+            }</div>
+          </div>
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Blank Lines</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.blankLines
+            }</div>
+          </div>
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Functions</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.functions
+            }</div>
+          </div>
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Classes</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.classes
+            }</div>
+          </div>
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Cyclomatic Complexity</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.cyclomaticComplexity
+            }</div>
+          </div>
+          <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+            <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; color: #6b7280;">Avg Line Length</div>
+            <div style="font-size: 20px; font-weight: 600; color: #1f2937;">${
+              m.avgLineLength
+            }</div>
+          </div>
+        </div>
+      </div>
+      <div class="en-git-modal-section">
+        <div class="en-git-modal-section-title">Maintainability</div>
+        <div style="padding: 16px; background: ${getScoreColor(
+          metrics.maintainability.index
+        )}22; border-radius: 8px; text-align: center;">
+          <div style="font-size: 32px; font-weight: bold; color: ${getScoreColor(
+            metrics.maintainability.index
+          )};">${metrics.maintainability.index}</div>
+          <div style="font-size: 14px; font-weight: 600; margin-top: 4px; color: #1f2937;">${
+            metrics.maintainability.rating
+          }</div>
+        </div>
+        <div style="margin-top: 12px; padding: 12px; background: #f3f4f6; border-radius: 8px; color: #1f2937;">
+          <div style="font-weight: 600; margin-bottom: 8px; color: #1f2937;">Estimated Technical Debt</div>
+          <div style="font-size: 13px; color: #4b5563;">Time to refactor: ~${
+            metrics.maintainability.technicalDebt.hours
+          } hours (${metrics.maintainability.technicalDebt.days} days)</div>
+          <div style="font-size: 12px; margin-top: 4px; color: ${
+            metrics.maintainability.technicalDebt.priority === "High"
+              ? "#ef4444"
+              : metrics.maintainability.technicalDebt.priority === "Medium"
+              ? "#f97316"
+              : "#10b981"
+          };">
+            Priority: ${metrics.maintainability.technicalDebt.priority}
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    metricsTab.innerHTML = `
+      <div class="en-git-modal-section" style="text-align: center; padding: 40px;">
+        <p style="opacity: 0.6;">Detailed metrics not available for this file</p>
+      </div>
+    `;
+  }
+
+  // AI Insights Tab
+  const aiTab = document.createElement("div");
+  aiTab.id = "en-git-tab-ai";
+  aiTab.className = "en-git-tab-content";
+  aiTab.style.display = "none";
+
+  if (metrics.aiAnalysis) {
+    if (metrics.aiAnalysis.status === "analyzing") {
+      aiTab.innerHTML = `
+        <div class="en-git-modal-section" style="text-align: center; padding: 40px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">AI</div>
+          <h3 style="margin-bottom: 8px;">AI Agents Analyzing...</h3>
+          <p style="opacity: 0.7; margin-bottom: 20px;">Multiple AI agents are examining your code for deep insights</p>
+          <div style="display: flex; flex-direction: column; gap: 8px; max-width: 400px; margin: 0 auto;">
+            <div style="padding: 12px; background: #667eea22; border-radius: 8px; text-align: left;">
+              <div style="font-size: 12px; opacity: 0.7;">Security Sentinel</div>
+              <div style="font-size: 11px;">Scanning for vulnerabilities...</div>
+            </div>
+            <div style="padding: 12px; background: #f9731622; border-radius: 8px; text-align: left;">
+              <div style="font-size: 12px; opacity: 0.7;">Performance Optimizer</div>
+              <div style="font-size: 11px;">Analyzing efficiency...</div>
+            </div>
+            <div style="padding: 12px; background: #10b98122; border-radius: 8px; text-align: left;">
+              <div style="font-size: 12px; opacity: 0.7;">Architecture Advisor</div>
+              <div style="font-size: 11px;">Evaluating design patterns...</div>
+            </div>
+            <div style="padding: 12px; background: #8b5cf622; border-radius: 8px; text-align: left;">
+              <div style="font-size: 12px; opacity: 0.7;">Standards Guardian</div>
+              <div style="font-size: 11px;">Checking best practices...</div>
+            </div>
+            <div style="padding: 12px; background: #ec489922; border-radius: 8px; text-align: left;">
+              <div style="font-size: 12px; opacity: 0.7;">Refactoring Specialist</div>
+              <div style="font-size: 11px;">Generating suggestions...</div>
+            </div>
+          </div>
+          <p style="font-size: 12px; opacity: 0.5; margin-top: 20px;">This may take 10-30 seconds...</p>
+        </div>
+      `;
+    } else if (metrics.aiAnalysis.enabled && metrics.aiAnalysis.agents) {
+      const ai = metrics.aiAnalysis;
+      aiTab.innerHTML = `
+        <div class="en-git-modal-section">
+          <div class="en-git-modal-section-title">AI-Powered Analysis</div>
+          
+          <!-- Overall Summary -->
+          <div style="padding: 16px; background: linear-gradient(135deg, #667eea22 0%, #f97316 22 100%); border-radius: 12px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;">
+              <div>
+                <h3 style="margin: 0 0 8px 0; font-size: 18px;">Overall Assessment: ${
+                  ai.summary?.overallRating || "Analysis Complete"
+                }</h3>
+                <div style="font-size: 13px; opacity: 0.8;">
+                  ${ai.summary?.totalFindings || 0} findings across ${
+        Object.keys(ai.agents).length
+      } AI agents
+                </div>
+              </div>
+              <div style="text-align: center; padding: 12px; background: white; border-radius: 8px;">
+                <div style="font-size: 24px; font-weight: bold; color: ${
+                  ai.summary?.bySeverity?.critical > 0 ? "#ef4444" : "#10b981"
+                };">
+                  ${ai.summary?.bySeverity?.critical || 0}
+                </div>
+                <div style="font-size: 10px; opacity: 0.6;">Critical</div>
+              </div>
+            </div>
+            
+            ${
+              ai.summary?.topPriorities?.length > 0
+                ? `
+              <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <div style="font-weight: 600; margin-bottom: 8px; font-size: 13px;">Top Priority Actions:</div>
+                ${ai.summary.topPriorities
+                  .map(
+                    (action, idx) => `
+                  <div style="padding: 8px; background: rgba(255,255,255,0.5); border-radius: 6px; margin-bottom: 6px; font-size: 12px;">
+                    ${idx + 1}. ${action}
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+            `
+                : ""
+            }
+          </div>
+
+          <!-- Agent Findings -->
+          ${Object.entries(ai.agents)
+            .map(([agentKey, agentData]) => {
+              const agentIcons = {
+                security: "[SEC]",
+                performance: "[PERF]",
+                architecture: "[ARCH]",
+                bestPractices: "[STD]",
+                refactoring: "[REF]",
+              };
+              const agentNames = {
+                security: "Security Sentinel",
+                performance: "Performance Optimizer",
+                architecture: "Architecture Advisor",
+                bestPractices: "Standards Guardian",
+                refactoring: "Refactoring Specialist",
+              };
+
+              if (!agentData.findings || agentData.findings.length === 0)
+                return "";
+
+              return `
+              <div style="margin-bottom: 20px;">
+                <h4 style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 15px;">
+                  <span style="font-size: 20px;">${agentIcons[agentKey]}</span>
+                  ${agentNames[agentKey]}
+                  <span style="padding: 2px 8px; background: #667eea22; border-radius: 12px; font-size: 11px; font-weight: normal;">
+                    ${agentData.findings.length} finding${
+                agentData.findings.length > 1 ? "s" : ""
+              }
+                  </span>
+                </h4>
+                
+                ${
+                  agentData.overallAssessment
+                    ? `
+                  <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; margin-bottom: 12px; font-size: 13px; font-style: italic;">
+                    ${agentData.overallAssessment}
+                  </div>
+                `
+                    : ""
+                }
+                
+                ${agentData.findings
+                  .map((finding) => {
+                    const severityColors = {
+                      Critical: "#ef4444",
+                      High: "#f97316",
+                      Medium: "#eab308",
+                      Low: "#10b981",
+                    };
+                    const bgColors = {
+                      Critical: "#ef444411",
+                      High: "#f9731611",
+                      Medium: "#eab30811",
+                      Low: "#10b98111",
+                    };
+
+                    return `
+                    <div style="padding: 14px; margin-bottom: 10px; background: ${
+                      bgColors[finding.severity] || "#f3f4f6"
+                    }; border-left: 4px solid ${
+                      severityColors[finding.severity] || "#667eea"
+                    }; border-radius: 6px;">
+                      <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 8px;">
+                        <h5 style="margin: 0; font-size: 14px; font-weight: 600; flex: 1;">${
+                          finding.title
+                        }</h5>
+                        <span style="padding: 2px 8px; background: ${
+                          severityColors[finding.severity]
+                        }22; color: ${
+                      severityColors[finding.severity]
+                    }; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap;">
+                          ${finding.severity}
+                        </span>
+                      </div>
+                      
+                      ${
+                        finding.location
+                          ? `
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 8px; font-family: monospace;">
+                          Location: ${finding.location}
+                        </div>
+                      `
+                          : ""
+                      }
+                      
+                      <div style="font-size: 13px; margin-bottom: 10px; line-height: 1.5;">
+                        ${finding.description}
+                      </div>
+                      
+                      ${
+                        finding.recommendation
+                          ? `
+                        <div style="padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px;">
+                          <div style="font-weight: 600; font-size: 12px; margin-bottom: 4px;">Recommendation:</div>
+                          <div style="font-size: 12px; line-height: 1.4;">${finding.recommendation}</div>
+                        </div>
+                      `
+                          : ""
+                      }
+                      
+                      ${
+                        finding.impact
+                          ? `
+                        <div style="font-size: 11px; opacity: 0.7; padding: 8px; background: rgba(255,255,255,0.5); border-radius: 4px;">
+                          Impact: ${finding.impact}
+                        </div>
+                      `
+                          : ""
+                      }
+                    </div>
+                  `;
+                  })
+                  .join("")}
+              </div>
+            `;
+            })
+            .join("")}
+          
+          <div style="text-align: center; padding: 16px; opacity: 0.6; font-size: 12px;">
+            <div>Powered by Gemini 2.5 Flash with Multi-Agent Analysis</div>
+            <div style="font-size: 11px; margin-top: 4px;">Analysis completed at ${new Date(
+              ai.timestamp
+            ).toLocaleTimeString()}</div>
+          </div>
+        </div>
+      `;
+    } else {
+      aiTab.innerHTML = `
+        <div class="en-git-modal-section" style="text-align: center; padding: 40px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">AI</div>
+          <h3 style="margin-bottom: 8px;">AI Analysis Unavailable</h3>
+          <p style="opacity: 0.7;">${
+            metrics.aiAnalysis.message || "AI analysis is not enabled"
+          }</p>
+        </div>
+      `;
+    }
+  } else {
+    aiTab.innerHTML = `
+      <div class="en-git-modal-section" style="text-align: center; padding: 40px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">AI</div>
+        <h3 style="margin-bottom: 8px;">AI Analysis</h3>
+        <p style="opacity: 0.7;">Click "Analyze Code Quality" to trigger AI analysis</p>
+      </div>
+    `;
+  }
+
+  tabContents.appendChild(overviewTab);
+  tabContents.appendChild(aiTab);
+  tabContents.appendChild(securityTab);
+  tabContents.appendChild(performanceTab);
+  tabContents.appendChild(qualityTab);
+  tabContents.appendChild(metricsTab);
+
+  // Listen for AI analysis completion
+  const aiUpdateHandler = (event) => {
+    if (event.detail.fileInfo.path === fileInfo.path) {
+      // Update AI tab content
+      const aiTabElement = document.getElementById("en-git-tab-ai");
+      if (aiTabElement && event.detail.aiInsights.enabled) {
+        // Re-render AI tab with new data
+        const tempMetrics = { ...metrics, aiAnalysis: event.detail.aiInsights };
+
+        // Show notification
+        const notification = document.createElement("div");
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 16px 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-radius: 12px;
+          box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+          z-index: 10001;
+          animation: slideIn 0.3s ease-out;
+          font-size: 14px;
+          font-weight: 500;
+        `;
+        notification.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 24px;">🤖</span>
+            <div>
+              <div>AI Analysis Complete!</div>
+              <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">Check the AI Insights tab for detailed findings</div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(notification);
+
+        // Auto-remove notification after 5 seconds
+        setTimeout(() => notification.remove(), 5000);
+
+        // Highlight AI tab
+        const aiTabBtn = Array.from(
+          document.querySelectorAll(".en-git-tab-btn")
+        ).find((btn) => btn.textContent.includes("AI Insights"));
+        if (aiTabBtn) {
+          aiTabBtn.style.animation = "pulse 1s ease-in-out 3";
+        }
+      }
+    }
+  };
+
+  window.addEventListener("en-git-ai-analysis-complete", aiUpdateHandler);
+
+  // Clean up listener when modal closes
+  const originalClose = header.querySelector(".en-git-modal-close").onclick;
+  header.querySelector(".en-git-modal-close").onclick = () => {
+    window.removeEventListener("en-git-ai-analysis-complete", aiUpdateHandler);
+    originalClose();
+  };
+
+  const originalOverlayClick = overlay.onclick;
+  overlay.onclick = (e) => {
+    if (e.target === overlay) {
+      window.removeEventListener(
+        "en-git-ai-analysis-complete",
+        aiUpdateHandler
+      );
+    }
+    originalOverlayClick(e);
+  };
+
   // Assemble modal
-  content.prepend(breakdownSection);
-  content.prepend(scoreSection);
+  content.appendChild(scoreSection);
+  content.appendChild(tabsContainer);
+  content.appendChild(tabContents);
   modal.appendChild(header);
   modal.appendChild(content);
   overlay.appendChild(modal);
@@ -2303,13 +3737,45 @@ async function addSingleFileQualityBadge() {
     badgeContainer
   ) {
     // Analyze
-    const metrics = await codeQualityAnalyzer.analyzeFile(content, {
+    const fileInfo = {
       name: fileName,
       extension: fileName.split(".").pop(),
       path: filePath,
-    });
+    };
+
+    const metrics = await codeQualityAnalyzer.analyzeFile(content, fileInfo);
 
     console.log("en-git: Analysis complete:", metrics);
+
+    // Set initial AI analysis status
+    metrics.aiAnalysis = { status: "analyzing" };
+
+    console.log("en-git: Starting AI analysis for", fileInfo.name);
+
+    // Trigger AI analysis in background
+    const aiAnalysisPromise = aiCodeAnalysisService
+      .analyzeWithAI(content, fileInfo, metrics)
+      .then((aiAnalysis) => {
+        metrics.aiAnalysis = aiAnalysis;
+        console.log("en-git: AI analysis completed:", aiAnalysis);
+
+        // Dispatch event so modal can update if open
+        window.dispatchEvent(
+          new CustomEvent("en-git-ai-analysis-complete", {
+            detail: { fileInfo, aiInsights: aiAnalysis },
+          })
+        );
+
+        return aiAnalysis;
+      })
+      .catch((error) => {
+        console.error("en-git: AI analysis failed:", error);
+        metrics.aiAnalysis = {
+          enabled: false,
+          error: error.message,
+        };
+        return metrics.aiAnalysis;
+      });
 
     // Update badge with results
     const scoreColor = getScoreColor(metrics.qualityScore);
@@ -2328,11 +3794,23 @@ async function addSingleFileQualityBadge() {
 
     // Make badge clickable to show modal
     badgeContainer.style.cursor = "pointer";
-    badgeContainer.onclick = () => {
-      showQualityDetailModal(
-        { name: fileName, extension: fileName.split(".").pop() },
-        metrics
-      );
+    badgeContainer.onclick = async () => {
+      // Wait for AI analysis if still running
+      if (metrics.aiAnalysis?.status === "analyzing") {
+        console.log("en-git: Waiting for AI analysis to complete...");
+        await aiAnalysisPromise;
+        console.log(
+          "en-git: AI analysis complete. Final state:",
+          metrics.aiAnalysis
+        );
+      } else {
+        console.log(
+          "en-git: AI analysis state when opening modal:",
+          metrics.aiAnalysis
+        );
+      }
+
+      showQualityDetailModal(fileInfo, metrics);
     };
   }
 }

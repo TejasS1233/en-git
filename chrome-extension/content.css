@@ -98,3 +98,34 @@
     filter: brightness(1.1);
   }
 }
+
+/* AI Analysis Notification */
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+.en-git-ai-notification {
+  animation: slideIn 0.3s ease-out;
+}
+
+.en-git-ai-notification.hiding {
+  animation: slideOut 0.3s ease-out;
+}
