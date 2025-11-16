@@ -49,6 +49,7 @@ Please consider giving it a ⭐️ star on GitHub to support the project and hel
 ### **Chrome extension**
 
 - **Inline Code Quality Analysis**: Get a real-time quality score (0-100), complexity level, and issue detection (e.g., long functions, nesting, magic numbers) directly inside any GitHub file view. Perfect for PR reviews.
+- **AI Multi-Agent Analysis**: 5 specialized AI agents review code for security, performance, architecture, standards and refactoring using Google Gemini 2.5 Flash.
 - **Private Repo Bookmarking**: "Star" any repository to save it to a personal, private list—without notifying the owner or adding it to your public GitHub stars.
 - **Instant Profile Insights**: See a user's profile score, developer rating (Beginner → Elite), top 5 languages, and quick stats just by visiting their GitHub profile page.
 - **Customizable & Productive**: Personalize your themes and set custom keyboard shortcuts to analyze profiles, repos, and files in seconds, boosting your workflow.
