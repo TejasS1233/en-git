@@ -418,8 +418,11 @@ export const generateRepoComparison = asyncHandler(async (req, res) => {
   }
 
   try {
+    console.log("🔑 API Key exists:", !!process.env.GOOGLE_API_KEY);
+    console.log("🔑 API Key length:", process.env.GOOGLE_API_KEY?.length);
+    
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Build detailed context for each repository
     const repoContexts = repositories
@@ -617,16 +620,34 @@ Generate your analysis now:`;
     console.error("❌ AI Comparison Error:");
     console.error("  - Message:", error.message);
     console.error("  - Stack:", error.stack);
-    console.error("  - Full error:", JSON.stringify(error, null, 2));
+    console.error("  - Error name:", error.name);
+    console.error("  - Error code:", error.code);
+    
+    // Try to extract more details from various error structures
+    if (error.response) {
+      console.error("  - Response status:", error.response.status);
+      console.error("  - Response data:", error.response.data);
+    }
+    
+    if (error.cause) {
+      console.error("  - Cause:", error.cause);
+    }
 
     // Return a more helpful error response
-    const errorMessage = error.message || "Failed to generate comparison analysis";
-    const errorDetails = error.response?.data || error.toString();
+    let errorMessage = error.message || "Failed to generate comparison analysis";
+    
+    // Check for common Gemini API errors
+    if (error.message?.includes("API key")) {
+      errorMessage = "Google API key is invalid or not configured. Please check your GOOGLE_API_KEY in .env file";
+    } else if (error.message?.includes("quota") || error.message?.includes("rate limit")) {
+      errorMessage = "Google API quota exceeded or rate limited. Please try again later";
+    } else if (error.message?.includes("model")) {
+      errorMessage = "Invalid model specified or model not available. Check if gemini-2.5-flash is available";
+    } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      errorMessage = "Cannot connect to Google AI API. Check your internet connection";
+    }
 
-    throw new ApiError(
-      500,
-      `AI Analysis Error: ${errorMessage}. Details: ${JSON.stringify(errorDetails)}`
-    );
+    throw new ApiError(500, errorMessage);
   }
 });
 
@@ -644,8 +665,10 @@ export const generateRepoDescription = asyncHandler(async (req, res) => {
   }
 
   try {
+    console.log("🔑 Generating description - API Key exists:", !!process.env.GOOGLE_API_KEY);
+    
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Build context from repository data
     const context = `
@@ -686,8 +709,23 @@ Return ONLY the description text, nothing else. No quotes, no explanations.`;
       })
     );
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new ApiError(500, error.message || "Failed to generate description");
+    console.error("❌ Description Generation Error:");
+    console.error("  - Message:", error.message);
+    console.error("  - Error name:", error.name);
+    console.error("  - Error code:", error.code);
+    
+    let errorMessage = error.message || "Failed to generate description";
+    
+    // Check for common Gemini API errors
+    if (error.message?.includes("API key")) {
+      errorMessage = "Google API key is invalid or not configured";
+    } else if (error.message?.includes("quota") || error.message?.includes("rate limit")) {
+      errorMessage = "Google API quota exceeded. Please try again later";
+    } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      errorMessage = "Cannot connect to Google AI API";
+    }
+    
+    throw new ApiError(500, errorMessage);
   }
 });
 
@@ -716,7 +754,7 @@ export const getSimilarRepositories = asyncHandler(async (req, res) => {
 
     // Build search query - we'll try multiple strategies if needed
     let searchQuery = "";
-    
+
     // Add language filter
     if (language && language !== "null") {
       searchQuery += `language:${language} `;
@@ -727,9 +765,10 @@ export const getSimilarRepositories = asyncHandler(async (req, res) => {
     if (topicsArray.length > 0) {
       // Prioritize more common/general topics over specific ones
       const priorityTopics = ["javascript", "typescript", "react", "nodejs", "python", "java"];
-      const commonTopics = topicsArray.filter(t => priorityTopics.includes(t.toLowerCase()));
-      const topicsToUse = commonTopics.length > 0 ? commonTopics.slice(0, 1) : topicsArray.slice(0, 1);
-      
+      const commonTopics = topicsArray.filter((t) => priorityTopics.includes(t.toLowerCase()));
+      const topicsToUse =
+        commonTopics.length > 0 ? commonTopics.slice(0, 1) : topicsArray.slice(0, 1);
+
       topicsToUse.forEach((topic) => {
         searchQuery += `topic:${topic} `;
       });
@@ -738,7 +777,7 @@ export const getSimilarRepositories = asyncHandler(async (req, res) => {
     // Filter for lesser-known repos with more flexible range
     let minStars = 10;
     let maxStars = 1000; // Default cap
-    
+
     if (starsCount > 0) {
       // For low-star repos (< 100), use wider range
       if (starsCount < 100) {
@@ -750,7 +789,7 @@ export const getSimilarRepositories = asyncHandler(async (req, res) => {
         maxStars = Math.floor(starsCount * 0.8); // Max 80% of stars
       }
     }
-    
+
     searchQuery += `stars:${minStars}..${maxStars} `;
 
     // Filter for active repos (updated in last 2 years for better results)
@@ -782,7 +821,7 @@ export const getSimilarRepositories = asyncHandler(async (req, res) => {
       console.log("  - No results found, trying broader search with just language...");
       const fallbackQuery = `language:${language} stars:${minStars}..${maxStars} pushed:>${twoYearsAgo.toISOString().split("T")[0]} is:public fork:false archived:false`;
       console.log("  - Fallback query:", fallbackQuery);
-      
+
       searchResponse = await axios.get(`${GITHUB_API}/search/repositories`, {
         headers,
         params: {
@@ -792,7 +831,7 @@ export const getSimilarRepositories = asyncHandler(async (req, res) => {
           per_page: 20,
         },
       });
-      
+
       repositories = searchResponse.data.items || [];
       console.log(`  - Fallback found ${repositories.length} potential matches`);
     }
@@ -881,9 +920,7 @@ export const getSimilarRepositories = asyncHandler(async (req, res) => {
     });
 
     // Sort by score and limit to top 10
-    const topRepos = scoredRepos
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
+    const topRepos = scoredRepos.sort((a, b) => b.score - a.score).slice(0, 10);
 
     console.log(`  - Returning ${topRepos.length} top-scored repositories`);
 
