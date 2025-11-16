@@ -61,6 +61,10 @@ const DEFAULT_SETTINGS = {
     repoCards: true,
     enhancedProfile: true,
   },
+  ai: {
+    enabled: true,
+    geminiApiKey: "",
+  },
 };
 
 function SettingsApp() {
@@ -70,31 +74,60 @@ function SettingsApp() {
 
   useEffect(() => {
     // Load settings from storage
-    chrome.storage.sync.get(["extensionSettings", "bookmarkedRepos"], (result) => {
+    chrome.storage.sync.get(["extensionSettings", "bookmarkedRepos", "geminiApiKey"], (result) => {
       if (result.extensionSettings) {
         setSettings(result.extensionSettings);
       }
       if (result.bookmarkedRepos) {
         setBookmarks(result.bookmarkedRepos);
       }
+      // Load Gemini API key separately
+      if (result.geminiApiKey) {
+        setSettings((prev) => ({
+          ...prev,
+          ai: { ...prev.ai, geminiApiKey: result.geminiApiKey },
+        }));
+      }
     });
   }, []);
 
   const saveSettings = () => {
-    chrome.storage.sync.set({ extensionSettings: settings }, () => {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+    // Save Gemini API key separately to avoid sync storage size limits
+    const apiKey = settings.ai?.geminiApiKey || "";
+    const settingsToSave = { ...settings };
+    if (settingsToSave.ai) {
+      delete settingsToSave.ai.geminiApiKey;
+    }
 
-      // Send message to content script to apply settings
-      chrome.tabs.query({ url: "https://github.com/*" }, (tabs) => {
-        tabs.forEach((tab) => {
-          chrome.tabs.sendMessage(tab.id, {
-            action: "applySettings",
-            settings: settings,
+    chrome.storage.sync.set(
+      {
+        extensionSettings: settingsToSave,
+        geminiApiKey: apiKey,
+      },
+      () => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3500);
+
+        // Send message to content script to apply settings (with error handling)
+        chrome.tabs.query({ url: "https://github.com/*" }, (tabs) => {
+          tabs.forEach((tab) => {
+            chrome.tabs.sendMessage(
+              tab.id,
+              {
+                action: "applySettings",
+                settings: settings,
+              },
+              (response) => {
+                // Ignore errors if tab doesn't have content script
+                if (chrome.runtime.lastError) {
+                  console.log("Could not send message to tab:", chrome.runtime.lastError.message);
+                }
+              }
+            );
           });
         });
-      });
-    });
+      }
+    );
   };
 
   const resetSettings = () => {
@@ -216,20 +249,24 @@ function SettingsApp() {
             </Card>
 
             <Tabs defaultValue="theme" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="theme">
+              <TabsList className="inline-flex w-full">
+                <TabsTrigger value="theme" className="flex-1">
                   <Palette className="h-4 w-4 mr-2" />
                   Theme
                 </TabsTrigger>
-                <TabsTrigger value="editor">
+                <TabsTrigger value="editor" className="flex-1">
                   <Code className="h-4 w-4 mr-2" />
                   Editor
                 </TabsTrigger>
-                <TabsTrigger value="shortcuts">
+                <TabsTrigger value="shortcuts" className="flex-1">
                   <Keyboard className="h-4 w-4 mr-2" />
                   Shortcuts
                 </TabsTrigger>
-                <TabsTrigger value="bookmarks">
+                <TabsTrigger value="ai" className="flex-1">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  AI
+                </TabsTrigger>
+                <TabsTrigger value="bookmarks" className="flex-1">
                   <Bookmark className="h-4 w-4 mr-2" />
                   Bookmarks
                 </TabsTrigger>
@@ -810,6 +847,115 @@ function SettingsApp() {
                 </Card>
               </TabsContent>
 
+              {/* AI Settings Tab */}
+              <TabsContent value="ai" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>AI Code Analysis</CardTitle>
+                    <CardDescription>
+                      Configure AI-powered code analysis with Google Gemini
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <SettingWithTooltip
+                        label="Enable AI Analysis"
+                        tooltip="Enable AI-powered code analysis using multiple specialized agents"
+                      />
+                      <Switch
+                        checked={settings.ai?.enabled ?? true}
+                        onCheckedChange={(checked) =>
+                          setSettings({
+                            ...settings,
+                            ai: { ...settings.ai, enabled: checked },
+                          })
+                        }
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="geminiApiKey">Google Gemini API Key</Label>
+                        {settings.ai?.geminiApiKey && (
+                          <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                            <span className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full"></span>
+                            Configured
+                          </span>
+                        )}
+                      </div>
+                      <Input
+                        id="geminiApiKey"
+                        type="password"
+                        placeholder="Enter your Gemini API key (e.g., AIza...)"
+                        value={settings.ai?.geminiApiKey || ""}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            ai: { ...settings.ai, geminiApiKey: e.target.value },
+                          })
+                        }
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Get your free API key from{" "}
+                        <a
+                          href="https://makersuite.google.com/app/apikey"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          Google AI Studio
+                        </a>
+                        {" • Don't forget to click 'Save Settings' below!"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border p-4 space-y-2">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Info className="h-4 w-4" />
+                        AI Agents
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        When enabled, five specialized AI agents analyze your code:
+                      </p>
+                      <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
+                        <li>
+                          <strong>Security Sentinel:</strong> Identifies vulnerabilities and
+                          security issues
+                        </li>
+                        <li>
+                          <strong>Performance Optimizer:</strong> Finds bottlenecks and optimization
+                          opportunities
+                        </li>
+                        <li>
+                          <strong>Architecture Advisor:</strong> Evaluates design patterns and
+                          maintainability
+                        </li>
+                        <li>
+                          <strong>Standards Guardian:</strong> Checks adherence to best practices
+                        </li>
+                        <li>
+                          <strong>Refactoring Specialist:</strong> Suggests code improvements
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-4 space-y-2">
+                      <h4 className="font-medium flex items-center gap-2 text-amber-900 dark:text-amber-100">
+                        <HelpCircle className="h-4 w-4" />
+                        Privacy & Security
+                      </h4>
+                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                        Your API key is stored locally in your browser and never sent to our
+                        servers. Code analysis requests go directly from your browser to Google's
+                        Gemini API.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               {/* Bookmarks Tab */}
               <TabsContent value="bookmarks" className="space-y-4">
                 <Card>
@@ -901,15 +1047,25 @@ function SettingsApp() {
 
             {/* Save/Reset Buttons */}
             <div className="flex gap-2 pt-4">
-              <Button onClick={saveSettings} className="flex-1">
+              <Button
+                onClick={saveSettings}
+                className="flex-1"
+                variant={saved ? "outline" : "default"}
+              >
                 <Save className="h-4 w-4 mr-2" />
-                {saved ? "Saved!" : "Save Settings"}
+                {saved ? "✓ Saved Successfully!" : "Save Settings"}
               </Button>
               <Button onClick={resetSettings} variant="outline">
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
             </div>
+
+            {saved && (
+              <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3 text-sm text-green-800 dark:text-green-200">
+                Settings saved successfully! Changes will apply on GitHub pages.
+              </div>
+            )}
           </div>
         </ScrollArea>
       </div>

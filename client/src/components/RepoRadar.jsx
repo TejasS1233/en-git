@@ -76,7 +76,7 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
     const now = new Date();
     const diffTime = Math.abs(now - created);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 30) return `${diffDays} days old`;
     if (diffDays < 365) return `${Math.floor(diffDays / 30)} months old`;
     return `${Math.floor(diffDays / 365)} years old`;
@@ -159,11 +159,7 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mb-3" />
             <p className="text-destructive font-medium">{error}</p>
-            <Button
-              onClick={fetchSimilarRepos}
-              variant="outline"
-              className="mt-4"
-            >
+            <Button onClick={fetchSimilarRepos} variant="outline" className="mt-4">
               Try Again
             </Button>
           </div>
@@ -220,7 +216,10 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
 
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>
-                Lesser-known repositories similar to <strong>{owner}/{repo}</strong>
+                Lesser-known repositories similar to{" "}
+                <strong>
+                  {owner}/{repo}
+                </strong>
               </span>
             </div>
 
@@ -258,7 +257,9 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
                   <div className="flex flex-wrap items-center gap-4 mb-3">
                     <div className="flex items-center gap-1 text-sm">
                       <Star className="h-4 w-4 text-yellow-500" />
-                      <span className="font-medium">{formatNumber(similarRepo.stargazers_count)}</span>
+                      <span className="font-medium">
+                        {formatNumber(similarRepo.stargazers_count)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 text-sm">
                       <GitFork className="h-4 w-4 text-blue-500" />
@@ -266,7 +267,9 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
                     </div>
                     <div className="flex items-center gap-1 text-sm">
                       <Eye className="h-4 w-4 text-green-500" />
-                      <span className="font-medium">{formatNumber(similarRepo.watchers_count)}</span>
+                      <span className="font-medium">
+                        {formatNumber(similarRepo.watchers_count)}
+                      </span>
                     </div>
                     {similarRepo.open_issues_count > 0 && (
                       <div className="flex items-center gap-1 text-sm">
@@ -296,9 +299,7 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
                       <TrendingUp className="h-3 w-3" />
                       {getRepoAge(similarRepo.created_at)}
                     </span>
-                    <span>
-                      Updated {new Date(similarRepo.updated_at).toLocaleDateString()}
-                    </span>
+                    <span>Updated {new Date(similarRepo.updated_at).toLocaleDateString()}</span>
                   </div>
 
                   {/* Why this is recommended */}
@@ -312,12 +313,7 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
 
                   {/* CTA */}
                   <div className="mt-4 flex gap-2">
-                    <Button
-                      asChild
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                    >
+                    <Button asChild size="sm" variant="outline" className="flex-1">
                       <Link to={`/repo/${similarRepo.owner.login}/${similarRepo.name}`}>
                         Analyze Repository
                       </Link>
@@ -327,11 +323,7 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
                       size="sm"
                       className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                     >
-                      <a
-                        href={similarRepo.html_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <a href={similarRepo.html_url} target="_blank" rel="noopener noreferrer">
                         View on GitHub
                       </a>
                     </Button>
