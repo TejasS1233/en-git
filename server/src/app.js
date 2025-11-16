@@ -80,6 +80,7 @@ import widgetRouter from "./routes/widget.routes.js";
 import achievementsRouter from "./routes/achievements.routes.js";
 import challengeRouter from "./routes/challenge.routes.js";
 import webhookRouter from "./routes/webhook.routes.js";
+import extensionRouter from "./routes/extension.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -94,6 +95,7 @@ app.use("/api/v1/leaderboard", leaderboardRouter);
 app.use("/api/v1/achievements", achievementsRouter);
 app.use("/api/v1/challenges", challengeRouter);
 app.use("/api/v1/webhook", webhookRouter);
+app.use("/api/v1/extension", extensionRouter);
 app.use("/widget", widgetRouter); // No /api/v1 prefix for widgets
 
 io.on("connection", (socket) => {
