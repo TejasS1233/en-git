@@ -1,6 +1,7 @@
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { IoHomeOutline } from "react-icons/io5";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Form,
@@ -92,7 +93,12 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background transition-colors px-4 py-20">
-      <div className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-md p-8 transition-colors">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-md p-8 transition-colors">
+        <Link to="/" className="inline-block mb-4">
+          <Button variant="ghost" size="icon">
+            <IoHomeOutline className="h-5 w-5" />
+          </Button>
+        </Link>
         <div className="flex flex-col items-center">
           <Logo className="h-9 w-9" />
           <p className="mt-4 text-xl font-bold tracking-tight">Sign up</p>

@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/Logo";
 import { Separator } from "@/components/ui/separator";
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { IoHomeOutline } from "react-icons/io5";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -71,7 +72,12 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-muted/10">
       {/* Boxed login card */}
-      <div className="w-full max-w-xl rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors">
+      <div className="w-full max-w-md rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors">
+        <Link to="/" className="self-start mb-2">
+          <Button variant="ghost" size="icon">
+            <IoHomeOutline className="h-5 w-5" />
+          </Button>
+        </Link>
         <Logo className="h-9 w-9" />
         <p className="mt-4 text-xl font-bold tracking-tight text-center">Log in</p>
 
