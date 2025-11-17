@@ -67,7 +67,7 @@ export function ContributionHeatmap({ insights }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-green-500" />
+          <Calendar className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
           Contribution Calendar
         </CardTitle>
         <CardDescription>Your coding activity over the past year</CardDescription>
@@ -76,15 +76,15 @@ export function ContributionHeatmap({ insights }) {
         <div className="grid grid-cols-3 gap-4">
           <div className="p-3 rounded-lg border bg-card">
             <p className="text-xs text-muted-foreground mb-1">Total Contributions</p>
-            <p className="text-2xl font-bold text-green-600">{totalContributions}</p>
+            <p className="text-2xl font-normal text-green-600">{totalContributions}</p>
           </div>
           <div className="p-3 rounded-lg border bg-card">
             <p className="text-xs text-muted-foreground mb-1">Current Streak</p>
-            <p className="text-2xl font-bold text-orange-600">{currentStreak} weeks</p>
+            <p className="text-2xl font-normal text-orange-600">{currentStreak} weeks</p>
           </div>
           <div className="p-3 rounded-lg border bg-card">
             <p className="text-xs text-muted-foreground mb-1">Best Week</p>
-            <p className="text-2xl font-bold text-blue-600">{maxWeekContributions}</p>
+            <p className="text-2xl font-normal text-blue-600">{maxWeekContributions}</p>
           </div>
         </div>
 
@@ -158,9 +158,9 @@ export function ContributionHeatmap({ insights }) {
         </div>
 
         {currentStreak >= 4 && (
-          <div className="p-3 rounded-lg bg-linear-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
+          <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border">
             <p className="text-sm flex items-center gap-2">
-              <span className="text-xl">🔥</span>
+              <span className="text-xl"></span>
               <span>Amazing {currentStreak}-week streak! Keep the momentum going!</span>
             </p>
           </div>

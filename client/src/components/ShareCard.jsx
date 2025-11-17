@@ -196,7 +196,7 @@ export function ShareCard({ insights, username }) {
               <img
                 src={widgetUrl}
                 alt="en-git widget preview"
-                className="rounded-lg shadow-2xl max-w-full"
+                className="rounded-lg max-w-full"
                 style={{ maxHeight: "500px" }}
               />
             </div>
@@ -299,7 +299,7 @@ export function ShareCard({ insights, username }) {
       <Card className="border-pink-500/20 bg-gradient-to-br from-pink-500/5 to-purple-500/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Share2 className="h-5 w-5 text-pink-500" />
+            <Share2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
             Social Media Share Card
           </CardTitle>
           <CardDescription>

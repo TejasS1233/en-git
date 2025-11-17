@@ -15,7 +15,7 @@ export async function generateCareerInsights(insights, commits = []) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are a career advisor analyzing a software developer's GitHub profile. Based on the following data, provide concise, actionable career insights.
 
@@ -26,18 +26,19 @@ export async function generateCareerInsights(insights, commits = []) {
 - Primary Domain: ${insights.domain?.domain}
 - Coding Pattern: ${insights.commitTimes?.profile === "night-coder" ? "Night Coder" : "Early Bird"}
 - Popular Topics: ${insights.topics
-        ?.slice(0, 10)
-        .map(([t]) => t)
-        .join(", ")}
+      ?.slice(0, 10)
+      .map(([t]) => t)
+      .join(", ")}
 - Total Stars: ${insights.topStarred?.reduce((sum, r) => sum + (r.stargazers_count || 0), 0)}
 
-${commits.length > 0
-        ? `**Recent Commit Messages (sample):**\n${commits
-          .slice(0, 10)
-          .map((c) => `- ${c.commit?.message || ""}`)
-          .join("\n")}`
-        : ""
-      }
+${
+  commits.length > 0
+    ? `**Recent Commit Messages (sample):**\n${commits
+        .slice(0, 10)
+        .map((c) => `- ${c.commit?.message || ""}`)
+        .join("\n")}`
+    : ""
+}
 
 Provide:
 1. **Career Summary** (2-3 sentences about their profile)
@@ -84,7 +85,7 @@ export async function generateLearningPath(domain, languages) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are a tech education advisor. A ${domain} developer with skills in ${languages.join(", ")} wants to grow their career.
 
@@ -134,10 +135,13 @@ export const getGithubInsights = async (username, refresh = false) => {
   // ... rest of the function ...
 
   // You must also return the lastUpdated timestamp for the controller
-  const lastUpdated = new Date(userLastUpdated) > new Date(reposLastUpdated) ? userLastUpdated : reposLastUpdated;
+  const lastUpdated =
+    new Date(userLastUpdated) > new Date(reposLastUpdated) ? userLastUpdated : reposLastUpdated;
 
   // Assuming this function returns an object with insights
-  const insightsData = { /*... your generated insights ...*/ };
+  const insightsData = {
+    /*... your generated insights ...*/
+  };
 
   return { insightsData, lastUpdated };
 };

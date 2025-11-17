@@ -25,35 +25,35 @@ import axiosInstance from "@/lib/axios";
 
 const CHALLENGE_TYPES = {
   growth: [
-    { value: "followers", label: "Gain Followers", icon: "👥", difficulty: "easy" },
-    { value: "stars", label: "Total Stars", icon: "⭐", difficulty: "medium" },
-    { value: "repo_stars", label: "Repository Stars", icon: "🌟", difficulty: "medium" },
-    { value: "forks", label: "Repository Forks", icon: "🍴", difficulty: "hard" },
-    { value: "watchers", label: "Repository Watchers", icon: "👀", difficulty: "medium" },
+    { value: "followers", label: "Gain Followers", icon: "", difficulty: "easy" },
+    { value: "stars", label: "Total Stars", icon: "", difficulty: "medium" },
+    { value: "repo_stars", label: "Repository Stars", icon: "", difficulty: "medium" },
+    { value: "forks", label: "Repository Forks", icon: "", difficulty: "hard" },
+    { value: "watchers", label: "Repository Watchers", icon: "", difficulty: "medium" },
   ],
   activity: [
-    { value: "commits", label: "Make Commits", icon: "💾", difficulty: "easy" },
-    { value: "pull_requests", label: "Create Pull Requests", icon: "🔀", difficulty: "medium" },
-    { value: "issues_closed", label: "Close Issues", icon: "✅", difficulty: "medium" },
-    { value: "contributions", label: "Daily Contributions", icon: "📊", difficulty: "hard" },
-    { value: "repos_created", label: "Create Repositories", icon: "📦", difficulty: "easy" },
+    { value: "commits", label: "Make Commits", icon: "", difficulty: "easy" },
+    { value: "pull_requests", label: "Create Pull Requests", icon: "", difficulty: "medium" },
+    { value: "issues_closed", label: "Close Issues", icon: "", difficulty: "medium" },
+    { value: "contributions", label: "Daily Contributions", icon: "", difficulty: "hard" },
+    { value: "repos_created", label: "Create Repositories", icon: "", difficulty: "easy" },
   ],
   streak: [
-    { value: "streak_days", label: "Contribution Streak", icon: "🔥", difficulty: "hard" },
+    { value: "streak_days", label: "Contribution Streak", icon: "", difficulty: "hard" },
     {
       value: "languages_used",
       label: "Use Different Languages",
-      icon: "🌈",
+      icon: "",
       difficulty: "legendary",
     },
   ],
 };
 
 const DIFFICULTY_COLORS = {
-  easy: "bg-green-500",
-  medium: "bg-yellow-500",
-  hard: "bg-orange-500",
-  legendary: "bg-purple-500",
+  easy: "bg-cyan-400",
+  medium: "bg-cyan-600",
+  hard: "bg-cyan-700",
+  legendary: "bg-cyan-800",
 };
 
 const DIFFICULTY_XP = {
@@ -200,9 +200,9 @@ export default function CreateChallengeDialog({ open, onOpenChange, onSuccess, i
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="growth">🚀 Growth Challenges</SelectItem>
-                <SelectItem value="activity">⚡ Activity Challenges</SelectItem>
-                <SelectItem value="streak">🔥 Streak Challenges</SelectItem>
+                <SelectItem value="growth">Growth Challenges</SelectItem>
+                <SelectItem value="activity">Activity Challenges</SelectItem>
+                <SelectItem value="streak">Streak Challenges</SelectItem>
               </SelectContent>
             </Select>
           </div>

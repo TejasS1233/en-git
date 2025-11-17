@@ -131,7 +131,7 @@ const Chat = () => {
       <Toaster position="top-center" />
       <div className="w-1/3 border-r">
         <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold">Chats</h2>
+          <h2 className="text-xl font-normal">Chats</h2>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -172,8 +172,9 @@ const Chat = () => {
               return (
                 <div
                   key={chat._id}
-                  className={`p-4 cursor-pointer hover:bg-gray-100 ${selectedChat?._id === chat._id ? "bg-gray-200" : ""
-                    }`}
+                  className={`p-4 cursor-pointer hover:bg-gray-100 ${
+                    selectedChat?._id === chat._id ? "bg-gray-200" : ""
+                  }`}
                   onClick={() => setSelectedChat(chat)}
                 >
                   <div className="flex items-center">
@@ -198,7 +199,7 @@ const Chat = () => {
                 <AvatarImage src={getChatUser(selectedChat).avatar} />
                 <AvatarFallback>{getChatUser(selectedChat).name.substring(0, 2)}</AvatarFallback>
               </Avatar>
-              <h2 className="text-xl font-bold ml-4">{getChatUser(selectedChat).name}</h2>
+              <h2 className="text-xl font-normal ml-4">{getChatUser(selectedChat).name}</h2>
             </div>
             <div className="flex-1 p-4 overflow-y-auto">
               {messages.map((message) => (
@@ -207,8 +208,9 @@ const Chat = () => {
                   className={`mb-4 ${message.sender._id === user._id ? "text-right" : ""}`}
                 >
                   <p
-                    className={`p-2 rounded-lg inline-block ${message.sender._id === user._id ? "bg-blue-500 text-white" : "bg-gray-200"
-                      }`}
+                    className={`p-2 rounded-lg inline-block ${
+                      message.sender._id === user._id ? "bg-cyan-600 text-white" : "bg-gray-200"
+                    }`}
                   >
                     {message.content}
                   </p>

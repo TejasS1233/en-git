@@ -180,25 +180,22 @@ export default function Leaderboard() {
   };
 
   const getRankIcon = (rank) => {
-    if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-500" />;
-    if (rank === 2) return <Medal className="h-6 w-6 text-gray-400" />;
-    if (rank === 3) return <Medal className="h-6 w-6 text-amber-600" />;
     return null;
   };
 
   const getRankBadge = (rank) => {
-    if (rank === 1) return "bg-gradient-to-r from-yellow-500 to-orange-500 text-white";
-    if (rank === 2) return "bg-gradient-to-r from-gray-400 to-gray-500 text-white";
-    if (rank === 3) return "bg-gradient-to-r from-amber-600 to-orange-600 text-white";
-    if (rank <= 10) return "bg-gradient-to-r from-purple-500 to-pink-500 text-white";
-    return "bg-muted text-foreground";
+    if (rank <= 3)
+      return "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border";
+    if (rank <= 10)
+      return "bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border";
+    return "bg-background text-muted-foreground border";
   };
 
   const getGradeColor = (grade) => {
-    if (grade === "A") return "text-green-600";
-    if (grade === "B") return "text-blue-600";
-    if (grade === "C") return "text-yellow-600";
-    return "text-orange-600";
+    if (grade === "A") return "text-cyan-600 dark:text-cyan-400";
+    if (grade === "B") return "text-cyan-500 dark:text-cyan-300";
+    if (grade === "C") return "text-slate-600";
+    return "text-slate-500";
   };
 
   return (
@@ -206,10 +203,8 @@ export default function Leaderboard() {
       {/* Header */}
       <div className="text-center mb-12">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 rounded-xl bg-linear-to-br from-yellow-500 to-orange-500">
-            <Trophy className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-5xl font-black bg-linear-to-r from-yellow-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
+          <Trophy className="h-8 w-8 text-slate-600 dark:text-slate-400" />
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-800 via-cyan-600 to-cyan-800 dark:from-cyan-300 dark:via-cyan-400 dark:to-cyan-300 bg-clip-text text-transparent leading-[1.2] pb-2">
             Global Leaderboard
           </h1>
         </div>
@@ -320,7 +315,7 @@ export default function Leaderboard() {
           <Card className="border-2 border-blue-500/20">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <Users className="h-8 w-8 text-blue-600" />
+                <Users className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
                 <div>
                   <p className="text-3xl font-bold">{stats.totalUsers.toLocaleString()}</p>
                   <p className="text-sm text-muted-foreground">
@@ -337,7 +332,7 @@ export default function Leaderboard() {
           <Card className="border-2 border-purple-500/20">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <TrendingUp className="h-8 w-8 text-purple-600" />
+                <TrendingUp className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
                 <div>
                   <p className="text-3xl font-bold">{stats.averageScore}</p>
                   <p className="text-sm text-muted-foreground">Average Score</p>
@@ -348,7 +343,7 @@ export default function Leaderboard() {
           <Card className="border-2 border-yellow-500/20">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <Award className="h-8 w-8 text-yellow-600" />
+                <Award className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
                 <div>
                   <p className="text-3xl font-bold">{stats.topScore}</p>
                   <p className="text-sm text-muted-foreground">Highest Score</p>
@@ -378,16 +373,16 @@ export default function Leaderboard() {
               {topThree.map((entry) => (
                 <div
                   key={entry.username}
-                  className="flex items-center gap-4 p-4 rounded-xl border-2 hover:border-primary/50 transition-all hover:shadow-lg cursor-pointer group"
+                  className="flex items-center gap-4 p-4 rounded-lg border hover:border-slate-400 dark:hover:border-slate-600 transition-colors cursor-pointer group"
                   onClick={() => navigate(`/stats/${entry.username}`)}
                 >
                   {/* Rank */}
                   <div className="flex items-center justify-center w-16">
                     {getRankIcon(entry.rank) || (
                       <div
-                        className={`w-12 h-12 rounded-full ${getRankBadge(entry.rank)} flex items-center justify-center font-bold text-lg`}
+                        className={`w-12 h-12 rounded-lg ${getRankBadge(entry.rank)} flex items-center justify-center font-normal text-base`}
                       >
-                        #{entry.rank}
+                        {entry.rank}
                       </div>
                     )}
                   </div>
@@ -401,7 +396,7 @@ export default function Leaderboard() {
                   {/* User Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-lg truncate group-hover:text-primary transition-colors">
+                      <h3 className="font-normal text-base truncate transition-colors">
                         {entry.name || entry.username}
                       </h3>
                       <Badge variant="outline" className={getGradeColor(entry.grade)}>
@@ -417,22 +412,22 @@ export default function Leaderboard() {
                   {/* Stats */}
                   <div className="hidden sm:flex items-center gap-6 text-sm">
                     <div className="text-center">
-                      <p className="font-bold text-lg">{entry.publicRepos}</p>
+                      <p className="font-normal text-base">{entry.publicRepos}</p>
                       <p className="text-muted-foreground text-xs">Repos</p>
                     </div>
                     <div className="text-center">
-                      <p className="font-bold text-lg">{entry.totalStars}</p>
+                      <p className="font-normal text-base">{entry.totalStars}</p>
                       <p className="text-muted-foreground text-xs">Stars</p>
                     </div>
                     <div className="text-center">
-                      <p className="font-bold text-lg">{entry.followers}</p>
+                      <p className="font-normal text-base">{entry.followers}</p>
                       <p className="text-muted-foreground text-xs">Followers</p>
                     </div>
                   </div>
 
                   {/* Score */}
                   <div className="text-right">
-                    <p className="text-3xl font-black bg-linear-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">
+                    <p className="text-2xl font-normal text-slate-900 dark:text-slate-100">
                       {entry.score}
                     </p>
                     <p className="text-xs text-muted-foreground">points</p>
@@ -465,7 +460,7 @@ export default function Leaderboard() {
           </div>
 
           {currentUser && currentUser.notFound && (
-            <div className="p-6 rounded-xl border-2 border-orange-500/50 bg-orange-50 dark:bg-orange-950/20 text-center">
+            <div className="p-6 rounded-xl border-2 border-cyan-500/50 bg-cyan-50 dark:bg-cyan-950/20 text-center">
               <p className="text-lg font-semibold mb-2">
                 @{currentUser.username} hasn't been analyzed yet
               </p>

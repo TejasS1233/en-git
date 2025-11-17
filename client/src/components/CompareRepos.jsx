@@ -274,8 +274,8 @@ export default function CompareRepos() {
       {/* Input Section */}
       <Card className="border-2 border-blue-500/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl">
-            <Code className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+          <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
+            <Code className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
             Compare GitHub Repositories
           </CardTitle>
           <CardDescription className="text-sm sm:text-base mt-2.5">
@@ -415,10 +415,10 @@ export default function CompareRepos() {
       {reposData.length >= 2 && winner && (
         <>
           {/* Winner Banner */}
-          <Card className="border-2 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-orange-500/10">
+          <Card className="border-2 border-cyan-500">
             <CardContent className="py-6">
               <div className="flex items-center justify-center gap-4">
-                <Trophy className="h-12 w-12 text-yellow-500" />
+                <Trophy className="h-12 w-12 text-cyan-600 dark:text-cyan-400" />
                 <div className="text-center">
                   <h2 className="text-2xl font-bold">
                     {reposData[winner.winnerIndex].full_name} Wins!
@@ -427,7 +427,7 @@ export default function CompareRepos() {
                     Score: {winner.scores[winner.winnerIndex].toFixed(0)}
                   </p>
                   {aiAnalysis?.winner && (
-                    <Badge className="mt-2 bg-purple-500">
+                    <Badge className="mt-2 bg-cyan-600">
                       <Sparkles className="h-3 w-3 mr-1" />
                       AI-Influenced Decision
                     </Badge>
@@ -455,7 +455,7 @@ export default function CompareRepos() {
                       {repo.description || "No description"}
                     </CardDescription>
                     {winner.winnerIndex === index && (
-                      <Badge className="bg-green-500">
+                      <Badge className="bg-cyan-600">
                         <Trophy className="h-3 w-3 mr-1" />
                         Winner
                       </Badge>

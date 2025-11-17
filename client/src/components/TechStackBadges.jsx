@@ -32,7 +32,7 @@ export function TechStackBadges({ insights }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Code2 className="h-5 w-5 text-indigo-500" />
+          <Code2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
           Tech Stack Badges
         </CardTitle>
         <CardDescription>Auto-generated badges for your README or website</CardDescription>

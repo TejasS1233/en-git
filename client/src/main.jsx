@@ -7,7 +7,7 @@ import "./i18n/config";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
-    <ThemeProvider defaultTheme="dark">
+    <ThemeProvider defaultTheme="light">
       <App />
     </ThemeProvider>
   </AuthProvider>

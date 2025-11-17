@@ -41,10 +41,10 @@ export default function AIChallengeDialog({ open, onOpenChange, onSelectChalleng
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
-      easy: "bg-green-500",
-      medium: "bg-yellow-500",
-      hard: "bg-orange-500",
-      legendary: "bg-purple-500",
+      easy: "bg-cyan-400",
+      medium: "bg-cyan-600",
+      hard: "bg-cyan-700",
+      legendary: "bg-cyan-800",
     };
     return colors[difficulty] || "bg-gray-500";
   };

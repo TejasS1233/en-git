@@ -266,7 +266,7 @@ const Settings = () => {
   return (
     <div className="container mx-auto p-6 max-w-5xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Settings</h1>
+        <h1 className="text-3xl font-normal mb-2">Settings</h1>
         <p className="text-muted-foreground">Manage your account settings and preferences</p>
       </div>
 
@@ -351,7 +351,7 @@ const Settings = () => {
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                        <AlertTriangle className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                         Regenerate Webhook Token?
                       </AlertDialogTitle>
                       <AlertDialogDescription>
@@ -391,7 +391,7 @@ const Settings = () => {
                     2. Create workflow file:{" "}
                     <code className="bg-muted px-1 rounded">.github/workflows/engit-stats.yml</code>
                   </p>
-                  <p>3. Push and watch your stats auto-update! 🎉</p>
+                  <p>3. Push and watch your stats auto-update!</p>
                 </div>
 
                 <Button

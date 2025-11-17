@@ -53,7 +53,7 @@ export default function Navbar() {
 
   return (
     <div className="flex justify-center w-full fixed top-0 left-0 right-0 z-999 bg-background border-b border-border px-3 sm:px-6">
-      <nav id="main-nav" className="z-1000 w-full max-w-6xl h-16">
+      <nav id="main-nav" className="z-1000 w-full max-w-7xl h-16">
         <div className="flex items-center justify-between p-3">
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Logo />
@@ -152,7 +152,7 @@ export default function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="z-9999 w-48 rounded-xl shadow-md border bg-background"
+                  className="z-9999 w-48 rounded-lg border bg-background"
                 >
                   <DropdownMenuItem onClick={() => navigate(getDashboardPath())} className="gap-2">
                     <LayoutDashboard className="h-4 w-4" />

@@ -31,9 +31,6 @@ import axiosInstance from "@/lib/axios";
 const formSchema = z.object({
   fullname: z.string().min(1, "Full name is required"),
   email: z.string().email("Please enter a valid email address"),
-  phoneNumber: z.string().min(10, "Enter a valid phone number"),
-  countryCode: z.string().min(1, "Country code is required"),
-  address: z.string().min(1, "Address is required"),
   avatar: z.instanceof(File).optional(),
   password: z.string().min(8, "Password must be at least 8 characters long"),
 });
@@ -49,9 +46,6 @@ const SignUp = () => {
     defaultValues: {
       fullname: "",
       email: "",
-      countryCode: "+91",
-      phoneNumber: "",
-      address: "",
       password: "",
       avatar: undefined,
     },
@@ -93,15 +87,15 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background transition-colors px-4 py-20">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-md p-8 transition-colors">
-        <Link to="/" className="inline-block mb-4">
-          <Button variant="ghost" size="icon">
-            <IoHomeOutline className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div className="flex flex-col items-center">
-          <Logo className="h-9 w-9" />
-          <p className="mt-4 text-xl font-bold tracking-tight">Sign up</p>
+      <div className="w-full max-w-md rounded-lg border border-border bg-card p-8 transition-colors">
+        <div className="flex items-center justify-between mb-4">
+          <Link to="/">
+            <Button variant="ghost" size="icon">
+              <IoHomeOutline className="h-5 w-5" />
+            </Button>
+          </Link>
+          <p className="text-xl font-normal tracking-tight">Sign Up</p>
+          <div className="w-10"></div>
         </div>
 
         <Form {...form}>
@@ -175,7 +169,7 @@ const SignUp = () => {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Full name" {...field} />
+                    <Input placeholder="John Doe" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,61 +184,7 @@ const SignUp = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Country Code & Phone */}
-            <div className="flex gap-4">
-              <FormField
-                control={form.control}
-                name="countryCode"
-                render={({ field }) => (
-                  <FormItem className="w-28">
-                    <FormLabel>Code</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Code" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="+91">+91 (India)</SelectItem>
-                          <SelectItem value="+1">+1 (USA)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem className="grow">
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Phone number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Address */}
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Address" {...field} />
+                    <Input type="email" placeholder="john.doe@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -262,7 +202,7 @@ const SignUp = () => {
                     <FormControl>
                       <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Password"
+                        placeholder="••••••••"
                         {...field}
                       />
                     </FormControl>

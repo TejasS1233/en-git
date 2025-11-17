@@ -39,7 +39,7 @@ jobs:
       - name: Notify completion
         if: success()
         run: |
-          echo "✅ Stats updated successfully"
+          echo "Stats updated successfully"
           echo "🔗 View at: https://en-git.vercel.app/stats/\${{ github.actor }}"`;
   };
 
@@ -84,7 +84,7 @@ jobs:
         <CardContent className="space-y-6">
           {/* Step 1: Generate Token */}
           <div className="space-y-3">
-            <Label className="text-lg font-semibold">Step 1: Generate Your Token</Label>
+            <Label className="text-lg font-normal">Step 1: Generate Your Token</Label>
             <p className="text-sm text-muted-foreground">
               This token will be used to authenticate your stats updates.
             </p>
@@ -100,7 +100,7 @@ jobs:
               </Button>
             </div>
             {token && (
-              <p className="text-sm text-yellow-600 dark:text-yellow-500">
+              <p className="text-sm text-cyan-600 dark:text-cyan-500">
                 ⚠️ Save this token securely! You'll need it for Step 3.
               </p>
             )}
@@ -108,7 +108,7 @@ jobs:
 
           {/* Step 2: Download Workflow */}
           <div className="space-y-3">
-            <Label className="text-lg font-semibold">Step 2: Add Workflow to Repository</Label>
+            <Label className="text-lg font-normal">Step 2: Add Workflow to Repository</Label>
             <p className="text-sm text-muted-foreground">
               Create{" "}
               <code className="bg-muted px-1 rounded">.github/workflows/engit-stats.yml</code> in
@@ -150,7 +150,7 @@ jobs:
 
           {/* Step 3: Add Secret */}
           <div className="space-y-3">
-            <Label className="text-lg font-semibold">Step 3: Add Secret to GitHub</Label>
+            <Label className="text-lg font-normal">Step 3: Add Secret to GitHub</Label>
             <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
               <li>
                 Go to your repository's <strong>Settings</strong> →{" "}
@@ -179,7 +179,7 @@ jobs:
 
           {/* Step 4: Test */}
           <div className="space-y-3">
-            <Label className="text-lg font-semibold">Step 4: Push and Test</Label>
+            <Label className="text-lg font-normal">Step 4: Push and Test</Label>
             <div className="bg-muted p-4 rounded-lg">
               <code className="text-sm">
                 git add .github/workflows/engit-stats.yml
@@ -223,28 +223,28 @@ jobs:
             <div className="flex items-start gap-3">
               <div className="text-2xl">📝</div>
               <div>
-                <h4 className="font-semibold">Commits & Contributions</h4>
+                <h4 className="font-normal">Commits & Contributions</h4>
                 <p className="text-sm text-muted-foreground">Track every commit you make</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="text-2xl">🎯</div>
               <div>
-                <h4 className="font-semibold">Challenge Progress</h4>
+                <h4 className="font-normal">Challenge Progress</h4>
                 <p className="text-sm text-muted-foreground">Auto-update your challenges</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="text-2xl">📊</div>
               <div>
-                <h4 className="font-semibold">Profile Score</h4>
+                <h4 className="font-normal">Profile Score</h4>
                 <p className="text-sm text-muted-foreground">Real-time score updates</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="text-2xl">🔥</div>
               <div>
-                <h4 className="font-semibold">Coding Streaks</h4>
+                <h4 className="font-normal">Coding Streaks</h4>
                 <p className="text-sm text-muted-foreground">Maintain your streaks</p>
               </div>
             </div>

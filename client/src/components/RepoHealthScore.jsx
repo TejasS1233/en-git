@@ -17,14 +17,14 @@ export function RepoHealthScore({
   const getHealthColor = (score) => {
     if (score >= 80) return "from-green-500/80 to-emerald-500/80";
     if (score >= 60) return "from-blue-500/80 to-cyan-500/80";
-    if (score >= 40) return "from-yellow-500/80 to-orange-500/80";
+    if (score >= 40) return "from-slate-400/80 to-slate-500/80";
     return "from-rose-500/80 to-pink-500/80";
   };
 
   const getHealthBgColor = (score) => {
     if (score >= 80) return "from-green-500/10 to-emerald-500/10";
     if (score >= 60) return "from-blue-500/10 to-cyan-500/10";
-    if (score >= 40) return "from-yellow-500/10 to-orange-500/10";
+    if (score >= 40) return "from-slate-500/10 to-slate-600/10";
     return "from-rose-500/10 to-pink-500/10";
   };
 
@@ -76,14 +76,14 @@ export function RepoHealthScore({
                 </div>
                 <div className="flex items-baseline gap-3">
                   <div
-                    className={`text-8xl md:text-9xl font-black bg-linear-to-br ${getHealthColor(healthScore.score)} bg-clip-text text-transparent leading-none`}
+                    className={`text-8xl md:text-9xl font-semibold bg-linear-to-br ${getHealthColor(healthScore.score)} bg-clip-text text-transparent leading-none`}
                   >
                     {healthScore.score}
                   </div>
                   <div className="text-4xl font-bold text-muted-foreground">/100</div>
                 </div>
                 <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-border">
-                  <span className="text-2xl font-black">Grade {healthScore.grade}</span>
+                  <span className="text-2xl font-medium">Grade {healthScore.grade}</span>
                 </div>
               </div>
               <div className="text-center md:text-right">
@@ -113,7 +113,7 @@ export function RepoHealthScore({
           <div className="p-6 rounded-xl border">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xl font-bold">Overall Health</span>
-              <span className="text-3xl font-black">{healthScore.percentage}%</span>
+              <span className="text-3xl font-semibold">{healthScore.percentage}%</span>
             </div>
             <Progress value={healthScore.percentage} className="h-6" />
           </div>
@@ -207,7 +207,7 @@ export function RepoHealthScore({
                 <div className="md:col-span-2 flex items-start gap-3 p-4 rounded-xl border-2 border-green-600">
                   <Award className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-lg">Excellent repository health! 🎉</p>
+                    <p className="font-semibold text-lg">Excellent repository health!</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Keep up the great work maintaining this project!
                     </p>

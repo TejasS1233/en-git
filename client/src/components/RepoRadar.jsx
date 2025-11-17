@@ -96,7 +96,7 @@ export default function RepoRadar({ owner, repo, language, topics = [], stars = 
                 <CardDescription>Discover similar, lesser-known repositories</CardDescription>
               </div>
             </div>
-            <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
+            <Sparkles className="h-5 w-5 text-slate-500" />
           </div>
         </CardHeader>
         <CardContent>

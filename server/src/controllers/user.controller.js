@@ -22,27 +22,30 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { email, fullname, password, countryCode, phoneNumber, address } = req.body;
 
-  if ([email, fullname, password, countryCode, phoneNumber, address].some((f) => !f?.trim())) {
-    throw new ApiError("Please fill all the fields", 400);
+  if ([email, fullname, password].some((f) => !f?.trim())) {
+    throw new ApiError("Please fill all the required fields", 400);
   }
 
-  const existingUser = await User.findOne({ $or: [{ email }, { phoneNumber }] });
+  const existingUser = await User.findOne({ email });
   if (existingUser) throw new ApiError("User already exists", 409);
 
+  let avatarUrl = null;
   const avatarLocalPath = req.file?.path;
-  if (!avatarLocalPath) throw new ApiError("Please upload avatar", 400);
-
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  if (!avatar) throw new ApiError("Avatar upload failed", 400);
+  if (avatarLocalPath) {
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+    if (avatar) {
+      avatarUrl = avatar.url;
+    }
+  }
 
   const user = await User.create({
     fullname,
     email: email.toLowerCase(),
-    countryCode,
-    phoneNumber,
-    address,
+    ...(countryCode && { countryCode }),
+    ...(phoneNumber && { phoneNumber }),
+    ...(address && { address }),
     password,
-    avatar: avatar.url,
+    ...(avatarUrl && { avatar: avatarUrl }),
   });
 
   const createdUser = await User.findById(user._id).select("-password -refreshToken");

@@ -3,6 +3,6 @@ export const Logo = ({ className = "", textClassName = "" }) => (
     {/* apply sizing/extra classes to the image only so the wrapper doesn't become constrained */}
     <img src="/engit-icon.png" alt="en-git" className={`h-8 w-auto ${className}`} />
     {/* prevent the text from wrapping into multiple lines */}
-    <span className={`text-xl font-bold whitespace-nowrap ${textClassName}`}>en-git</span>
+    <span className={`text-xl font-normal whitespace-nowrap ${textClassName}`}>en-git</span>
   </div>
 );

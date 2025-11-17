@@ -214,7 +214,7 @@ function ExtensionApp() {
   return (
     <div className="w-full min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="bg-linear-to-r from-sky-600 to-blue-600 p-4">
+      <div className="bg-slate-800 dark:bg-slate-900 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 shrink-0">
             <img
@@ -222,7 +222,7 @@ function ExtensionApp() {
               alt="en-git"
               className="h-6 w-auto"
             />
-            <h1 className="text-xl font-bold text-white whitespace-nowrap">en-git</h1>
+            <h1 className="text-xl font-normal text-white whitespace-nowrap">en-git</h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {/* Theme Toggle Button*/}
@@ -272,7 +272,7 @@ function ExtensionApp() {
             <CardContent className="pt-4">
               <p className="text-sm text-muted-foreground mb-2">
                 Detected GitHub profile:{" "}
-                <span className="font-semibold text-foreground">@{currentPageUser}</span>
+                <span className="font-normal text-foreground">@{currentPageUser}</span>
               </p>
               <Button onClick={() => fetchQuickStats(currentPageUser)} size="sm" className="w-full">
                 <Sparkles className="h-3 w-3 mr-1" />
@@ -333,14 +333,14 @@ function ExtensionApp() {
                 if (!profileScore) return null;
 
                 return (
-                  <div className="p-3 rounded-lg bg-linear-to-br from-purple-50 to-white dark:from-purple-950 dark:to-gray-900 border-2 border-purple-200 dark:border-purple-800">
+                  <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Trophy className="h-4 w-4 text-purple-500" />
-                        <span className="text-xs font-semibold">Profile Score</span>
+                        <Trophy className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                        <span className="text-xs font-normal">Profile Score</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
                           {profileScore.score}
                         </span>
                         <span className="text-xs text-muted-foreground">/100</span>
@@ -378,31 +378,31 @@ function ExtensionApp() {
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                  <BookOpen className="h-4 w-4 text-blue-500" />
+                  <BookOpen className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                   <div>
                     <p className="text-xs text-muted-foreground">Repos</p>
-                    <p className="text-sm font-semibold">{stats.publicRepos}</p>
+                    <p className="text-sm font-normal">{stats.publicRepos}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                  <Star className="h-4 w-4 text-yellow-500" />
+                  <Star className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                   <div>
                     <p className="text-xs text-muted-foreground">Stars</p>
-                    <p className="text-sm font-semibold">{stats.totalStars}</p>
+                    <p className="text-sm font-normal">{stats.totalStars}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                  <Users className="h-4 w-4 text-green-500" />
+                  <Users className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                   <div>
                     <p className="text-xs text-muted-foreground">Followers</p>
-                    <p className="text-sm font-semibold">{stats.followers}</p>
+                    <p className="text-sm font-normal">{stats.followers}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                   <GitFork className="h-4 w-4 text-sky-500" />
                   <div>
                     <p className="text-xs text-muted-foreground">Forks</p>
-                    <p className="text-sm font-semibold">{stats.totalForks}</p>
+                    <p className="text-sm font-normal">{stats.totalForks}</p>
                   </div>
                 </div>
               </div>
@@ -429,7 +429,7 @@ function ExtensionApp() {
                 <div>
                   <p className="text-xs font-medium mb-1">Most Starred Repo</p>
                   <div className="p-2 rounded-lg bg-muted/50 text-xs">
-                    <p className="font-semibold truncate">{stats.mostStarred.name}</p>
+                    <p className="font-normal truncate">{stats.mostStarred.name}</p>
                     <div className="flex items-center gap-2 mt-1 text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Star className="h-3 w-3" />

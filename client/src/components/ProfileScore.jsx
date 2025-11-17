@@ -15,7 +15,7 @@ export default function ProfileScore({ insights }) {
   return (
     <div className="space-y-6">
       {/* Main Score Card */}
-      <Card className="border-2 border-purple-200 dark:border-purple-800 bg-linear-to-br from-purple-50 to-white dark:from-purple-950 dark:to-gray-900">
+      <Card className="border">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -23,7 +23,7 @@ export default function ProfileScore({ insights }) {
               <CardDescription>Your GitHub profile strength</CardDescription>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-purple-600 dark:text-purple-400">
+              <div className="text-5xl font-normal text-purple-600 dark:text-purple-400">
                 {profileScore.score}
               </div>
               <div className="text-sm text-gray-500">out of 100</div>
@@ -179,17 +179,17 @@ export default function ProfileScore({ insights }) {
               </div>
               <div className="text-center">
                 <p className="text-sm text-gray-500">Current Score</p>
-                <p className="text-2xl font-bold text-purple-600">{profileScore.score}</p>
+                <p className="text-2xl font-normal text-purple-600">{profileScore.score}</p>
               </div>
               <div className="text-center">
                 <p className="text-sm text-gray-500">Potential Score</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-2xl font-normal text-green-600">
                   {improvementPlan.potentialScore}
                 </p>
               </div>
               <div className="text-center">
                 <p className="text-sm text-gray-500">Gain</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-normal text-blue-600">
                   +{improvementPlan.potentialScore - profileScore.score}
                 </p>
               </div>

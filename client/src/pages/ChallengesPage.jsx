@@ -149,10 +149,10 @@ export default function ChallengesPage() {
 
   const getDifficultyBadge = (difficulty) => {
     const colors = {
-      easy: "bg-green-500",
-      medium: "bg-yellow-500",
-      hard: "bg-orange-500",
-      legendary: "bg-purple-500",
+      easy: "bg-cyan-400",
+      medium: "bg-cyan-600",
+      hard: "bg-cyan-700",
+      legendary: "bg-cyan-800",
     };
     return colors[difficulty] || "bg-gray-500";
   };
@@ -174,12 +174,12 @@ export default function ChallengesPage() {
   const getStatusColor = (status) => {
     switch (status) {
       case "completed":
-        return "bg-green-500";
+        return "bg-cyan-600";
       case "active":
-        return "bg-blue-500";
+        return "bg-cyan-500";
       case "failed":
       case "expired":
-        return "bg-red-500";
+        return "bg-slate-500";
       default:
         return "bg-gray-500";
     }
@@ -201,7 +201,7 @@ export default function ChallengesPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Challenges</h1>
+          <h1 className="text-4xl font-normal mb-2">Challenges</h1>
           <p className="text-muted-foreground">Set goals and track your GitHub growth</p>
         </div>
         <div className="flex gap-2">
@@ -225,7 +225,7 @@ export default function ChallengesPage() {
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.active || 0}</div>
+              <div className="text-2xl font-normal">{stats.active || 0}</div>
             </CardContent>
           </Card>
           <Card>
@@ -234,7 +234,7 @@ export default function ChallengesPage() {
               <Trophy className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completed || 0}</div>
+              <div className="text-2xl font-normal">{stats.completed || 0}</div>
             </CardContent>
           </Card>
           <Card>
@@ -254,7 +254,7 @@ export default function ChallengesPage() {
               <Star className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total || 0}</div>
+              <div className="text-2xl font-normal">{stats.total || 0}</div>
             </CardContent>
           </Card>
         </div>
@@ -279,7 +279,7 @@ export default function ChallengesPage() {
               <CardContent className="pt-6">
                 <div className="text-center py-12">
                   <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No challenges yet</h3>
+                  <h3 className="text-lg font-normal mb-2">No challenges yet</h3>
                   <p className="text-muted-foreground mb-4">
                     Create your first challenge to start tracking your GitHub goals
                   </p>
@@ -361,13 +361,13 @@ export default function ChallengesPage() {
 
                         {challenge.rewards?.xp && (
                           <div className="flex items-center gap-2 text-sm">
-                            <Trophy className="h-4 w-4 text-yellow-500" />
+                            <Trophy className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                             <span className="text-muted-foreground">
                               Reward: {challenge.rewards.xp} XP
                             </span>
                             {challenge.rewards.badge && (
                               <Badge variant="outline" className="text-xs">
-                                🏆 {challenge.rewards.badge}
+                                {challenge.rewards.badge}
                               </Badge>
                             )}
                           </div>

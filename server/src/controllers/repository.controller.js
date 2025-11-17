@@ -420,7 +420,7 @@ export const generateRepoComparison = asyncHandler(async (req, res) => {
   try {
     console.log("🔑 API Key exists:", !!process.env.GOOGLE_API_KEY);
     console.log("🔑 API Key length:", process.env.GOOGLE_API_KEY?.length);
-    
+
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -622,28 +622,30 @@ Generate your analysis now:`;
     console.error("  - Stack:", error.stack);
     console.error("  - Error name:", error.name);
     console.error("  - Error code:", error.code);
-    
+
     // Try to extract more details from various error structures
     if (error.response) {
       console.error("  - Response status:", error.response.status);
       console.error("  - Response data:", error.response.data);
     }
-    
+
     if (error.cause) {
       console.error("  - Cause:", error.cause);
     }
 
     // Return a more helpful error response
     let errorMessage = error.message || "Failed to generate comparison analysis";
-    
+
     // Check for common Gemini API errors
     if (error.message?.includes("API key")) {
-      errorMessage = "Google API key is invalid or not configured. Please check your GOOGLE_API_KEY in .env file";
+      errorMessage =
+        "Google API key is invalid or not configured. Please check your GOOGLE_API_KEY in .env file";
     } else if (error.message?.includes("quota") || error.message?.includes("rate limit")) {
       errorMessage = "Google API quota exceeded or rate limited. Please try again later";
     } else if (error.message?.includes("model")) {
-      errorMessage = "Invalid model specified or model not available. Check if gemini-2.5-flash is available";
-    } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      errorMessage =
+        "Invalid model specified or model not available. Check if gemini-1.5-flash is available";
+    } else if (error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
       errorMessage = "Cannot connect to Google AI API. Check your internet connection";
     }
 
@@ -666,7 +668,7 @@ export const generateRepoDescription = asyncHandler(async (req, res) => {
 
   try {
     console.log("🔑 Generating description - API Key exists:", !!process.env.GOOGLE_API_KEY);
-    
+
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -713,19 +715,21 @@ Return ONLY the description text, nothing else. No quotes, no explanations.`;
     console.error("  - Message:", error.message);
     console.error("  - Error name:", error.name);
     console.error("  - Error code:", error.code);
-    
+
     let errorMessage = error.message || "Failed to generate description";
-    
+
     // Check for common Gemini API errors
     if (error.message?.includes("API key")) {
       errorMessage = "Google API key is invalid or not configured";
     } else if (error.message?.includes("quota") || error.message?.includes("rate limit")) {
       errorMessage = "Google API quota exceeded. Please try again later";
-    } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+    } else if (error.message?.includes("overloaded") || error.message?.includes("503")) {
+      errorMessage = "AI service is temporarily overloaded. Please try again in a few moments";
+    } else if (error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
       errorMessage = "Cannot connect to Google AI API";
     }
-    
-    throw new ApiError(500, errorMessage);
+
+    throw new ApiError(503, errorMessage);
   }
 });
 

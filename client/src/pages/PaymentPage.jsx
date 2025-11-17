@@ -145,7 +145,7 @@ const PaymentPage = () => {
           </Button>
           {!user && <p className="text-xs text-red-500">Please log in to make a payment.</p>}
           {paymentDetails && (
-            <div className="text-sm text-green-600 dark:text-green-400 text-center p-3 bg-green-50 dark:bg-gray-800 rounded-lg">
+            <div className="text-sm text-cyan-600 dark:text-cyan-400 text-center p-3 bg-cyan-50 dark:bg-gray-800 rounded-lg">
               <p className="font-semibold">Payment Verified!</p>
               <p className="break-all">
                 <strong>Tx Hash:</strong> {paymentDetails.blockchainTxHash}

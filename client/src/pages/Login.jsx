@@ -72,14 +72,16 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-muted/10">
       {/* Boxed login card */}
-      <div className="w-full max-w-md rounded-2xl border bg-card shadow-md p-6 flex flex-col items-center transition-colors">
-        <Link to="/" className="self-start mb-2">
-          <Button variant="ghost" size="icon">
-            <IoHomeOutline className="h-5 w-5" />
-          </Button>
-        </Link>
-        <Logo className="h-9 w-9" />
-        <p className="mt-4 text-xl font-bold tracking-tight text-center">Log in</p>
+      <div className="w-full max-w-md rounded-lg border border-border bg-card p-8 transition-colors">
+        <div className="flex items-center justify-between mb-4">
+          <Link to="/">
+            <Button variant="ghost" size="icon">
+              <IoHomeOutline className="h-5 w-5" />
+            </Button>
+          </Link>
+          <p className="text-xl font-normal tracking-tight">Log In</p>
+          <div className="w-10"></div>
+        </div>
 
         {/* Social buttons */}
         <Button
@@ -119,7 +121,7 @@ export default function Login() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Email" {...field} />
+                    <Input type="email" placeholder="john.doe@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,7 +139,7 @@ export default function Login() {
                     <FormControl>
                       <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Password"
+                        placeholder="••••••••"
                         {...field}
                         className="pr-10"
                       />

@@ -6,7 +6,7 @@ import * as Icons from "lucide-react";
 const TIER_COLORS = {
   Bronze: "from-amber-700 to-amber-900",
   Silver: "from-gray-400 to-gray-600",
-  Gold: "from-yellow-400 to-yellow-600",
+  Gold: "from-cyan-400 to-cyan-600",
   Platinum: "from-slate-300 to-slate-500",
   Diamond: "from-cyan-300 to-cyan-500",
   Legendary: "from-orange-500 to-red-600",
@@ -77,26 +77,28 @@ export default function Achievements({ username }) {
   return (
     <div className="space-y-6">
       {/* Stats Header */}
-      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-6 border border-blue-500/20">
+      <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 border">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-400">{achievements.unlockedCount}</div>
+            <div className="text-3xl font-normal text-cyan-500 dark:text-cyan-400">
+              {achievements.unlockedCount}
+            </div>
             <div className="text-sm text-gray-400">Unlocked</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-400">
+            <div className="text-3xl font-normal text-gray-400">
               {achievements.total - achievements.unlockedCount}
             </div>
             <div className="text-sm text-gray-400">Locked</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-400">
+            <div className="text-3xl font-normal text-cyan-500 dark:text-cyan-400">
               {achievements.completionPercentage}%
             </div>
             <div className="text-sm text-gray-400">Complete</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-yellow-400">
+            <div className="text-3xl font-normal text-cyan-500 dark:text-cyan-400">
               {achievements.unlocked.filter((a) => a.tier.name === "Legendary").length}
             </div>
             <div className="text-sm text-gray-400">Legendary</div>
@@ -131,7 +133,7 @@ export default function Achievements({ username }) {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 filter === f
-                  ? "bg-blue-500 text-white"
+                  ? "bg-cyan-600 text-white"
                   : "bg-gray-800 text-gray-400 hover:bg-gray-700"
               }`}
             >
@@ -146,7 +148,7 @@ export default function Achievements({ username }) {
               onClick={() => setCategoryFilter(cat)}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                 categoryFilter === cat
-                  ? "bg-purple-500 text-white"
+                  ? "bg-cyan-600 text-white"
                   : "bg-gray-800 text-gray-400 hover:bg-gray-700"
               }`}
             >
@@ -195,10 +197,10 @@ function AchievementCard({ achievement, isLocked, onClick }) {
       exit={{ opacity: 0, scale: 0.8 }}
       whileHover={{ scale: isLocked ? 1 : 1.05 }}
       onClick={onClick}
-      className={`relative p-4 rounded-xl border cursor-pointer transition-all ${
+      className={`relative p-4 rounded-lg border cursor-pointer transition-colors ${
         isLocked
           ? "bg-gray-900/50 border-gray-700 opacity-60"
-          : `bg-gradient-to-br ${tierColor} border-transparent shadow-lg ${tierGlow}`
+          : `bg-gradient-to-br ${tierColor} border-transparent ${tierGlow}`
       }`}
     >
       {/* Tier Badge */}
@@ -263,7 +265,7 @@ function AchievementCard({ achievement, isLocked, onClick }) {
       {/* Unlocked Badge */}
       {!isLocked && (
         <div className="absolute bottom-2 right-2">
-          <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-bold">
+          <span className="text-xs bg-cyan-600 text-white px-2 py-1 rounded-full font-normal">
             ✓ Unlocked
           </span>
         </div>
@@ -289,10 +291,10 @@ function AchievementModal({ achievement, onClose }) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative max-w-md w-full p-8 rounded-2xl border ${
+        className={`relative max-w-md w-full p-8 rounded-lg border ${
           isLocked
             ? "bg-gray-900 border-gray-700"
-            : `bg-gradient-to-br ${tierColor} border-transparent shadow-2xl`
+            : `bg-gradient-to-br ${tierColor} border-transparent`
         }`}
       >
         <button
@@ -323,14 +325,14 @@ function AchievementModal({ achievement, onClose }) {
           </div>
 
           <div
-            className={`inline-block px-4 py-1 rounded-full text-sm font-bold mb-4 ${
+            className={`inline-block px-4 py-1 rounded-full text-sm font-normal mb-4 ${
               isLocked ? "bg-gray-700 text-gray-400" : "bg-black/30 text-white"
             }`}
           >
             {achievement.tier.name}
           </div>
 
-          <h2 className={`text-3xl font-bold mb-2 ${isLocked ? "text-gray-400" : "text-white"}`}>
+          <h2 className={`text-3xl font-normal mb-2 ${isLocked ? "text-gray-400" : "text-white"}`}>
             {isLocked && achievement.secret ? "Secret Achievement" : achievement.name}
           </h2>
 

@@ -61,7 +61,7 @@ const ContactPage = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Get in Touch</h1>
+          <h1 className="text-4xl md:text-5xl font-normal tracking-tight mb-4">Get in Touch</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Have questions, found a bug, or want to contribute? We'd love to hear from you!
           </p>
@@ -69,7 +69,7 @@ const ContactPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {contactDetails.map((item, idx) => (
-            <Card key={idx} className="hover:shadow-lg transition-shadow">
+            <Card key={idx} className="hover:border-accent transition-colors">
               <CardHeader>
                 <div className="h-12 w-12 flex items-center justify-center bg-primary/10 text-primary rounded-lg mb-4">
                   <item.icon className="h-6 w-6" />
@@ -94,7 +94,7 @@ const ContactPage = () => {
           ))}
         </div>
 
-        <Card className="mt-12 border-primary/20 bg-linear-to-br from-primary/5 to-accent/5">
+        <Card className="mt-12 border">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Open Source Project</CardTitle>
             <CardDescription className="text-base">

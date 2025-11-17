@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 const TIER_COLORS = {
   Bronze: "from-amber-700 to-amber-900",
   Silver: "from-gray-400 to-gray-600",
-  Gold: "from-yellow-400 to-yellow-600",
+  Gold: "from-cyan-400 to-cyan-600",
   Platinum: "from-slate-300 to-slate-500",
   Diamond: "from-cyan-300 to-cyan-500",
   Legendary: "from-orange-500 to-red-600",

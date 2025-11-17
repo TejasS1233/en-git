@@ -20,15 +20,15 @@ const BADGE_ICONS = {
 };
 
 const TIER_COLORS = {
-  Bronze: "bg-amber-700/20 text-amber-600 border-amber-600/30",
+  Bronze: "bg-slate-700/20 text-slate-600 border-slate-600/30",
   Silver: "bg-slate-400/20 text-slate-300 border-slate-400/30",
-  Gold: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
+  Gold: "bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/30",
 };
 
 const TIER_ICONS = {
-  Bronze: "🥉",
-  Silver: "🥈",
-  Gold: "🥇",
+  Bronze: "",
+  Silver: "",
+  Gold: "",
 };
 
 export function GamificationBadges({ insights }) {
@@ -41,12 +41,12 @@ export function GamificationBadges({ insights }) {
   }
 
   return (
-    <Card className="border-yellow-500/20 bg-linear-to-br from-yellow-500/5 to-orange-500/5">
+    <Card className="border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
+              <Trophy className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
               Achievements Unlocked
             </CardTitle>
             <CardDescription>
@@ -67,7 +67,7 @@ export function GamificationBadges({ insights }) {
               key={idx}
               className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >
-              <div className="text-3xl shrink-0">{BADGE_ICONS[badge.name] || "🏆"}</div>
+              <div className="text-3xl shrink-0">{BADGE_ICONS[badge.name] || ""}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-semibold text-sm truncate">{badge.name}</h4>
@@ -111,11 +111,11 @@ export function GamificationBadges({ insights }) {
         </div>
 
         {badges.length >= 5 && (
-          <div className="mt-4 p-3 rounded-lg bg-linear-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+          <div className="mt-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border">
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 text-purple-500" />
               <p className="text-sm font-medium">
-                Amazing! You've unlocked {badges.length} achievements. Keep coding! 🎉
+                Amazing! You've unlocked {badges.length} achievements. Keep coding!
               </p>
             </div>
           </div>

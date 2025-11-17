@@ -272,7 +272,7 @@ export default function CompareUsers() {
               <Card className="border-2 border-purple-500/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl">
-                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
+                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-cyan-600 dark:text-cyan-400" />
                     Compare GitHub Users
                   </CardTitle>
                   <CardDescription className="text-sm sm:text-base mt-2.5">
@@ -393,10 +393,10 @@ export default function CompareUsers() {
 
           {/* Winner Banner */}
           {winner && winner.user1 !== winner.user2 && (
-            <Card className="mb-6 border-2 border-yellow-500 bg-linear-to-r from-yellow-500/10 to-orange-500/10">
+            <Card className="mb-6 border-2">
               <CardContent className="py-6">
                 <div className="flex items-center justify-center gap-4">
-                  <Trophy className="h-12 w-12 text-yellow-500" />
+                  <Trophy className="h-12 w-12 text-cyan-600 dark:text-cyan-400" />
                   <div className="text-center">
                     <h2 className="text-2xl font-bold">
                       {winner.user1 > winner.user2 ? user1Data.user.login : user2Data.user.login}{" "}
@@ -430,7 +430,7 @@ export default function CompareUsers() {
                       Last updated: {user1LastUpdated}
                     </p>
                     {winner?.user1 > winner?.user2 && (
-                      <Badge className="mt-2 bg-green-500">
+                      <Badge className="mt-2 bg-cyan-600">
                         <Trophy className="h-3 w-3 mr-1" />
                         Winner
                       </Badge>
@@ -474,7 +474,7 @@ export default function CompareUsers() {
                       Last updated: {user2LastUpdated}
                     </p>
                     {winner?.user2 > winner?.user1 && (
-                      <Badge className="mt-2 bg-green-500">
+                      <Badge className="mt-2 bg-cyan-600">
                         <Trophy className="h-3 w-3 mr-1" />
                         Winner
                       </Badge>
@@ -542,14 +542,14 @@ export default function CompareUsers() {
                         <div className="space-y-1">
                           <Progress
                             value={(data.user1 / Math.max(data.user1, data.user2)) * 100}
-                            className={data.winner === 1 ? "bg-green-500/20" : ""}
+                            className={data.winner === 1 ? "bg-cyan-500/20" : ""}
                           />
                           <p className="text-xs text-muted-foreground">{user1Data.user.login}</p>
                         </div>
                         <div className="space-y-1">
                           <Progress
                             value={(data.user2 / Math.max(data.user1, data.user2)) * 100}
-                            className={data.winner === 2 ? "bg-green-500/20" : ""}
+                            className={data.winner === 2 ? "bg-cyan-500/20" : ""}
                           />
                           <p className="text-xs text-muted-foreground">{user2Data.user.login}</p>
                         </div>

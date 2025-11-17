@@ -40,7 +40,7 @@ export default function PrivacyPolicy() {
               </li>
             </ul>
 
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 my-4">
+            <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4 my-4">
               <p className="text-sm font-medium">
                 <strong>🔒 Privacy Guarantee:</strong> Private repository names, code, and sensitive
                 information are NEVER displayed publicly. We only use private repo data for
@@ -118,7 +118,7 @@ export default function PrivacyPolicy() {
               </li>
             </ul>
 
-            <p className="mt-4 text-sm bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+            <p className="mt-4 text-sm bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3">
               <strong>Note:</strong> You can revoke our access to your private repositories at any
               time through your GitHub account settings → Applications → Authorized OAuth Apps →
               en-git → Revoke.

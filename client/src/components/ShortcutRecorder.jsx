@@ -125,8 +125,9 @@ export function ShortcutRecorder({ value, onChange, disabled, actionName }) {
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <div
-          className={`flex-1 px-3 py-2 border rounded-md text-sm ${isRecording ? "border-primary bg-primary/5 animate-pulse" : "border-input bg-background"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          className={`flex-1 px-3 py-2 border rounded-md text-sm ${
+            isRecording ? "border-primary bg-primary/5 animate-pulse" : "border-input bg-background"
+          } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           onClick={() => !disabled && setIsRecording(true)}
         >
           {isRecording ? (
@@ -151,7 +152,7 @@ export function ShortcutRecorder({ value, onChange, disabled, actionName }) {
         <Alert variant="destructive" className="py-2">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription className="text-xs">
-            <p className="font-medium mb-1">⚠️ Conflicts with: {conflict.conflictsWith}</p>
+            <p className="font-medium mb-1">Conflicts with: {conflict.conflictsWith}</p>
             <p className="text-muted-foreground mb-2">
               This shortcut may not work as expected. Try these alternatives:
             </p>

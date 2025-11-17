@@ -26,21 +26,12 @@ const userSchema = new Schema(
     },
     phoneNumber: {
       type: String,
-      required: function () {
-        return !this.googleId && !this.githubId;
-      },
     },
     address: {
       type: String,
-      required: function () {
-        return !this.googleId && !this.githubId;
-      },
     },
     avatar: {
       type: String,
-      required: function () {
-        return !this.googleId && !this.githubId;
-      },
     },
     password: {
       type: String,

@@ -316,24 +316,24 @@ export default function GitHubInsightsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-3 sm:p-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
-        <div className="text-center space-y-4 sm:space-y-6 pt-4 pb-3 px-4 animate-in fade-in duration-500">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight bg-linear-to-r from-teal-500 via-cyan-500 to-teal-400 bg-clip-text text-transparent leading-tight">
+        <div className="space-y-4 sm:space-y-6 pt-4 pb-3 px-4 animate-in fade-in duration-500 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight bg-gradient-to-r from-cyan-800 via-cyan-600 to-cyan-800 dark:from-cyan-300 dark:via-cyan-400 dark:to-cyan-300 bg-clip-text text-transparent leading-[1.2] pb-2">
             Analyze Any GitHub Profile
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium px-2">
-            Get instant insights on languages, repos, and coding activity. Compare developers and
-            track your progress.
-          </p>
+          <div className="text-muted-foreground text-base sm:text-lg md:text-xl lg:text-2xl font-medium space-y-2">
+            <p>Get instant insights on languages, repos, and coding activity.</p>
+            <p>Compare developers and track your progress.</p>
+          </div>
         </div>
 
-        <div className="border-beam-wrapper max-w-3xl mx-auto shadow-[0_20px_60px_-15px_rgba(59,130,246,0.4),0_10px_30px_-10px_rgba(147,51,234,0.3)]">
-          <Card className="border-beam-card border-0">
+        <div className="max-w-3xl mx-auto">
+          <Card>
             <CardHeader className="pb-4 sm:pb-6 pt-8 sm:pt-12 text-center px-4 sm:px-6">
               <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-                <Github className="h-6 w-6 sm:h-7 sm:w-7 text-teal-500 shrink-0" />
-                <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold font-mono">
+                <Github className="h-6 w-6 sm:h-7 sm:w-7 text-slate-700 dark:text-slate-300 shrink-0" />
+                <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-medium">
                   Enter GitHub Username
                 </CardTitle>
               </div>
@@ -362,7 +362,7 @@ export default function GitHubInsightsPage() {
                   type="submit"
                   disabled={loading || !!usernameError || username.trim() === ""}
                   aria-disabled={loading || !!usernameError || username.trim() === ""}
-                  className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold shadow-lg bg-linear-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white border-0 w-full sm:w-auto cursor-pointer"
+                  className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-normal bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white border-0 w-full sm:w-auto cursor-pointer"
                   size="lg"
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />}
@@ -448,7 +448,7 @@ export default function GitHubInsightsPage() {
                         className="cursor-pointer hover:bg-accent text-base py-2 px-3"
                         onClick={() => handleHistoryClick(item.username)}
                       >
-                        <Star className="h-4 w-4 mr-1 fill-current text-yellow-500" />
+                        <Star className="h-4 w-4 mr-1 fill-current text-cyan-600 dark:text-cyan-400" />
                         {item.username}
                       </Badge>
                     ))}
@@ -508,7 +508,7 @@ export default function GitHubInsightsPage() {
         )}
 
         {loading && !insights && (
-          <div className="space-y-6 animate-pulse">
+          <div className="space-y-6">
             <div className="h-48 bg-muted rounded-xl"></div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="h-32 bg-muted rounded-xl"></div>
@@ -585,7 +585,7 @@ export default function GitHubInsightsPage() {
 
               <TabsContent value="history" className="space-y-6 mt-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h2 className="text-xl sm:text-2xl font-bold">Historical Stats</h2>
+                  <h2 className="text-xl sm:text-2xl font-normal">Historical Stats</h2>
                   <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Select
                       value={timePeriod}
@@ -674,12 +674,12 @@ export default function GitHubInsightsPage() {
             </Tabs>
           </>
         )}
-      </div>
 
-      {/* Signup Prompt for non-logged-in users */}
-      {showSignupPrompt && !isLoggedIn && (
-        <SignupPrompt onClose={() => setShowSignupPrompt(false)} />
-      )}
+        {/* Signup Prompt for non-logged-in users */}
+        {showSignupPrompt && !isLoggedIn && (
+          <SignupPrompt onClose={() => setShowSignupPrompt(false)} />
+        )}
+      </div>
     </div>
   );
 }
@@ -691,7 +691,7 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
     const tweetText = generateTweetText(insights);
     const success = await copyToClipboard(tweetText);
     if (success) {
-      toast.success("Tweet copied to clipboard! 📋");
+      toast.success("Tweet copied to clipboard!");
     } else {
       toast.error("Failed to copy to clipboard");
     }
@@ -699,13 +699,13 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
 
   const handleShareTwitter = () => {
     shareOnTwitter(insights);
-    toast.success("Opening Twitter... 🐦");
+    toast.success("Opening Twitter...");
   };
 
   const handleShareLinkedIn = async () => {
-    toast.success("Content copied to clipboard! 📋");
+    toast.success("Content copied to clipboard!");
     await shareOnLinkedIn(insights);
-    toast.info("Opening LinkedIn - paste your content! 💼");
+    toast.info("Opening LinkedIn - paste your content!");
   };
 
   return (
@@ -722,7 +722,7 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
           <AvatarFallback>{user.login?.[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1 space-y-2 min-w-0 w-full">
-          <h2 className="text-xl sm:text-2xl font-bold truncate">{user.name || user.login}</h2>
+          <h2 className="text-xl sm:text-2xl font-normal truncate">{user.name || user.login}</h2>
           <p className="text-muted-foreground text-sm line-clamp-2">{user.bio || "No bio"}</p>
           <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
             <span className="whitespace-nowrap">
@@ -754,7 +754,7 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
               onClick={handleShareTwitter}
               className="gap-1 text-xs sm:text-sm hover:bg-blue-50 dark:hover:bg-blue-950"
             >
-              <Twitter className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
+              <Twitter className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600 dark:text-cyan-400" />
               Tweet
             </Button>
             <Button
@@ -763,7 +763,7 @@ function ProfileSummary({ user, reposCount, domain, lastUpdated, insights }) {
               onClick={handleShareLinkedIn}
               className="gap-1 text-xs sm:text-sm hover:bg-blue-50 dark:hover:bg-blue-950"
             >
-              <Linkedin className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+              <Linkedin className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600 dark:text-cyan-400" />
               Share
             </Button>
           </div>
@@ -906,7 +906,7 @@ function TopRepos({ topStarred, topActive }) {
       <CardContent className="space-y-4">
         <div>
           <h3 className="font-semibold mb-2 flex items-center gap-2">
-            <Star className="h-4 w-4 text-yellow-500" /> Most Starred
+            <Star className="h-4 w-4 text-cyan-600 dark:text-cyan-400" /> Most Starred
           </h3>
           <div className="space-y-1">
             {topStarred.map((r, i) => (
@@ -929,7 +929,7 @@ function TopRepos({ topStarred, topActive }) {
         </div>
         <div>
           <h3 className="font-semibold mb-2 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-green-500" /> Most Active
+            <TrendingUp className="h-4 w-4 text-cyan-600 dark:text-cyan-400" /> Most Active
           </h3>
           <div className="space-y-1">
             {topActive.map((r, i) => (
@@ -1124,7 +1124,7 @@ function RecommendationsSection({ recommendations }) {
   const { trendingMatches, personalIdeas, trendingSample } = recommendations;
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold flex items-center gap-2">
+      <h2 className="text-3xl font-normal flex items-center gap-2">
         <Sparkles className="h-6 w-6" />
         Personalized Recommendations
       </h2>

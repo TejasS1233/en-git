@@ -74,7 +74,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
       <Card className="border-purple-500/20">
         <CardContent className="flex items-center justify-center py-12">
           <div className="text-center space-y-3">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-500" />
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-cyan-600" />
             <p className="text-sm text-muted-foreground">Analyzing your profile with AI...</p>
           </div>
         </CardContent>
@@ -102,7 +102,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
     <div className="space-y-6">
       {/* Career Summary */}
       {aiData?.summary && (
-        <Card className="border-purple-500/20 bg-linear-to-br from-purple-500/5 to-blue-500/5">
+        <Card className="border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-purple-500" />
@@ -121,7 +121,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-green-500" />
+                <TrendingUp className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                 Your Strengths
               </CardTitle>
             </CardHeader>
@@ -131,7 +131,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
                   <li key={idx} className="flex items-start gap-2 text-sm">
                     <Badge
                       variant="outline"
-                      className="mt-0.5 bg-green-500/10 text-green-600 border-green-500/20"
+                      className="mt-0.5 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20"
                     >
                       {idx + 1}
                     </Badge>
@@ -148,7 +148,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-orange-500" />
+                <Target className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                 Growth Opportunities
               </CardTitle>
             </CardHeader>
@@ -158,7 +158,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
                   <li key={idx} className="flex items-start gap-2 text-sm">
                     <Badge
                       variant="outline"
-                      className="mt-0.5 bg-orange-500/10 text-orange-600 border-orange-500/20"
+                      className="mt-0.5 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20"
                     >
                       {idx + 1}
                     </Badge>
@@ -176,7 +176,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-yellow-500" />
+              <Lightbulb className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
               Project Ideas to Build Next
             </CardTitle>
           </CardHeader>
@@ -198,7 +198,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5 text-blue-500" />
+              <Briefcase className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
               Recommended Career Paths
             </CardTitle>
           </CardHeader>
@@ -219,7 +219,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-indigo-500" />
+              <BookOpen className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
               6-Month Learning Roadmap
             </CardTitle>
           </CardHeader>
@@ -257,7 +257,7 @@ export function AIInsights({ username, onInsightsGenerated }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-500" />
+              <Sparkles className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
               AI Insights
             </CardTitle>
           </CardHeader>

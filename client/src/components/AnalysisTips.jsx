@@ -41,7 +41,7 @@ export function ProfileAnalysisTips() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-black mb-3 bg-linear-to-r from-cyan-600 via-purple-600 to-orange-600 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-normal mb-3 bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-300 dark:to-slate-100 bg-clip-text text-transparent">
           Level Up Your Profile
         </h2>
         <p className="text-lg text-muted-foreground">Quick wins to boost your GitHub score</p>
@@ -53,26 +53,22 @@ export function ProfileAnalysisTips() {
           return (
             <Card
               key={tip.title}
-              className="group relative overflow-hidden border-2 hover:border-transparent transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
+              className="group relative overflow-hidden border hover:border-accent transition-all duration-300 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Gradient background on hover */}
-              <div
-                className={`absolute inset-0 bg-linear-to-br ${tip.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
-              />
+              <div className="absolute inset-0 opacity-0" />
 
               <CardContent className="p-6 relative">
                 {/* Icon with gradient background */}
                 <div
-                  className={`w-16 h-16 rounded-2xl bg-linear-to-br ${tip.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                  className={`w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4`}
                 >
                   <Icon className="h-8 w-8 text-white" />
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold mb-4 group-hover:text-transparent group-hover:bg-linear-to-r group-hover:bg-clip-text group-hover:from-cyan-600 group-hover:to-purple-600 transition-all duration-300">
-                  {tip.title}
-                </h3>
+                <h3 className="text-xl font-normal mb-4 transition-colors">{tip.title}</h3>
 
                 {/* Items */}
                 <ul className="space-y-2">
@@ -81,7 +77,7 @@ export function ProfileAnalysisTips() {
                       key={idx}
                       className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors"
                     >
-                      <div className={`h-1.5 w-1.5 rounded-full bg-linear-to-r ${tip.gradient}`} />
+                      <div className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
                       <span>{item}</span>
                     </li>
                   ))}

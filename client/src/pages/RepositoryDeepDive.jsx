@@ -141,17 +141,17 @@ export default function RepositoryDeepDive() {
   }
 
   const getHealthColor = (score) => {
-    if (score >= 80) return "text-green-500";
-    if (score >= 60) return "text-blue-500";
-    if (score >= 40) return "text-yellow-500";
-    return "text-red-500";
+    if (score >= 80) return "text-cyan-600 dark:text-cyan-400";
+    if (score >= 60) return "text-cyan-500 dark:text-cyan-300";
+    if (score >= 40) return "text-slate-500";
+    return "text-slate-500";
   };
 
   const getHealthBg = (score) => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-blue-500";
-    if (score >= 40) return "bg-yellow-500";
-    return "bg-red-500";
+    if (score >= 80) return "bg-cyan-600";
+    if (score >= 60) return "bg-cyan-500";
+    if (score >= 40) return "bg-slate-500";
+    return "bg-slate-400";
   };
 
   if (!data) {
@@ -161,7 +161,7 @@ export default function RepositoryDeepDive() {
           <Card className="border-2 border-purple-500/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl">
-                <Code className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
+                <Code className="h-6 w-6 sm:h-8 sm:w-8 text-cyan-600 dark:text-cyan-400" />
                 Repository Deep Dive
               </CardTitle>
               <CardDescription className="text-sm sm:text-base mt-2.5">
@@ -170,7 +170,7 @@ export default function RepositoryDeepDive() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="p-4 border-2 border-purple-500/30 rounded-lg bg-purple-500/5 space-y-4">
+                <div className="p-4 border-2 border-cyan-500/30 rounded-lg bg-cyan-500/5 space-y-4">
                   <p className="text-sm text-muted-foreground text-center">
                     Enter either a full GitHub URL <span className="font-semibold">or</span> the
                     owner/repository separately
@@ -358,7 +358,7 @@ export default function RepositoryDeepDive() {
                   {repository.topics.map((topic) => (
                     <Badge
                       key={topic}
-                      className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20"
+                      className="bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/20"
                     >
                       {topic}
                     </Badge>
@@ -608,7 +608,7 @@ export default function RepositoryDeepDive() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Open</span>
-                  <Badge className="bg-green-500">{issues.open}</Badge>
+                  <Badge className="bg-cyan-600">{issues.open}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Closed</span>
@@ -640,11 +640,11 @@ export default function RepositoryDeepDive() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Open</span>
-                  <Badge className="bg-blue-500">{pullRequests.open}</Badge>
+                  <Badge className="bg-cyan-500">{pullRequests.open}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Merged</span>
-                  <Badge className="bg-purple-500">{pullRequests.merged}</Badge>
+                  <Badge className="bg-cyan-600">{pullRequests.merged}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Merge Rate</span>
@@ -717,7 +717,7 @@ export default function RepositoryDeepDive() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-center gap-3">
-                    <Calendar className="h-8 w-8 text-purple-500" />
+                    <Calendar className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
                     <div>
                       <p className="text-sm text-muted-foreground">Created</p>
                       <p className="font-medium">
@@ -726,7 +726,7 @@ export default function RepositoryDeepDive() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Clock className="h-8 w-8 text-blue-500" />
+                    <Clock className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
                     <div>
                       <p className="text-sm text-muted-foreground">Last Updated</p>
                       <p className="font-medium">

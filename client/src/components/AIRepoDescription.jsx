@@ -43,7 +43,7 @@ export function AIRepoDescription({ owner, repo, repoData }) {
         <CardContent className="pt-8 pb-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-start gap-4 flex-1">
-              <Sparkles className="h-6 w-6 text-purple-600" />
+              <Sparkles className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
               <div>
                 <p className="font-bold text-xl">AI-Powered Description</p>
                 <p className="text-base text-muted-foreground mt-2">
@@ -55,7 +55,7 @@ export function AIRepoDescription({ owner, repo, repoData }) {
               onClick={generateDescription}
               disabled={loading}
               size="lg"
-              className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all text-base px-8 py-6 shrink-0"
+              className="bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 transition-colors text-base px-8 py-6 shrink-0"
             >
               <Sparkles className="h-5 w-5 mr-2" />
               Generate Description
@@ -71,7 +71,7 @@ export function AIRepoDescription({ owner, repo, repoData }) {
       <Card className="mb-8 border-2 border-purple-600">
         <CardContent className="pt-8 pb-8">
           <div className="flex items-center justify-center gap-4">
-            <Loader2 className="h-8 w-8 text-purple-600 animate-spin" />
+            <Loader2 className="h-8 w-8 text-cyan-600 animate-spin" />
             <p className="text-lg font-medium text-muted-foreground">
               Generating description with AI...
             </p>
@@ -87,7 +87,7 @@ export function AIRepoDescription({ owner, repo, repoData }) {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Sparkles className="h-5 w-5 text-purple-600" />
+              <Sparkles className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
               <p className="font-bold text-lg">AI-Generated Description</p>
             </div>
             <div className="flex gap-3">
@@ -115,7 +115,7 @@ export function AIRepoDescription({ owner, repo, repoData }) {
               </Button>
             </div>
           </div>
-          <div className="p-6 rounded-xl border">
+          <div className="p-6 rounded-lg border">
             <p className="text-lg leading-relaxed font-medium">{description}</p>
           </div>
         </div>

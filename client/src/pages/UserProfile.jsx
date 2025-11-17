@@ -205,7 +205,7 @@ export default function UserProfile() {
             <p className="text-sm text-muted-foreground">Connected Accounts</p>
             <div className="flex gap-2 mt-1">
               {user.googleId && (
-                <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
+                <span className="px-2 py-1 text-xs bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 rounded">
                   Google
                 </span>
               )}
@@ -215,7 +215,7 @@ export default function UserProfile() {
                 </span>
               )}
               {!user.googleId && !user.githubId && (
-                <span className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded">
+                <span className="px-2 py-1 text-xs bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 rounded">
                   Email
                 </span>
               )}

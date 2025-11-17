@@ -84,7 +84,7 @@ const ChatBotButton = () => {
       (input.includes("feature") || input.includes("do") || input.includes("can you"))
     ) {
       return {
-        text: "I'm Nexus, your GitHub analytics assistant! Here's what I can help you with:\n\n🏠 Dashboard Navigation - Access your personalized analytics hub\n👥 User Comparisons - Compare GitHub profiles side-by-side\n📊 Repository Insights - Deep dive into any repository's metrics\n💳 Payment Information - Learn about premium features\n🔐 Account Management - Help with login and signup\n📈 Feature Explanations - Understand how to use our tools\n\nI can navigate you to any section of the app or explain features in detail. Just ask me what you'd like to explore, and I'll guide you there!",
+        text: "I'm Nexus, your GitHub analytics assistant! Here's what I can help you with:\n\nDashboard Navigation - Access your personalized analytics hub\nUser Comparisons - Compare GitHub profiles side-by-side\nRepository Insights - Deep dive into any repository's metrics\nPayment Information - Learn about premium features\nAccount Management - Help with login and signup\nFeature Explanations - Understand how to use our tools\n\nI can navigate you to any section of the app or explain features in detail. Just ask me what you'd like to explore, and I'll guide you there!",
       };
     }
 
@@ -106,7 +106,7 @@ const ChatBotButton = () => {
       input.includes("gamification")
     ) {
       return {
-        text: "We've gamified your GitHub journey with achievement badges! As you code and contribute, you unlock various badges that recognize your accomplishments:\n\n🏆 Milestone badges for contribution counts\n🔥 Streak badges for consistent activity\n⭐ Special badges for unique achievements\n💻 Language-specific badges for expertise\n\nBadges make tracking your progress fun and motivating. You can view all your earned badges and see which ones you're close to unlocking on your dashboard. Keep coding to collect them all!",
+        text: "We've gamified your GitHub journey with achievement badges! As you code and contribute, you unlock various badges that recognize your accomplishments:\n\nMilestone badges for contribution counts\nStreak badges for consistent activity\nSpecial badges for unique achievements\nLanguage-specific badges for expertise\n\nBadges make tracking your progress fun and motivating. You can view all your earned badges and see which ones you're close to unlocking on your dashboard. Keep coding to collect them all!",
       };
     }
 
@@ -119,7 +119,7 @@ const ChatBotButton = () => {
 
     if (input.includes("thank") || input.includes("thanks") || input.includes("appreciate")) {
       return {
-        text: "You're very welcome! I'm always here to help you navigate and understand your GitHub analytics. If you have any other questions or need assistance with anything else, don't hesitate to ask. Happy coding! 🚀",
+        text: "You're very welcome! I'm always here to help you navigate and understand your GitHub analytics. If you have any other questions or need assistance with anything else, don't hesitate to ask. Happy coding!",
       };
     }
 
@@ -132,7 +132,7 @@ const ChatBotButton = () => {
     // Help - comprehensive guide
     if (input.includes("help") || input.includes("guide") || input.includes("tutorial")) {
       return {
-        text: "I'm here to help! Here's a comprehensive guide to what I can do:\n\n📍 NAVIGATION\n• Take you to your dashboard, profile, or any page\n• Help you find specific features quickly\n\n📊 FEATURES\n• Explain how to compare GitHub users\n• Guide you through repository insights\n• Describe analytics and metrics\n• Help with account and payment questions\n\n💡 TIPS\n• Just tell me where you want to go or what you want to know\n• Ask in natural language - I understand context\n• Use the suggested prompts for quick actions\n\nTry asking things like:\n• 'Show me my dashboard'\n• 'How do I compare users?'\n• 'Explain the skill radar chart'\n• 'Take me to repository insights'\n\nWhat would you like help with?",
+        text: "I'm here to help! Here's a comprehensive guide to what I can do:\n\nNAVIGATION\n• Take you to your dashboard, profile, or any page\n• Help you find specific features quickly\n\nFEATURES\n• Explain how to compare GitHub users\n• Guide you through repository insights\n• Describe analytics and metrics\n• Help with account and payment questions\n\nTIPS\n• Just tell me where you want to go or what you want to know\n• Ask in natural language - I understand context\n• Use the suggested prompts for quick actions\n\nTry asking things like:\n• 'Show me my dashboard'\n• 'How do I compare users?'\n• 'Explain the skill radar chart'\n• 'Take me to repository insights'\n\nWhat would you like to know more about?",
       };
     }
 
@@ -144,7 +144,7 @@ const ChatBotButton = () => {
 
     // Default response - helpful and encouraging
     return {
-      text: "I want to help you, but I'm not quite sure what you're asking about. Let me share what I can assist with:\n\n🔍 Navigation - I can take you to any page (dashboard, compare users, repository insights, etc.)\n📚 Feature Explanations - I can explain how our tools work\n💬 General Questions - Ask me about analytics, comparisons, or GitHub metrics\n\nTry rephrasing your question or use one of the suggested prompts below. For example:\n• 'Take me to my dashboard'\n• 'How do I compare users?'\n• 'Explain repository insights'\n• 'What features do you have?'\n\nI'm here to help make your experience smooth and informative!",
+      text: "I want to help you, but I'm not quite sure what you're asking about. Let me share what I can assist with:\n\nNavigation - I can take you to any page (dashboard, compare users, repository insights, etc.)\nFeature Explanations - I can explain how our tools work\nGeneral Questions - Ask me about analytics, comparisons, or GitHub metrics\n\nTry rephrasing your question or use one of the suggested prompts below. For example:\n• 'Take me to my dashboard'\n• 'How do I compare users?'\n• 'Explain repository insights'\n• 'What features do you have?'\n\nI'm here to help make your experience smooth and informative!",
     };
   };
 
@@ -198,8 +198,8 @@ const ChatBotButton = () => {
 
       {/* Chatbot Card */}
       <div className="fixed bottom-6 right-6 z-[9999] animate-in slide-in-from-bottom-4 duration-300">
-        <div className="w-[90vw] max-w-[450px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-xl shadow-2xl border bg-background">
-          <div className="border-b px-5 py-2.5 text-sm font-semibold flex justify-between items-center">
+        <div className="w-[90vw] max-w-[450px] h-[50vh] sm:h-[450px] flex flex-col p-0 rounded-lg border bg-background">
+          <div className="border-b px-5 py-2.5 text-sm font-normal flex justify-between items-center">
             Nexus Assistant
             <Button
               variant="ghost"

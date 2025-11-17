@@ -218,11 +218,11 @@ function SettingsApp() {
     <TooltipProvider>
       <div className="w-full min-h-screen bg-background text-foreground">
         {/* Header */}
-        <div className="bg-linear-to-r from-sky-600 to-blue-600 p-6">
+        <div className="bg-slate-800 dark:bg-slate-900 p-6">
           <div className="flex items-center gap-3">
             <SettingsIcon className="h-8 w-8 text-white" />
             <div>
-              <h1 className="text-2xl font-bold text-white">en-git Settings</h1>
+              <h1 className="text-2xl font-normal text-white">en-git Settings</h1>
               <p className="text-sm text-white/80 mt-1">Customize your GitHub experience</p>
             </div>
           </div>
@@ -231,15 +231,15 @@ function SettingsApp() {
         <ScrollArea className="h-[500px]">
           <div className="p-6 space-y-4">
             {/* Info Banner */}
-            <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
+            <Card className="bg-cyan-50 dark:bg-cyan-950/20 border-cyan-200 dark:border-cyan-900">
               <CardContent className="pt-4">
                 <div className="flex gap-3">
-                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <Info className="h-5 w-5 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    <p className="text-sm font-medium text-cyan-900 dark:text-cyan-100">
                       Hover over the info icons for detailed explanations
                     </p>
-                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                    <p className="text-xs text-cyan-700 dark:text-cyan-300">
                       All settings are saved locally and applied to GitHub pages. Don't forget to
                       click "Save Settings" after making changes!
                     </p>
@@ -753,15 +753,15 @@ function SettingsApp() {
                     <Separator />
 
                     {/* Testing Instructions */}
-                    <Card className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900">
+                    <Card className="bg-cyan-50 dark:bg-cyan-950/20 border-cyan-200 dark:border-cyan-900">
                       <CardContent className="pt-4">
                         <div className="flex gap-3">
-                          <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                          <Info className="h-5 w-5 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
                           <div className="space-y-1 text-sm">
-                            <p className="font-medium text-amber-900 dark:text-amber-100">
+                            <p className="font-medium text-cyan-900 dark:text-cyan-100">
                               How to test shortcuts:
                             </p>
-                            <ol className="text-xs text-amber-700 dark:text-amber-300 list-decimal list-inside space-y-1">
+                            <ol className="text-xs text-cyan-700 dark:text-cyan-300 list-decimal list-inside space-y-1">
                               <li>Click "Save Settings" below</li>
                               <li>Go to any GitHub page (github.com)</li>
                               <li>Press your shortcut keys</li>
@@ -879,8 +879,8 @@ function SettingsApp() {
                       <div className="flex items-center justify-between">
                         <Label htmlFor="geminiApiKey">Google Gemini API Key</Label>
                         {settings.ai?.geminiApiKey && (
-                          <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
-                            <span className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full"></span>
+                          <span className="text-xs text-cyan-600 dark:text-cyan-400 flex items-center gap-1">
+                            <span className="w-2 h-2 bg-cyan-600 dark:bg-cyan-400 rounded-full"></span>
                             Configured
                           </span>
                         )}
@@ -941,12 +941,12 @@ function SettingsApp() {
                       </ul>
                     </div>
 
-                    <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-4 space-y-2">
-                      <h4 className="font-medium flex items-center gap-2 text-amber-900 dark:text-amber-100">
+                    <div className="rounded-lg bg-cyan-50 dark:bg-cyan-950 border border-cyan-200 dark:border-cyan-800 p-4 space-y-2">
+                      <h4 className="font-medium flex items-center gap-2 text-cyan-900 dark:text-cyan-100">
                         <HelpCircle className="h-4 w-4" />
                         Privacy & Security
                       </h4>
-                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                      <p className="text-sm text-cyan-800 dark:text-cyan-200">
                         Your API key is stored locally in your browser and never sent to our
                         servers. Code analysis requests go directly from your browser to Google's
                         Gemini API.
@@ -1062,7 +1062,7 @@ function SettingsApp() {
             </div>
 
             {saved && (
-              <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3 text-sm text-green-800 dark:text-green-200">
+              <div className="bg-cyan-50 dark:bg-cyan-950 border border-cyan-200 dark:border-cyan-800 rounded-lg p-3 text-sm text-cyan-800 dark:text-cyan-200">
                 Settings saved successfully! Changes will apply on GitHub pages.
               </div>
             )}

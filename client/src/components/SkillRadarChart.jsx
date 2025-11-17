@@ -42,19 +42,17 @@ export function SkillRadarChart({ insights }) {
         <div className="h-[400px] w-full min-h-[400px]">
           <ResponsiveContainer width="100%" height={400}>
             <RadarChart data={skillData}>
-              <PolarGrid stroke="#ffffff" strokeWidth={1.5} strokeOpacity={0.3} />
+              <PolarGrid className="stroke-foreground/20" strokeWidth={1.5} />
               <PolarAngleAxis
                 dataKey="skill"
-                tick={{ fill: "#ffffff", fontSize: 12 }}
-                stroke="#ffffff"
-                strokeOpacity={0.5}
+                tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }}
+                className="stroke-foreground/30"
               />
               <PolarRadiusAxis
                 angle={90}
                 domain={[0, 100]}
-                tick={{ fill: "#ffffff", fontSize: 10 }}
-                stroke="#ffffff"
-                strokeOpacity={0.5}
+                tick={{ fill: "hsl(var(--foreground))", fontSize: 10 }}
+                className="stroke-foreground/30"
               />
               <Radar
                 name="Skill Level"
@@ -84,7 +82,7 @@ export function SkillRadarChart({ insights }) {
 
         <div className="mt-4 p-3 rounded-lg bg-muted/50">
           <p className="text-xs text-muted-foreground">
-            💡 Skill scores are calculated based on your language usage and project topics. Scores
+            Skill scores are calculated based on your language usage and project topics. Scores
             range from 0-100 representing expertise level.
           </p>
         </div>

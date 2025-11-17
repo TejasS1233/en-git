@@ -15,14 +15,14 @@ export function GitHubUsernameBanner({ onAddUsername }) {
       exit={{ opacity: 0, y: -20 }}
       className="mb-6"
     >
-      <div className="relative overflow-hidden rounded-xl border-2 border-orange-500/50 bg-gradient-to-r from-orange-500/10 via-yellow-500/10 to-orange-500/10">
+      <div className="relative overflow-hidden rounded-lg border">
         {/* Animated shine effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+        <div className="absolute inset-0" />
 
         <div className="relative p-6">
           <div className="flex items-start gap-4">
             {/* Icon */}
-            <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-yellow-500 animate-pulse">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-600 to-cyan-700">
               <AlertCircle className="h-6 w-6 text-white" />
             </div>
 
@@ -67,7 +67,7 @@ export function GitHubUsernameBanner({ onAddUsername }) {
               <div className="flex items-center gap-3">
                 <Button
                   onClick={onAddUsername}
-                  className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+                  className="bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800"
                 >
                   <Github className="h-4 w-4 mr-2" />
                   Add GitHub Username
@@ -88,11 +88,3 @@ export function GitHubUsernameBanner({ onAddUsername }) {
   );
 }
 
-// Add shimmer animation to your global CSS or tailwind config
-// @keyframes shimmer {
-//   0% { transform: translateX(-100%); }
-//   100% { transform: translateX(100%); }
-// }
-// .animate-shimmer {
-//   animation: shimmer 3s infinite;
-// }

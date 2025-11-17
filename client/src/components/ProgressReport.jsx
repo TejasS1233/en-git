@@ -93,23 +93,23 @@ export function ProgressReport({ report }) {
   }
 
   // Stars achievements
-  if (changes?.stars >= 50) {
+  if (changes.stars >= 10) {
     achievements.push({
-      icon: "⭐",
+      icon: "",
       text: `Earned ${changes.stars} more stars! Popular Project!`,
       type: "major",
     });
   } else if (changes?.stars >= 20) {
     achievements.push({
-      icon: "🌟",
+      icon: "",
       text: `Earned ${changes.stars} more stars! Great Work!`,
       type: "medium",
     });
   } else if (changes?.stars >= 5) {
-    achievements.push({ icon: "✨", text: `Earned ${changes.stars} more stars!`, type: "minor" });
+    achievements.push({ icon: "", text: `Earned ${changes.stars} more stars!`, type: "minor" });
   } else if (changes?.stars > 0) {
     achievements.push({
-      icon: "⭐",
+      icon: "",
       text: `+${changes.stars} star${changes.stars > 1 ? "s" : ""}`,
       type: "minor",
     });
@@ -158,7 +158,7 @@ export function ProgressReport({ report }) {
   // Consistency achievement (if no negative changes)
   if (changes && Object.values(changes).every((val) => val >= 0)) {
     achievements.push({
-      icon: "📈",
+      icon: "",
       text: "Steady Growth - All metrics improving!",
       type: "medium",
     });
@@ -189,7 +189,7 @@ export function ProgressReport({ report }) {
           <h3 className="font-semibold mb-3">Summary</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-muted rounded-lg">
-              <div className="text-2xl font-bold">{current?.userData?.followers || 0}</div>
+              <div className="text-2xl font-normal">{current?.userData?.followers || 0}</div>
               <div className="text-xs text-muted-foreground">Followers</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
@@ -199,7 +199,7 @@ export function ProgressReport({ report }) {
               <div className="text-xs text-muted-foreground">Repositories</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
-              <div className="text-2xl font-bold">{current?.totalStars || 0}</div>
+              <div className="text-2xl font-normal">{current?.totalStars || 0}</div>
               <div className="text-xs text-muted-foreground">Total Stars</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
@@ -218,7 +218,7 @@ export function ProgressReport({ report }) {
                   key={i}
                   className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
                     achievement.type === "major"
-                      ? "bg-linear-to-r from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border border-yellow-200 dark:border-yellow-800"
+                      ? "bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-800"
                       : achievement.type === "medium"
                         ? "bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 border border-blue-200 dark:border-blue-800"
                         : "bg-muted/50"

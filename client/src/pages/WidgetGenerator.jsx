@@ -74,7 +74,7 @@ export default function WidgetGenerator() {
     <div className="container mx-auto px-4 py-8 max-w-6xl animate-in fade-in duration-500">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-black bg-linear-to-r from-cyan-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-800 via-cyan-600 to-cyan-800 dark:from-cyan-300 dark:via-cyan-400 dark:to-cyan-300 bg-clip-text text-transparent leading-[1.2] pb-2 mb-4">
           Widget Generator
         </h1>
         <p className="text-xl text-muted-foreground">
@@ -102,7 +102,7 @@ export default function WidgetGenerator() {
                       setWidgetType("card");
                     }}
                   >
-                    👤 Profile Widgets
+                    Profile Widgets
                   </Button>
                   <Button
                     variant={widgetCategory === "repo" ? "default" : "outline"}
@@ -111,7 +111,7 @@ export default function WidgetGenerator() {
                       setWidgetType("repo");
                     }}
                   >
-                    📦 Repository Widgets
+                    Repository Widgets
                   </Button>
                 </div>
               </div>
@@ -235,6 +235,42 @@ export default function WidgetGenerator() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Preview */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Live Preview</CardTitle>
+                <CardDescription className="mt-1.5">See how your widget looks</CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="cursor-pointer"
+                onClick={() => {
+                  const img = document.querySelector("#widget-preview");
+                  if (img) {
+                    img.src = widgetUrl + "&t=" + Date.now();
+                    toast.success("Widget reloaded!");
+                  }
+                }}
+              >
+                Reload
+              </Button>
+            </CardHeader>
+            <CardContent className="flex items-center justify-center min-h-[300px]">
+              <a href={profileUrl} target="_blank" rel="noopener noreferrer">
+                <img
+                  id="widget-preview"
+                  src={widgetUrl}
+                  alt="en-git widget preview"
+                  className="border rounded-lg transition-colors"
+                />
+              </a>
+            </CardContent>
+          </Card>
 
           {/* Embed Codes */}
           <Card>
@@ -301,55 +337,6 @@ export default function WidgetGenerator() {
                   </div>
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Preview */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Live Preview</CardTitle>
-                <CardDescription className="mt-1.5">See how your widget looks</CardDescription>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="cursor-pointer"
-                onClick={() => {
-                  const img = document.querySelector("#widget-preview");
-                  if (img) {
-                    img.src = widgetUrl + "&t=" + Date.now();
-                    toast.success("Widget reloaded!");
-                  }
-                }}
-              >
-                Reload
-              </Button>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center min-h-[300px]">
-              <a href={profileUrl} target="_blank" rel="noopener noreferrer">
-                <img
-                  id="widget-preview"
-                  src={widgetUrl}
-                  alt="en-git widget preview"
-                  className="border rounded-lg shadow-lg hover:shadow-xl transition-shadow"
-                />
-              </a>
-            </CardContent>
-          </Card>
-
-          {/* Tips */}
-          <Card className="border-blue-500/20">
-            <CardHeader>
-              <CardTitle className="text-blue-600">💡 Pro Tips</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm list-inside">
-              <li>Widgets update automatically every 30 minutes</li>
-              <li>Customize colors to match your brand or style</li>
-              <li>Works on GitHub, GitLab, Bitbucket, and any website</li>
-              <li>Click the widget to visit your full profile</li>
             </CardContent>
           </Card>
         </div>
