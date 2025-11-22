@@ -197,11 +197,11 @@ export const generateWidget = asyncHandler(async (req, res) => {
         ? await generateRepoWidget(repo, theme, customColors)
         : await generateContributorsWidget(repo, theme, customColors);
     res.setHeader("Content-Type", "image/svg+xml");
-    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=86400");
+    res.setHeader("Cache-Control", "public, max-age=604800, stale-while-revalidate=2592000");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.setHeader("CDN-Cache-Control", "public, max-age=3600");
+    res.setHeader("CDN-Cache-Control", "public, max-age=604800");
     return res.send(svg);
   }
 
@@ -213,7 +213,7 @@ export const generateWidget = asyncHandler(async (req, res) => {
     // Return a "not found" SVG instead of error
     const notFoundSvg = generateNotFoundSvg(username, theme);
     res.setHeader("Content-Type", "image/svg+xml");
-    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=86400"); // Cache for 5 min, serve stale for 24h
+    res.setHeader("Cache-Control", "public, max-age=604800, stale-while-revalidate=2592000"); // Cache for 7 days, serve stale for 30 days
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
@@ -266,11 +266,11 @@ export const generateWidget = asyncHandler(async (req, res) => {
   }
 
   res.setHeader("Content-Type", "image/svg+xml");
-  res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=86400"); // Cache for 30 min, serve stale for 24h
+  res.setHeader("Cache-Control", "public, max-age=604800, stale-while-revalidate=2592000"); // Cache for 7 days, serve stale for 30 days
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins for widgets
   res.setHeader("Access-Control-Allow-Methods", "GET");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  res.setHeader("CDN-Cache-Control", "public, max-age=3600"); // CDN cache for 1 hour
+  res.setHeader("CDN-Cache-Control", "public, max-age=604800"); // CDN cache for 7 days
   res.send(svg);
 });
 
